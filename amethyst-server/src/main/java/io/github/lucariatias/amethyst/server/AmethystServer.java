@@ -1,45 +1,41 @@
 package io.github.lucariatias.amethyst.server;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.github.lucariatias.amethyst.common.database.DatabaseManager;
+import io.github.lucariatias.amethyst.common.encrypt.EncryptionManager;
+import io.github.lucariatias.amethyst.server.network.NetworkManager;
 
 public class AmethystServer {
+
+    private DatabaseManager databaseManager;
+    private EncryptionManager encryptionManager;
+    private NetworkManager networkManager;
+    private PlayerManager playerManager;
 
     public static void main(String[] args) {
         new AmethystServer(39752);
     }
 
     public AmethystServer(int port) {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel channel) throws Exception {
-                            channel.pipeline().addLast(
-                                    new ObjectEncoder(),
-                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                                    new AmethystServerHandler()
-                            );
-                        }
-                    });
-            bootstrap.bind(port).sync().channel().closeFuture().sync();
-        } catch (InterruptedException exception) {
-            exception.printStackTrace();
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
+        databaseManager = new DatabaseManager("server");
+        encryptionManager = new EncryptionManager();
+        networkManager = new NetworkManager(this, port);
+        new Thread(networkManager::start).start();
+        playerManager = new PlayerManager(this);
     }
 
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
+    }
+
+    public EncryptionManager getEncryptionManager() {
+        return encryptionManager;
+    }
+
+    public NetworkManager getNetworkManager() {
+        return networkManager;
+    }
+
+    public PlayerManager getPlayerManager() {
+        return playerManager;
+    }
 }
