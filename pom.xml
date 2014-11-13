@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.github.lucariatias</groupId>
+    <groupId>io.github.alyphen</groupId>
     <artifactId>amethyst-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Amethyst</name>
@@ -19,15 +19,15 @@
         </license>
     </licenses>
     <issueManagement>
-        <url>https://github.com/Lucariatias/amethyst/issues</url>
+        <url>https://github.com/alyphen/amethyst/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
     <developers>
         <developer>
-            <id>lucariatias</id>
+            <id>alyphen</id>
             <name>Ross Binden</name>
-            <email>lucariatias@gmail.com</email>
-            <url>https://lucariatias.github.io/</url>
+            <email>alyphen@gmail.com</email>
+            <url>https://alyphen.github.io/</url>
             <roles>
                 <role>developer</role>
             </roles>
@@ -35,9 +35,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:https://github.com/Lucariatias/amethyst.git</connection>
-        <url>https://github.com/Lucariatias/amethyst</url>
-        <developerConnection>scm:git:https://github.com/Lucariatias/amethyst.git</developerConnection>
+        <connection>scm:git:https://github.com/alyphen/amethyst.git</connection>
+        <url>https://github.com/alyphen/amethyst</url>
+        <developerConnection>scm:git:https://github.com/alyphen/amethyst.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <modules>

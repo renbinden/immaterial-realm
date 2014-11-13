@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.lucariatias</groupId>
+        <groupId>io.github.alyphen</groupId>
         <artifactId>amethyst-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>io.github.lucariatias</groupId>
+    <groupId>io.github.alyphen</groupId>
     <artifactId>amethyst-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <dependencies>
         <dependency>
-            <groupId>io.github.lucariatias</groupId>
+            <groupId>io.github.alyphen</groupId>
             <artifactId>amethyst-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

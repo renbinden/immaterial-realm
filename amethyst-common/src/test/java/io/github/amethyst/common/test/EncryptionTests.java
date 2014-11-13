@@ -1,7 +1,7 @@
 package io.github.amethyst.common.test;
 
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
-import io.github.lucariatias.amethyst.common.encrypt.EncryptionManager;
+import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
 import org.junit.runner.RunWith;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;

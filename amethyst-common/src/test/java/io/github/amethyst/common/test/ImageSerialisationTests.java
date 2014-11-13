@@ -1,7 +1,7 @@
 package io.github.amethyst.common.test;
 
 import com.insightfullogic.lambdabehave.JunitSuiteRunner;
-import io.github.lucariatias.amethyst.common.util.ImageUtils;
+import io.github.alyphen.amethyst.common.util.ImageUtils;
 import org.junit.runner.RunWith;
 
 import java.awt.*;

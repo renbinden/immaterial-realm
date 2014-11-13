@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.insightfullogic.lambdabehave.Suite.describe;
-import static io.github.lucariatias.amethyst.common.util.FileUtils.loadMetadata;
-import static io.github.lucariatias.amethyst.common.util.FileUtils.saveMetadata;
+import static io.github.alyphen.amethyst.common.util.FileUtils.loadMetadata;
+import static io.github.alyphen.amethyst.common.util.FileUtils.saveMetadata;
 
 @RunWith(JunitSuiteRunner.class)
 public class FileTests {{
