@@ -7,19 +7,25 @@ import java.awt.*;
 public class WorldObject {
 
     private long id;
+    private String type;
     private int x;
     private int y;
     private Sprite sprite;
     private Rectangle bounds;
 
-    public WorldObject(long id, Sprite sprite, Rectangle bounds) {
+    public WorldObject(long id, String type, Sprite sprite, Rectangle bounds) {
         this.id = id;
+        this.type = type;
         this.sprite = sprite;
         this.bounds = bounds;
     }
 
     public long getId() {
         return id;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public int getX() {

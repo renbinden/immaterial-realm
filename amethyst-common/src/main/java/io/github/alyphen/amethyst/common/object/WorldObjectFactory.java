@@ -1,18 +1,19 @@
 package io.github.alyphen.amethyst.common.object;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class WorldObjectFactory {
 
     private static long nextId;
-    private static Map<String, WorldObjectInitializer<?>> initializers;
+    private static Map<String, WorldObjectInitializer> initializers;
 
     static {
         initializers = new HashMap<>();
     }
 
-    public static <T extends WorldObject> void registerObjectInitializer(String type, WorldObjectInitializer<T> initializer) {
+    public static void registerObjectInitializer(String type, WorldObjectInitializer initializer) {
         initializers.put(type, initializer);
     }
 
@@ -23,4 +24,7 @@ public class WorldObjectFactory {
             return null;
     }
 
+    public static Collection<WorldObjectInitializer> getObjectInitializers() {
+        return initializers.values();
+    }
 }

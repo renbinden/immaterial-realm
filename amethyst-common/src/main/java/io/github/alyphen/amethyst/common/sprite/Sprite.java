@@ -86,7 +86,7 @@ public class Sprite {
         File metadataFile = new File(directory, "sprite.json");
         Map<String, Object> metadata = FileUtils.loadMetadata(metadataFile);
         File imageFile = new File(directory, "sprite.png");
-        return fromImage(ImageIO.read(imageFile), (int) metadata.get("frame-amount"), (int) metadata.get("frame-delay"), (int) metadata.get("width"), (int) metadata.get("height"));
+        return fromImage(ImageIO.read(imageFile), (int) metadata.get("frame_amount"), (int) metadata.get("frame_delay"), (int) metadata.get("width"), (int) metadata.get("height"));
     }
 
     public BufferedImage toImage(Sprite sprite) {

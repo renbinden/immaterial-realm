@@ -1,14 +1,20 @@
 package io.github.alyphen.amethyst.server.network;
 
 import io.github.alyphen.amethyst.common.character.Character;
+import io.github.alyphen.amethyst.common.entity.Entity;
+import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
+import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.PacketPing;
 import io.github.alyphen.amethyst.common.packet.character.PacketRequestCharacterSprites;
 import io.github.alyphen.amethyst.common.packet.character.PacketSendCharacterSprites;
+import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginDetails;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginStatus;
 import io.github.alyphen.amethyst.common.packet.login.PacketPublicKey;
 import io.github.alyphen.amethyst.common.packet.login.PacketVersion;
+import io.github.alyphen.amethyst.common.packet.object.PacketCreateObject;
 import io.github.alyphen.amethyst.common.packet.object.PacketRequestObjectTypes;
+import io.github.alyphen.amethyst.common.packet.object.PacketSendObjectType;
 import io.github.alyphen.amethyst.common.packet.tile.PacketRequestTileSheets;
 import io.github.alyphen.amethyst.common.packet.tile.PacketSendTileSheet;
 import io.github.alyphen.amethyst.common.packet.world.*;
@@ -16,6 +22,7 @@ import io.github.alyphen.amethyst.common.player.Player;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.world.World;
+import io.github.alyphen.amethyst.common.world.WorldArea;
 import io.github.alyphen.amethyst.server.AmethystServer;
 import io.github.alyphen.amethyst.server.character.CharacterManager;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -99,13 +106,18 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
                 ctx.writeAndFlush(new PacketSendTileSheet(tileSheet.getName(), tileSheet.getSheet(), tileSheet.getTileWidth(), tileSheet.getTileHeight()));
             }
         } else if (msg instanceof PacketRequestObjectTypes) {
-
+            for (WorldObjectInitializer initializer : WorldObjectFactory.getObjectInitializers()) {
+                ctx.writeAndFlush(new PacketSendObjectType(initializer.getObjectName(), initializer.getObjectSprite(), initializer.getObjectBounds()));
+            }
         } else if (msg instanceof PacketRequestWorlds) {
             for (World world : World.getWorlds()) {
                 ctx.writeAndFlush(new PacketSendWorld(world.getName()));
             }
         } else if (msg instanceof PacketRequestCurrentWorldArea) {
-            ctx.writeAndFlush(new PacketSendArea(World.getWorld("default").getArea("default")));
+            WorldArea area = World.getWorld("default").getArea("default");
+            ctx.writeAndFlush(new PacketSendArea(area));
+            area.getObjects().stream().filter(object -> !(object instanceof Entity)).forEach(object -> ctx.writeAndFlush(new PacketCreateObject(object.getType(), area.getWorld().getName(), area.getName(), object.getX(), object.getY())));
+            area.getEntities().stream().forEach(entity -> ctx.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY())));
             ctx.writeAndFlush(new PacketShowArea("default"));
         }
     }

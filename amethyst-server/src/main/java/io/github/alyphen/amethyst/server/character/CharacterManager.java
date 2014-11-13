@@ -56,7 +56,7 @@ public class CharacterManager {
     }
 
     public Sprite getWalkUpSprite(Character character) {
-        File walkUpSpriteFile = new File("./characters/" + character.getId() + "/walk_up.png");
+        File walkUpSpriteFile = new File("./characters/" + character.getId() + "/walk_up");
         if (walkUpSpriteFile.exists()) {
             try {
                 return Sprite.load(walkUpSpriteFile);
@@ -70,7 +70,7 @@ public class CharacterManager {
     }
 
     public Sprite getWalkDownSprite(Character character) {
-        File walkDownSpriteFile = new File("./characters/" + character.getId() + "/walk_down.png");
+        File walkDownSpriteFile = new File("./characters/" + character.getId() + "/walk_down");
         if (walkDownSpriteFile.exists()) {
             try {
                 return Sprite.load(walkDownSpriteFile);
@@ -84,7 +84,7 @@ public class CharacterManager {
     }
 
     public Sprite getWalkLeftSprite(Character character) {
-        File walkLeftSpriteFile = new File("./characters/" + character.getId() + "/walk_left.png");
+        File walkLeftSpriteFile = new File("./characters/" + character.getId() + "/walk_left");
         if (walkLeftSpriteFile.exists()) {
             try {
                 return Sprite.load(walkLeftSpriteFile);
@@ -98,7 +98,7 @@ public class CharacterManager {
     }
 
     public Sprite getWalkRightSprite(Character character) {
-        File walkRightSpriteFile = new File("./characters/" + character.getId() + "/walk_right.png");
+        File walkRightSpriteFile = new File("./characters/" + character.getId() + "/walk_right");
         if (walkRightSpriteFile.exists()) {
             try {
                 return Sprite.load(walkRightSpriteFile);
@@ -116,21 +116,29 @@ public class CharacterManager {
         if (!defaultSpritesDirectory.isDirectory()) FileUtils.deleteDirectory(defaultSpritesDirectory);
         if (!defaultSpritesDirectory.exists()) {
             if (defaultSpritesDirectory.mkdirs()) {
-                File walkUpSpriteFile = new File("./characters/default/walk_up.png");
+                File walkUpSpriteFile = new File("./characters/default/walk_up");
                 if (!walkUpSpriteFile.exists()) {
-                    copy(getClass().getResourceAsStream("/characters/default/walk_up.png"), get(walkUpSpriteFile.getPath()));
+                    walkUpSpriteFile.mkdirs();
+                    copy(getClass().getResourceAsStream("/characters/default/walk_up/sprite.json"), get(new File(walkUpSpriteFile, "sprite.json").getPath()));
+                    copy(getClass().getResourceAsStream("/characters/default/walk_up/sprite.png"), get(new File(walkUpSpriteFile, "sprite.png").getPath()));
                 }
-                File walkDownSpriteFile = new File("./characters/default/walk_down.png");
+                File walkDownSpriteFile = new File("./characters/default/walk_down");
                 if (!walkDownSpriteFile.exists()) {
-                    copy(getClass().getResourceAsStream("/characters/default/walk_down.png"), get(walkDownSpriteFile.getPath()));
+                    walkDownSpriteFile.mkdirs();
+                    copy(getClass().getResourceAsStream("/characters/default/walk_down/sprite.json"), get(new File(walkDownSpriteFile, "sprite.json").getPath()));
+                    copy(getClass().getResourceAsStream("/characters/default/walk_down/sprite.png"), get(new File(walkDownSpriteFile, "sprite.png").getPath()));
                 }
-                File walkLeftSpriteFile = new File("./characters/default/walk_left.png");
+                File walkLeftSpriteFile = new File("./characters/default/walk_left");
                 if (!walkLeftSpriteFile.exists()) {
-                    copy(getClass().getResourceAsStream("/characters/default/walk_left.png"), get(walkLeftSpriteFile.getPath()));
+                    walkLeftSpriteFile.mkdirs();
+                    copy(getClass().getResourceAsStream("/characters/default/walk_left/sprite.json"), get(new File(walkLeftSpriteFile, "sprite.json").getPath()));
+                    copy(getClass().getResourceAsStream("/characters/default/walk_left/sprite.png"), get(new File(walkLeftSpriteFile, "sprite.png").getPath()));
                 }
-                File walkRightSpriteFile = new File("./characters/default/walk_right.png");
+                File walkRightSpriteFile = new File("./characters/default/walk_right");
                 if (!walkRightSpriteFile.exists()) {
-                    copy(getClass().getResourceAsStream("/characters/default/walk_right.png"), get(walkRightSpriteFile.getPath()));
+                    walkRightSpriteFile.mkdirs();
+                    copy(getClass().getResourceAsStream("/characters/default/walk_right/sprite.json"), get(new File(walkRightSpriteFile, "sprite.json").getPath()));
+                    copy(getClass().getResourceAsStream("/characters/default/walk_right/sprite.png"), get(new File(walkRightSpriteFile, "sprite.png").getPath()));
                 }
             }
         }
@@ -138,7 +146,7 @@ public class CharacterManager {
     }
 
     public Sprite getDefaultWalkUpSprite() {
-        File walkUpSpriteFile = new File("./characters/default/walk_up.png");
+        File walkUpSpriteFile = new File("./characters/default/walk_up");
         if (walkUpSpriteFile.exists()) {
             try {
                 return Sprite.load(walkUpSpriteFile);
@@ -150,7 +158,7 @@ public class CharacterManager {
     }
 
     public Sprite getDefaultWalkDownSprite() {
-        File walkDownSpriteFile = new File("./characters/default/walk_down.png");
+        File walkDownSpriteFile = new File("./characters/default/walk_down");
         if (walkDownSpriteFile.exists()) {
             try {
                 return Sprite.load(walkDownSpriteFile);
@@ -162,7 +170,7 @@ public class CharacterManager {
     }
 
     public Sprite getDefaultWalkLeftSprite() {
-        File walkLeftSpriteFile = new File("./characters/default/walk_left.png");
+        File walkLeftSpriteFile = new File("./characters/default/walk_left");
         if (walkLeftSpriteFile.exists()) {
             try {
                 return Sprite.load(walkLeftSpriteFile);
@@ -174,7 +182,7 @@ public class CharacterManager {
     }
 
     public Sprite getDefaultWalkRightSprite() {
-        File walkRightSpriteFile = new File("./characters/default/walk_right.png");
+        File walkRightSpriteFile = new File("./characters/default/walk_right");
         if (walkRightSpriteFile.exists()) {
             try {
                 return Sprite.load(walkRightSpriteFile);

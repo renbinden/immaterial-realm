@@ -4,6 +4,7 @@ import io.github.alyphen.amethyst.common.database.DatabaseManager;
 import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
 import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
+import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.util.FileUtils;
@@ -60,9 +61,31 @@ public class AmethystServer {
             try {
                 File propertiesFile = new File(objectDirectory, "object.json");
                 Map<String, Object> properties = FileUtils.loadMetadata(propertiesFile);
-                WorldObjectFactory.registerObjectInitializer((String) properties.get("name"), id -> {
-                    try {
-                        return new WorldObject(id, Sprite.load(new File(objectDirectory, "object.png")), new Rectangle((int) ((double) properties.get("bounds_offset_x")), (int) ((double) properties.get("bounds_offset_y")), (int) ((double) properties.get("bounds_width")), (int) ((double) properties.get("bounds_height")))) {
+                WorldObjectFactory.registerObjectInitializer((String) properties.get("name"), new WorldObjectInitializer() {
+
+                    @Override
+                    public String getObjectName() {
+                        return (String) properties.get("name");
+                    }
+
+                    @Override
+                    public Sprite getObjectSprite() {
+                        try {
+                            return Sprite.load(new File(objectDirectory, "sprite"));
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public Rectangle getObjectBounds() {
+                        return new Rectangle((int) ((double) properties.get("bounds_offset_x")), (int) ((double) properties.get("bounds_offset_y")), (int) ((double) properties.get("bounds_width")), (int) ((double) properties.get("bounds_height")));
+                    }
+
+                    @Override
+                    public WorldObject initialize(long id) {
+                        return new WorldObject(id, getObjectName(), getObjectSprite(), getObjectBounds()) {
 
                             {
                                 File jsFile = new File(objectDirectory, "object.js");
@@ -161,10 +184,8 @@ public class AmethystServer {
                             }
 
                         };
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
                     }
-                    return null;
+
                 });
             } catch (IOException exception) {
                 exception.printStackTrace();

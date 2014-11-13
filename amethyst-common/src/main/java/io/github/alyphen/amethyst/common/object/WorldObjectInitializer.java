@@ -1,7 +1,17 @@
 package io.github.alyphen.amethyst.common.object;
 
-public interface WorldObjectInitializer<T extends WorldObject> {
+import io.github.alyphen.amethyst.common.sprite.Sprite;
 
-    public T initialize(long id);
+import java.awt.*;
+
+public interface WorldObjectInitializer {
+
+    public String getObjectName();
+
+    public Sprite getObjectSprite();
+
+    public Rectangle getObjectBounds();
+
+    public WorldObject initialize(long id);
 
 }

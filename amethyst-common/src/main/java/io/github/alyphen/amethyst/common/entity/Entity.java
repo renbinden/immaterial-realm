@@ -11,8 +11,8 @@ import static io.github.alyphen.amethyst.common.world.Direction.DOWN;
 public abstract class Entity extends WorldObject {
     private Direction directionFacing;
 
-    public Entity(long id, Sprite sprite, Rectangle bounds) {
-        super(id, sprite, bounds);
+    public Entity(long id, String type, Sprite sprite, Rectangle bounds) {
+        super(id, type, sprite, bounds);
         directionFacing = DOWN;
     }
 

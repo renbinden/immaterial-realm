@@ -6,6 +6,7 @@ import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
 import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
+import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.PacketPing;
 import io.github.alyphen.amethyst.common.packet.character.PacketSendCharacterSprites;
 import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
@@ -28,6 +29,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -74,7 +76,29 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
             TileSheet.load((PacketSendTileSheet) msg);
         } else if (msg instanceof PacketSendObjectType) {
             PacketSendObjectType packet = (PacketSendObjectType) msg;
-            registerObjectInitializer(packet.getName(), id -> new WorldObject(id, packet.getSprite(), packet.getBounds()));
+            registerObjectInitializer(packet.getName(), new WorldObjectInitializer() {
+
+                @Override
+                public String getObjectName() {
+                    return packet.getName();
+                }
+
+                @Override
+                public Sprite getObjectSprite() {
+                    return packet.getSprite();
+                }
+
+                @Override
+                public Rectangle getObjectBounds() {
+                    return packet.getBounds();
+                }
+
+                @Override
+                public WorldObject initialize(long id) {
+                    return new WorldObject(id, getObjectName(), getObjectSprite(), getObjectBounds());
+                }
+
+            });
         } else if (msg instanceof PacketSendWorld) {
             PacketSendWorld packet = (PacketSendWorld) msg;
             client.getWorldPanel().setWorld(World.create(packet.getName()));

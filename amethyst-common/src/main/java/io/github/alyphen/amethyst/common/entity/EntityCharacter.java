@@ -12,7 +12,7 @@ public class EntityCharacter extends Entity {
     private io.github.alyphen.amethyst.common.character.Character character;
 
     public EntityCharacter(long id, Sprite sprite, Rectangle bounds) {
-        super(id, sprite, bounds);
+        super(id, "entity_character", sprite, bounds);
     }
 
     @Override

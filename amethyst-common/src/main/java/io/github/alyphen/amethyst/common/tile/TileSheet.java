@@ -84,7 +84,7 @@ public class TileSheet {
         File metadataFile = new File(directory, "tilesheet.json");
         Map<String, Object> metadata = loadMetadata(metadataFile);
         File imageFile = new File(directory, "tilesheet.png");
-        TileSheet sheet = new TileSheet(directory.getName(), ImageIO.read(imageFile), (int) ((double) metadata.get("tile-width")), (int) ((double) metadata.get("tile-height")));
+        TileSheet sheet = new TileSheet(directory.getName(), ImageIO.read(imageFile), (int) ((double) metadata.get("tile_width")), (int) ((double) metadata.get("tile_height")));
         tileSheets.put(sheet.getName(), sheet);
         return sheet;
     }
@@ -99,8 +99,8 @@ public class TileSheet {
         if ((directory.exists() && deleteDirectory(directory) && directory.mkdir()) || directory.mkdir()) {
             File metadataFile = new File(directory, "tilesheet.json");
             Map<String, Object> metadata = new HashMap<>();
-            metadata.put("tile-width", tileWidth);
-            metadata.put("tile-height", tileHeight);
+            metadata.put("tile_width", tileWidth);
+            metadata.put("tile_height", tileHeight);
             saveMetadata(metadata, metadataFile);
             File imageFile = new File(directory, "tilesheet.png");
             ImageIO.write(sheet, "png", imageFile);
