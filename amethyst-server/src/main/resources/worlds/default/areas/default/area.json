@@ -1,0 +1,344 @@
+{
+  "name": "default",
+  "rows": 8,
+  "cols": 8,
+  "tiles": [
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ],
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ],
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ],
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ],
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ],
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ],
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ],
+    [
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "sheet": "default",
+        "row": 0,
+        "col": 0
+      }
+    ]
+  ],
+  "objects": []
+}

@@ -1,7 +1,6 @@
 package io.github.lucariatias.amethyst.client.network;
 
 import io.github.lucariatias.amethyst.client.AmethystClient;
-import io.github.lucariatias.amethyst.client.AmethystClientHandler;
 import io.github.lucariatias.amethyst.common.packet.Packet;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;

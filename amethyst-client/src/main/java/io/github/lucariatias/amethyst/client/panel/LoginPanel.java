@@ -53,7 +53,10 @@ public class LoginPanel extends JPanel {
         btnLogin.setPreferredSize(new Dimension(64, 24));
         btnLogin.setAlignmentX(CENTER_ALIGNMENT);
         btnLogin.addActionListener(event -> {
+            btnLogin.setEnabled(false);
+            btnSignUp.setEnabled(false);
             try {
+                client.setPlayerName(userNameField.getText());
                 String salt = client.getPlayerManager().getSalt();
                 client.getNetworkManager().sendPacket(
                         new PacketLoginDetails(
@@ -72,8 +75,9 @@ public class LoginPanel extends JPanel {
         btnSignUp.setPreferredSize(new Dimension(64, 24));
         btnSignUp.setAlignmentX(CENTER_ALIGNMENT);
         btnSignUp.addActionListener(event -> {
+            btnLogin.setEnabled(false);
+            btnSignUp.setEnabled(false);
             try {
-                client.setNewAccount(true);
                 client.setPlayerName(userNameField.getText());
                 String salt = client.getPlayerManager().getSalt();
                 client.setPasswordHash(DigestUtils.sha256Hex(new String(passwordField.getPassword()) + salt));
@@ -97,6 +101,11 @@ public class LoginPanel extends JPanel {
 
     public void setStatusMessage(String message) {
         lblStatus.setText(message);
+    }
+
+    public void reEnableLoginButtons() {
+        btnSignUp.setEnabled(true);
+        btnLogin.setEnabled(true);
     }
 
 }

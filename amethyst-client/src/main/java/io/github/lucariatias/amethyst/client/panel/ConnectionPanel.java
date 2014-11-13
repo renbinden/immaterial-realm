@@ -33,6 +33,7 @@ public class ConnectionPanel extends JPanel {
         btnConnect.setPreferredSize(new Dimension(64, 24));
         btnConnect.setAlignmentX(CENTER_ALIGNMENT);
         btnConnect.addActionListener(event -> {
+            btnConnect.setEnabled(false);
             String address;
             int port = 39752;
             if (addressField.getText().contains(":")) {

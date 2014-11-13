@@ -1,10 +1,27 @@
 package io.github.lucariatias.amethyst.common.entity;
 
-public class Entity {
+import io.github.lucariatias.amethyst.common.object.WorldObject;
+import io.github.lucariatias.amethyst.common.sprite.Sprite;
+import io.github.lucariatias.amethyst.common.world.Direction;
 
-    private long id;
+import java.awt.*;
 
-    private int x;
-    private int y;
+import static io.github.lucariatias.amethyst.common.world.Direction.DOWN;
+
+public abstract class Entity extends WorldObject {
+    private Direction directionFacing;
+
+    public Entity(long id, Sprite sprite, Rectangle bounds) {
+        super(id, sprite, bounds);
+        directionFacing = DOWN;
+    }
+
+    public Direction getDirectionFacing() {
+        return directionFacing;
+    }
+
+    public void setDirectionFacing(Direction direction) {
+        this.directionFacing = direction;
+    }
 
 }

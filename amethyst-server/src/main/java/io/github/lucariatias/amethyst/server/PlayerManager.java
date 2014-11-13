@@ -2,10 +2,7 @@ package io.github.lucariatias.amethyst.server;
 
 import io.github.lucariatias.amethyst.common.player.Player;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class PlayerManager {
 
@@ -22,14 +19,14 @@ public class PlayerManager {
 
     public void createPlayersTable() throws SQLException {
         Connection connection = server.getDatabaseManager().getConnection();
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS players (" +
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "name TEXT," +
-                            "password_hash TEXT" +
-                    ")"
-            );
+        try (PreparedStatement statement = connection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS players (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "name TEXT UNIQUE," +
+                        "password_hash TEXT" +
+                ")"
+        )) {
+            statement.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -37,8 +34,9 @@ public class PlayerManager {
 
     public String getPlayerName(long id) throws SQLException {
         Connection connection = server.getDatabaseManager().getConnection();
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM players WHERE id = " + id);
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE id = ?")) {
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getString("name");
             }
@@ -50,8 +48,9 @@ public class PlayerManager {
 
     public long getPlayerId(String name) throws SQLException {
         Connection connection = server.getDatabaseManager().getConnection();
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM players WHERE name = \"" + name + "\"");
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE name = ?")) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getLong("id");
             }
@@ -61,8 +60,9 @@ public class PlayerManager {
 
     public Player getPlayer(long id) throws SQLException {
         Connection connection = server.getDatabaseManager().getConnection();
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM players WHERE id = " + id);
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE id = ?")) {
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return new Player(resultSet.getLong("id"), resultSet.getString("name"));
             }
@@ -74,8 +74,9 @@ public class PlayerManager {
 
     public Player getPlayer(String name) throws SQLException {
         Connection connection = server.getDatabaseManager().getConnection();
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM players WHERE name = \"" + name + "\"");
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE name = ?")) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return new Player(resultSet.getLong("id"), resultSet.getString("name"));
             }
@@ -86,18 +87,23 @@ public class PlayerManager {
     }
 
     public void addPlayer(String playerName, String passwordHash) throws SQLException {
-        Connection connection = server.getDatabaseManager().getConnection();
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("INSERT INTO players (name, password_hash) VALUES(\"" + playerName + "\", \"" + passwordHash + "\")");
-        } catch (SQLException exception) {
-            exception.printStackTrace();
+        if (getPlayer(playerName) == null) {
+            Connection connection = server.getDatabaseManager().getConnection();
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO players (name, password_hash) VALUES(?, ?)")) {
+                statement.setString(1, playerName);
+                statement.setString(2, passwordHash);
+                statement.executeUpdate();
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
         }
     }
 
     public boolean checkLogin(Player player, String passwordHash) throws SQLException{
         Connection connection = server.getDatabaseManager().getConnection();
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM players WHERE id = " + player.getId());
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE id = ?")) {
+            statement.setLong(1, player.getId());
+            ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getString("password_hash").equals(passwordHash);
             }

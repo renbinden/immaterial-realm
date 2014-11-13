@@ -1,11 +1,13 @@
 package io.github.lucariatias.amethyst.client;
 
+import io.github.lucariatias.amethyst.client.character.CharacterManager;
 import io.github.lucariatias.amethyst.client.network.NetworkManager;
 import io.github.lucariatias.amethyst.client.panel.ConnectionPanel;
 import io.github.lucariatias.amethyst.client.panel.WorldPanel;
 import io.github.lucariatias.amethyst.client.panel.LoginPanel;
 import io.github.lucariatias.amethyst.common.database.DatabaseManager;
 import io.github.lucariatias.amethyst.common.encrypt.EncryptionManager;
+import io.github.lucariatias.amethyst.common.entity.EntityFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,12 +21,18 @@ public class AmethystClient extends JPanel {
     private NetworkManager networkManager;
     private PlayerManager playerManager;
 
+    private EntityFactory entityFactory;
+
     private boolean running;
     private String playerName;
     private String passwordHash;
+
+    private ConnectionPanel connectionPanel;
+    private LoginPanel loginPanel;
     private WorldPanel worldPanel;
 
     private boolean newAccount;
+    private CharacterManager characterManager;
 
     public AmethystClient() {
         databaseManager = new DatabaseManager("client");
@@ -33,9 +41,11 @@ public class AmethystClient extends JPanel {
         playerManager = new PlayerManager(this);
 
         setLayout(new CardLayout());
-        add(new ConnectionPanel(this), "connect");
-        add(new LoginPanel(this), "login");
-        worldPanel = new WorldPanel();
+        connectionPanel = new ConnectionPanel(this);
+        add(connectionPanel, "connect");
+        loginPanel = new LoginPanel(this);
+        add(loginPanel, "login");
+        worldPanel = new WorldPanel(this);
         add(worldPanel, "world");
     }
 
@@ -80,6 +90,10 @@ public class AmethystClient extends JPanel {
         return playerManager;
     }
 
+    public EntityFactory getEntityFactory() {
+        return entityFactory;
+    }
+
     public void showPanel(String panel) {
         CardLayout layout = (CardLayout) getLayout();
         layout.show(this, panel);
@@ -117,4 +131,19 @@ public class AmethystClient extends JPanel {
         this.newAccount = newAccount;
     }
 
+    public ConnectionPanel getConnectionPanel() {
+        return connectionPanel;
+    }
+
+    public LoginPanel getLoginPanel() {
+        return loginPanel;
+    }
+
+    public WorldPanel getWorldPanel() {
+        return worldPanel;
+    }
+
+    public CharacterManager getCharacterManager() {
+        return characterManager;
+    }
 }

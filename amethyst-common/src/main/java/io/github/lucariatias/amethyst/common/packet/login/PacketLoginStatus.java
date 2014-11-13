@@ -1,6 +1,8 @@
 package io.github.lucariatias.amethyst.common.packet.login;
 
-public class PacketLoginStatus {
+import io.github.lucariatias.amethyst.common.packet.Packet;
+
+public class PacketLoginStatus extends Packet {
     
     private boolean successful;
 
