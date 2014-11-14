@@ -1,8 +1,11 @@
 package io.github.alyphen.amethyst.client;
 
-import org.apache.commons.lang.RandomStringUtils;
+import io.github.alyphen.amethyst.common.player.Player;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class PlayerManager {
 
@@ -21,9 +24,8 @@ public class PlayerManager {
         Connection connection = client.getDatabaseManager().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS players (" +
-                        "id INTEGER PRIMARY KEY ASC," +
-                        "name TEXT," +
-                        "password_salt TEXT" +
+                        "id INTEGER PRIMARY KEY," +
+                        "name TEXT UNIQUE" +
                 ")"
         )) {
             statement.executeUpdate();
@@ -32,32 +34,82 @@ public class PlayerManager {
         }
     }
 
-    public String getSalt() throws SQLException {
+    public String getPlayerName(long id) throws SQLException {
         Connection connection = client.getDatabaseManager().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE name = ?")) {
-            statement.setString(1, client.getPlayerName());
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE id = ?")) {
+            statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getString("password_salt");
+                return resultSet.getString("name");
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
-        return generateSalt();
+        return null;
     }
 
-    public String generateSalt() throws SQLException {
+    public long getPlayerId(String name) throws SQLException {
         Connection connection = client.getDatabaseManager().getConnection();
-        String salt = RandomStringUtils.randomAlphanumeric(20);
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO players (name, password_salt) VALUES(?, ?)")) {
-            statement.setString(1, client.getPlayerName());
-            statement.setString(2, salt);
-            statement.executeUpdate();
-            return salt;
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE name = ?")) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("id");
+            }
+        }
+        return -1;
+    }
+
+    public Player getPlayer(long id) throws SQLException {
+        Connection connection = client.getDatabaseManager().getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE id = ?")) {
+            statement.setLong(1, id);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return new Player(resultSet.getLong("id"), resultSet.getString("name"));
+            }
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
         return null;
+    }
+
+    public Player getPlayer(String name) throws SQLException {
+        Connection connection = client.getDatabaseManager().getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM players WHERE name = ?")) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return new Player(resultSet.getLong("id"), resultSet.getString("name"));
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
+    public void addPlayer(Player player) throws SQLException {
+        if (getPlayer(player.getId()) == null) {
+            Connection connection = client.getDatabaseManager().getConnection();
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO players (id, name) VALUES(?, ?)")) {
+                statement.setLong(1, player.getId());
+                statement.setString(2, player.getName());
+                statement.executeUpdate();
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    public void updatePlayer(Player player) throws SQLException {
+        Connection connection = client.getDatabaseManager().getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE players SET name = ? WHERE id = ?")) {
+            statement.setString(1, player.getName());
+            statement.setLong(2, player.getId());
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
     }
 
 }

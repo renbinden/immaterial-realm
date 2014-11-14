@@ -117,31 +117,30 @@ public class CharacterManager {
         File defaultSpritesDirectory = new File("./characters/default");
         if (!defaultSpritesDirectory.isDirectory()) FileUtils.deleteDirectory(defaultSpritesDirectory);
         if (!defaultSpritesDirectory.exists()) {
-            if (defaultSpritesDirectory.mkdirs()) {
-                File walkUpSpriteFile = new File("./characters/default/walk_up");
-                if (!walkUpSpriteFile.exists()) {
-                    walkUpSpriteFile.mkdirs();
-                    copy(getClass().getResourceAsStream("/characters/default/walk_up/sprite.json"), get(new File(walkUpSpriteFile, "sprite.json").getPath()));
-                    copy(getClass().getResourceAsStream("/characters/default/walk_up/sprite.png"), get(new File(walkUpSpriteFile, "sprite.png").getPath()));
-                }
-                File walkDownSpriteFile = new File("./characters/default/walk_down");
-                if (!walkDownSpriteFile.exists()) {
-                    walkDownSpriteFile.mkdirs();
-                    copy(getClass().getResourceAsStream("/characters/default/walk_down/sprite.json"), get(new File(walkDownSpriteFile, "sprite.json").getPath()));
-                    copy(getClass().getResourceAsStream("/characters/default/walk_down/sprite.png"), get(new File(walkDownSpriteFile, "sprite.png").getPath()));
-                }
-                File walkLeftSpriteFile = new File("./characters/default/walk_left");
-                if (!walkLeftSpriteFile.exists()) {
-                    walkLeftSpriteFile.mkdirs();
-                    copy(getClass().getResourceAsStream("/characters/default/walk_left/sprite.json"), get(new File(walkLeftSpriteFile, "sprite.json").getPath()));
-                    copy(getClass().getResourceAsStream("/characters/default/walk_left/sprite.png"), get(new File(walkLeftSpriteFile, "sprite.png").getPath()));
-                }
-                File walkRightSpriteFile = new File("./characters/default/walk_right");
-                if (!walkRightSpriteFile.exists()) {
-                    walkRightSpriteFile.mkdirs();
-                    copy(getClass().getResourceAsStream("/characters/default/walk_right/sprite.json"), get(new File(walkRightSpriteFile, "sprite.json").getPath()));
-                    copy(getClass().getResourceAsStream("/characters/default/walk_right/sprite.png"), get(new File(walkRightSpriteFile, "sprite.png").getPath()));
-                }
+            defaultSpritesDirectory.mkdirs();
+            File walkUpSpriteFile = new File("./characters/default/walk_up");
+            if (!walkUpSpriteFile.exists()) {
+                walkUpSpriteFile.mkdirs();
+                copy(getClass().getResourceAsStream("/characters/default/walk_up/sprite.json"), get(new File(walkUpSpriteFile, "sprite.json").getPath()));
+                copy(getClass().getResourceAsStream("/characters/default/walk_up/sprite.png"), get(new File(walkUpSpriteFile, "sprite.png").getPath()));
+            }
+            File walkDownSpriteFile = new File("./characters/default/walk_down");
+            if (!walkDownSpriteFile.exists()) {
+                walkDownSpriteFile.mkdirs();
+                copy(getClass().getResourceAsStream("/characters/default/walk_down/sprite.json"), get(new File(walkDownSpriteFile, "sprite.json").getPath()));
+                copy(getClass().getResourceAsStream("/characters/default/walk_down/sprite.png"), get(new File(walkDownSpriteFile, "sprite.png").getPath()));
+            }
+            File walkLeftSpriteFile = new File("./characters/default/walk_left");
+            if (!walkLeftSpriteFile.exists()) {
+                walkLeftSpriteFile.mkdirs();
+                copy(getClass().getResourceAsStream("/characters/default/walk_left/sprite.json"), get(new File(walkLeftSpriteFile, "sprite.json").getPath()));
+                copy(getClass().getResourceAsStream("/characters/default/walk_left/sprite.png"), get(new File(walkLeftSpriteFile, "sprite.png").getPath()));
+            }
+            File walkRightSpriteFile = new File("./characters/default/walk_right");
+            if (!walkRightSpriteFile.exists()) {
+                walkRightSpriteFile.mkdirs();
+                copy(getClass().getResourceAsStream("/characters/default/walk_right/sprite.json"), get(new File(walkRightSpriteFile, "sprite.json").getPath()));
+                copy(getClass().getResourceAsStream("/characters/default/walk_right/sprite.png"), get(new File(walkRightSpriteFile, "sprite.png").getPath()));
             }
         }
 

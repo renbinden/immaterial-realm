@@ -9,7 +9,7 @@ import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.PacketPing;
-import io.github.alyphen.amethyst.common.packet.character.PacketSendCharacterSprites;
+import io.github.alyphen.amethyst.common.packet.character.PacketCharacterSpawn;
 import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginStatus;
 import io.github.alyphen.amethyst.common.packet.login.PacketPublicKey;
@@ -17,9 +17,12 @@ import io.github.alyphen.amethyst.common.packet.login.PacketVersion;
 import io.github.alyphen.amethyst.common.packet.object.PacketCreateObject;
 import io.github.alyphen.amethyst.common.packet.object.PacketRequestObjectTypes;
 import io.github.alyphen.amethyst.common.packet.object.PacketSendObjectType;
+import io.github.alyphen.amethyst.common.packet.player.PacketRequestPlayers;
+import io.github.alyphen.amethyst.common.packet.player.PacketSendPlayers;
 import io.github.alyphen.amethyst.common.packet.tile.PacketRequestTileSheets;
 import io.github.alyphen.amethyst.common.packet.tile.PacketSendTileSheet;
 import io.github.alyphen.amethyst.common.packet.world.*;
+import io.github.alyphen.amethyst.common.player.Player;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.world.World;
@@ -31,7 +34,6 @@ import io.netty.util.Timer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
@@ -64,15 +66,23 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
                 JOptionPane.showMessageDialog(null, "Login successful.");
                 client.showPanel("world");
                 context.writeAndFlush(new PacketPing());
-                context.writeAndFlush(new PacketRequestTileSheets());
-                context.writeAndFlush(new PacketRequestObjectTypes());
-                context.writeAndFlush(new PacketRequestWorlds());
+                context.writeAndFlush(new PacketRequestPlayers());
             } else {
                 client.getLoginPanel().setStatusMessage("Login unsuccessful.");
                 client.getLoginPanel().reEnableLoginButtons();
             }
         } else if (msg instanceof PacketPing) {
             timer.newTimeout(timeout -> context.writeAndFlush(new PacketPing()), 20, SECONDS);
+        } else if (msg instanceof PacketSendPlayers) {
+            PacketSendPlayers packet = (PacketSendPlayers) msg;
+            for (Player player : packet.getPlayers()) {
+                if (client.getPlayerManager().getPlayer(player.getId()) == null) {
+                    client.getPlayerManager().addPlayer(player);
+                }
+            }
+            context.writeAndFlush(new PacketRequestTileSheets());
+            context.writeAndFlush(new PacketRequestObjectTypes());
+            context.writeAndFlush(new PacketRequestWorlds());
         } else if (msg instanceof PacketSendTileSheet) {
             TileSheet.load((PacketSendTileSheet) msg);
         } else if (msg instanceof PacketSendObjectType) {
@@ -125,28 +135,37 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
                 Entity entity = EntityFactory.spawn(packet, client.getWorldPanel().getWorld());
                 entity.setX(packet.getX());
                 entity.setY(packet.getY());
-                if (entity instanceof EntityCharacter) {
-                    EntityCharacter character = (EntityCharacter) entity;
-                    if (character.getPlayer().getName().equals(client.getPlayerName())) {
-                        client.getWorldPanel().setPlayerCharacter(character);
-                    }
+            }
+        } else if (msg instanceof PacketCharacterSpawn) {
+            PacketCharacterSpawn packet = (PacketCharacterSpawn) msg;
+            if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
+                Character character = client.getCharacterManager().getCharacter(packet.getId());
+                if (character == null) {
+                    character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY());
+                    client.getCharacterManager().addCharacter(character);
+                } else {
+                    character.setPlayerId(packet.getPlayerId());
+                    character.setName(packet.getName());
+                    character.setGender(packet.getGender());
+                    character.setRace(packet.getRace());
+                    character.setDescription(packet.getDescription());
+                    character.setDead(packet.isDead());
+                    character.setActive(packet.isActive());
+                    character.setAreaName(packet.getAreaName());
+                    character.setX(packet.getX());
+                    character.setY(packet.getY());
+                    client.getCharacterManager().updateCharacter(character);
+                }
+                character.setWalkUpSprite(packet.getWalkUpSprite());
+                character.setWalkDownSprite(packet.getWalkDownSprite());
+                character.setWalkLeftSprite(packet.getWalkLeftSprite());
+                character.setWalkRightSprite(packet.getWalkRightSprite());
+                EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, client.getWorldPanel().getArea(), packet.getX(), packet.getY());
+                entity.setCharacter(character);
+                if (character.getPlayerId() == client.getPlayerManager().getPlayer(client.getPlayerName()).getId()) {
+                    client.getWorldPanel().setPlayerCharacter(entity);
                 }
             }
-        } else if (msg instanceof PacketSendCharacterSprites) {
-            PacketSendCharacterSprites packet = (PacketSendCharacterSprites) msg;
-            Sprite walkUpSprite = packet.getWalkUpSprite();
-            walkUpSprite.save(new File("./characters/" + client.getNetworkManager().getServerAddress() + "/" + packet.getCharacterId() + "/walk_up.png"));
-            Sprite walkDownSprite = packet.getWalkDownSprite();
-            walkDownSprite.save(new File("./characters/" + client.getNetworkManager().getServerAddress() + "/" + packet.getCharacterId() + "/walk_down.png"));
-            Sprite walkRightSprite = packet.getWalkRightSprite();
-            walkRightSprite.save(new File("./characters/" + client.getNetworkManager().getServerAddress() + "/" + packet.getCharacterId() + "/walk_right.png"));
-            Sprite walkLeftSprite = packet.getWalkLeftSprite();
-            walkLeftSprite.save(new File("./characters/" + client.getNetworkManager().getServerAddress() + "/" + packet.getCharacterId() + "/walk_left.png"));
-            Character character = client.getCharacterManager().getCharacter(packet.getCharacterId());
-            character.setWalkUpSprite(walkUpSprite);
-            character.setWalkDownSprite(walkDownSprite);
-            character.setWalkRightSprite(walkRightSprite);
-            character.setWalkLeftSprite(walkLeftSprite);
         }
     }
 

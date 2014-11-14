@@ -1,7 +1,6 @@
 package io.github.alyphen.amethyst.common.character;
 
 import io.github.alyphen.amethyst.common.player.Player;
-import io.github.alyphen.amethyst.common.packet.character.PacketSendCharacterSprites;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 import io.github.alyphen.amethyst.common.world.WorldArea;
 
@@ -45,7 +44,7 @@ public class Character implements Serializable {
     }
 
     public Character(long playerId, long id) {
-        this(playerId, id, "Unknown", "Unknown", "Unknown", "", false, true, "spawn", 0, 0);
+        this(playerId, id, "Unknown", "Unknown", "Unknown", "", false, true, "default", 0, 0);
     }
 
     public void setPlayer(Player player) {
@@ -170,13 +169,6 @@ public class Character implements Serializable {
 
     public void setWalkRightSprite(Sprite walkRightSprite) {
         this.walkRightSprite = walkRightSprite;
-    }
-
-    public void setupSprites(PacketSendCharacterSprites spriteUpdatePacket) {
-        setWalkUpSprite(spriteUpdatePacket.getWalkUpSprite());
-        setWalkDownSprite(spriteUpdatePacket.getWalkDownSprite());
-        setWalkLeftSprite(spriteUpdatePacket.getWalkLeftSprite());
-        setWalkRightSprite(spriteUpdatePacket.getWalkRightSprite());
     }
 
 }

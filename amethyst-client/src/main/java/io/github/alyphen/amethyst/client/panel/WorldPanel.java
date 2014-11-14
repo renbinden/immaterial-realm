@@ -38,9 +38,9 @@ public class WorldPanel extends JPanel {
                 }
             }
             for (WorldObject object : getArea().getObjects()) {
-                graphics2D.translate(-object.getX(), -object.getY());
-                object.paint(graphics);
                 graphics2D.translate(object.getX(), object.getY());
+                object.paint(graphics);
+                graphics2D.translate(-object.getX(), -object.getY());
             }
         }
     }

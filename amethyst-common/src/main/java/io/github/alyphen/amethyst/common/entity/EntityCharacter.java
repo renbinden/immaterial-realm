@@ -1,14 +1,11 @@
 package io.github.alyphen.amethyst.common.entity;
 
 import io.github.alyphen.amethyst.common.character.Character;
-import io.github.alyphen.amethyst.common.player.Player;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 
 import java.awt.*;
 
 public class EntityCharacter extends Entity {
-
-    private Player player;
     private io.github.alyphen.amethyst.common.character.Character character;
 
     public EntityCharacter(long id) {
@@ -45,14 +42,6 @@ public class EntityCharacter extends Entity {
     @Override
     public Rectangle getBounds() {
         return new Rectangle(0, 32, 32, 32);
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
     }
 
     public Character getCharacter() {

@@ -7,8 +7,7 @@ import io.github.alyphen.amethyst.common.entity.EntityFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.PacketPing;
-import io.github.alyphen.amethyst.common.packet.character.PacketRequestCharacterSprites;
-import io.github.alyphen.amethyst.common.packet.character.PacketSendCharacterSprites;
+import io.github.alyphen.amethyst.common.packet.character.PacketCharacterSpawn;
 import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginDetails;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginStatus;
@@ -17,6 +16,8 @@ import io.github.alyphen.amethyst.common.packet.login.PacketVersion;
 import io.github.alyphen.amethyst.common.packet.object.PacketCreateObject;
 import io.github.alyphen.amethyst.common.packet.object.PacketRequestObjectTypes;
 import io.github.alyphen.amethyst.common.packet.object.PacketSendObjectType;
+import io.github.alyphen.amethyst.common.packet.player.PacketRequestPlayers;
+import io.github.alyphen.amethyst.common.packet.player.PacketSendPlayers;
 import io.github.alyphen.amethyst.common.packet.tile.PacketRequestTileSheets;
 import io.github.alyphen.amethyst.common.packet.tile.PacketSendTileSheet;
 import io.github.alyphen.amethyst.common.packet.world.*;
@@ -26,7 +27,6 @@ import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.common.world.WorldArea;
 import io.github.alyphen.amethyst.server.AmethystServer;
-import io.github.alyphen.amethyst.server.character.CharacterManager;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
@@ -34,9 +34,11 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 import static io.netty.channel.ChannelHandler.Sharable;
 
@@ -84,25 +86,8 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketPing) {
             ctx.writeAndFlush(new PacketPing());
-        } else if (msg instanceof PacketRequestCharacterSprites) {
-            PacketRequestCharacterSprites packet = (PacketRequestCharacterSprites) msg;
-            CharacterManager characterManager = server.getCharacterManager();
-            Character character = characterManager.getCharacter(packet.getCharacterId());
-            Sprite walkUpSprite = characterManager.getWalkUpSprite(character);
-            Sprite walkDownSprite = characterManager.getWalkDownSprite(character);
-            Sprite walkLeftSprite = characterManager.getWalkLeftSprite(character);
-            Sprite walkRightSprite = characterManager.getWalkRightSprite(character);
-            ctx.writeAndFlush(new PacketSendCharacterSprites(
-                    character.getId(),
-                    walkUpSprite,
-                    walkDownSprite,
-                    walkLeftSprite,
-                    walkRightSprite
-            ));
-            walkUpSprite.flush();
-            walkDownSprite.flush();
-            walkLeftSprite.flush();
-            walkRightSprite.flush();
+        } else if (msg instanceof PacketRequestPlayers) {
+            ctx.writeAndFlush(new PacketSendPlayers(channels.stream().filter(channel -> channel.attr(playerAttributeKey).get() != null).map(channel -> channel.attr(playerAttributeKey).get()).collect(Collectors.toSet())));
         } else if (msg instanceof PacketRequestTileSheets) {
             for (TileSheet tileSheet : TileSheet.getTileSheets()) {
                 ctx.writeAndFlush(new PacketSendTileSheet(tileSheet.getName(), tileSheet.getSheet(), tileSheet.getTileWidth(), tileSheet.getTileHeight()));
@@ -121,9 +106,28 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             area.getObjects().stream().filter(object -> !(object instanceof Entity)).forEach(object -> ctx.writeAndFlush(new PacketCreateObject(object.getType(), area.getWorld().getName(), area.getName(), object.getX(), object.getY())));
             area.getEntities().stream().forEach(entity -> ctx.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY())));
             ctx.writeAndFlush(new PacketShowArea("default"));
+            Player player = ctx.channel().attr(playerAttributeKey).get();
+            Character character = server.getCharacterManager().getCharacter(player);
+            if (character == null) {
+                character = new Character(player.getId(), -1);
+                server.getCharacterManager().addCharacter(character);
+                character = server.getCharacterManager().getCharacter(player);
+            }
+            Sprite walkUpSprite = server.getCharacterManager().getWalkUpSprite(character);
+            Sprite walkDownSprite = server.getCharacterManager().getWalkDownSprite(character);
+            Sprite walkLeftSprite = server.getCharacterManager().getWalkLeftSprite(character);
+            Sprite walkRightSprite = server.getCharacterManager().getWalkRightSprite(character);
             EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, area, 0, 0);
-            entity.setCharacter(server.getCharacterManager().getCharacter(ctx.channel().attr(playerAttributeKey).get()));
-            channels.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY()));
+            entity.setCharacter(character);
+            try {
+                channels.writeAndFlush(new PacketCharacterSpawn(character, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+            walkUpSprite.flush();
+            walkDownSprite.flush();
+            walkLeftSprite.flush();
+            walkRightSprite.flush();
         }
     }
 

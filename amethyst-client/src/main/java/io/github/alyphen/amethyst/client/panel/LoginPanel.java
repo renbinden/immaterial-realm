@@ -57,7 +57,7 @@ public class LoginPanel extends JPanel {
             btnSignUp.setEnabled(false);
             try {
                 client.setPlayerName(userNameField.getText());
-                String salt = client.getPlayerManager().getSalt();
+                String salt = client.getLoginManager().getSalt();
                 client.getNetworkManager().sendPacket(
                         new PacketLoginDetails(
                                 userNameField.getText(),
@@ -79,7 +79,7 @@ public class LoginPanel extends JPanel {
             btnSignUp.setEnabled(false);
             try {
                 client.setPlayerName(userNameField.getText());
-                String salt = client.getPlayerManager().getSalt();
+                String salt = client.getLoginManager().getSalt();
                 client.setPasswordHash(DigestUtils.sha256Hex(new String(passwordField.getPassword()) + salt));
                 client.getNetworkManager().sendPacket(
                         new PacketLoginDetails(
@@ -95,6 +95,7 @@ public class LoginPanel extends JPanel {
         add(btnSignUp);
         add(Box.createVerticalStrut(16));
         lblStatus = new JLabel("");
+        lblStatus.setAlignmentX(CENTER_ALIGNMENT);
         add(lblStatus);
         add(Box.createVerticalGlue());
     }

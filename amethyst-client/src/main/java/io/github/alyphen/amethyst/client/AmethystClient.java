@@ -17,6 +17,7 @@ public class AmethystClient extends JPanel {
 
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
+    private LoginManager loginManager;
     private NetworkManager networkManager;
     private PlayerManager playerManager;
 
@@ -36,6 +37,7 @@ public class AmethystClient extends JPanel {
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this);
         characterManager = new CharacterManager(this);
+        loginManager = new LoginManager(this);
         playerManager = new PlayerManager(this);
 
         setLayout(new CardLayout());
@@ -53,7 +55,7 @@ public class AmethystClient extends JPanel {
         beforeTime = System.currentTimeMillis();
         while (isRunning()) {
             doTick();
-            repaint();
+            EventQueue.invokeLater(this::repaint);
             timeDiff = System.currentTimeMillis() - beforeTime;
             sleep = DELAY - timeDiff;
             if (sleep < 0) {
@@ -72,12 +74,20 @@ public class AmethystClient extends JPanel {
         if (worldPanel.isActive()) worldPanel.onTick();
     }
 
+    public CharacterManager getCharacterManager() {
+        return characterManager;
+    }
+
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
 
     public EncryptionManager getEncryptionManager() {
         return encryptionManager;
+    }
+
+    public LoginManager getLoginManager() {
+        return loginManager;
     }
 
     public NetworkManager getNetworkManager() {
@@ -137,7 +147,5 @@ public class AmethystClient extends JPanel {
         return worldPanel;
     }
 
-    public CharacterManager getCharacterManager() {
-        return characterManager;
-    }
+
 }
