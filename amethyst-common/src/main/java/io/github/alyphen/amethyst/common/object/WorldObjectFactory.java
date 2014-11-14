@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class WorldObjectFactory {
 
-    private static long nextId;
+    private static long id;
     private static Map<String, WorldObjectInitializer> initializers;
 
     static {
@@ -19,7 +19,7 @@ public class WorldObjectFactory {
 
     public static WorldObject createObject(String type) {
         if (initializers.containsKey(type))
-            return initializers.get(type).initialize(nextId++);
+            return initializers.get(type).initialize(id++);
         else
             return null;
     }

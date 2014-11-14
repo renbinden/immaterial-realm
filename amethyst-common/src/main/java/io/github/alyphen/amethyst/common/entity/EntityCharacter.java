@@ -9,7 +9,7 @@ public class EntityCharacter extends Entity {
     private io.github.alyphen.amethyst.common.character.Character character;
 
     public EntityCharacter(long id) {
-        super(id, "entity_character");
+        super(id);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class EntityCharacter extends Entity {
 
     @Override
     public Rectangle getBounds() {
-        return new Rectangle(0, 32, 32, 32);
+        return new Rectangle(getX(), getY() + getSprite().getHeight() / 2, getSprite().getWidth(), getSprite().getHeight() / 2);
     }
 
     public Character getCharacter() {

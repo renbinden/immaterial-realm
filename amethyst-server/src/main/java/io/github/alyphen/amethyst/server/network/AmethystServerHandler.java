@@ -1,7 +1,6 @@
 package io.github.alyphen.amethyst.server.network;
 
 import io.github.alyphen.amethyst.common.character.Character;
-import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
 import io.github.alyphen.amethyst.common.entity.EntityFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
@@ -103,9 +102,26 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketRequestCurrentWorldArea) {
             WorldArea area = World.getWorld("default").getArea("default");
             ctx.writeAndFlush(new PacketSendArea(area));
-            area.getObjects().stream().filter(object -> !(object instanceof Entity)).forEach(object -> ctx.writeAndFlush(new PacketCreateObject(object.getType(), area.getWorld().getName(), area.getName(), object.getX(), object.getY())));
-            area.getEntities().stream().forEach(entity -> ctx.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY())));
             ctx.writeAndFlush(new PacketShowArea("default"));
+            area.getObjects().stream().forEach(object -> ctx.writeAndFlush(new PacketCreateObject(object.getType(), area.getWorld().getName(), area.getName(), object.getX(), object.getY())));
+            area.getEntities().stream().filter(entity -> !(entity instanceof EntityCharacter)).forEach(entity -> ctx.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY())));
+            area.getEntities().stream().filter(entity -> entity instanceof EntityCharacter).forEach(entity -> {
+                EntityCharacter entityCharacter = (EntityCharacter) entity;
+                Character character = entityCharacter.getCharacter();
+                Sprite walkUpSprite = server.getCharacterManager().getWalkUpSprite(character);
+                Sprite walkDownSprite = server.getCharacterManager().getWalkDownSprite(character);
+                Sprite walkLeftSprite = server.getCharacterManager().getWalkLeftSprite(character);
+                Sprite walkRightSprite = server.getCharacterManager().getWalkRightSprite(character);
+                try {
+                    ctx.writeAndFlush(new PacketCharacterSpawn(character, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
+                walkUpSprite.flush();
+                walkDownSprite.flush();
+                walkLeftSprite.flush();
+                walkRightSprite.flush();
+            });
             Player player = ctx.channel().attr(playerAttributeKey).get();
             Character character = server.getCharacterManager().getCharacter(player);
             if (character == null) {

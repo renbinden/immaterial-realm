@@ -62,12 +62,10 @@ public class WorldArea {
     }
 
     public void addEntity(Entity entity) {
-        addObject(entity);
         getEntities().add(entity);
     }
 
     public void removeEntity(Entity entity) {
-        removeObject(entity);
         getEntities().remove(entity);
     }
 
