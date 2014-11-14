@@ -29,8 +29,9 @@ public class WorldPanel extends JPanel {
 
     @Override
     public void paintComponent(Graphics graphics) {
-        if (getArea() != null) {
+        if (getArea() != null && getPlayerCharacter() != null) {
             Graphics2D graphics2D = (Graphics2D) graphics;
+            graphics2D.translate((getWidth() / 2) - getPlayerCharacter().getX(), (getHeight() / 2) - getPlayerCharacter().getY());
             for (int row = 0; row < area.getRows(); row++) {
                 for (int col = 0; col < area.getColumns(); col++) {
                     Tile tile = getArea().getTileAt(row, col);
@@ -42,6 +43,7 @@ public class WorldPanel extends JPanel {
                 object.paint(graphics);
                 graphics2D.translate(-object.getX(), -object.getY());
             }
+            graphics2D.translate(getPlayerCharacter().getX() - (getWidth() / 2), getPlayerCharacter().getY() - (getHeight() / 2));
         }
     }
 
