@@ -3,11 +3,10 @@ package io.github.alyphen.amethyst.client;
 import io.github.alyphen.amethyst.client.character.CharacterManager;
 import io.github.alyphen.amethyst.client.network.NetworkManager;
 import io.github.alyphen.amethyst.client.panel.ConnectionPanel;
-import io.github.alyphen.amethyst.client.panel.WorldPanel;
 import io.github.alyphen.amethyst.client.panel.LoginPanel;
+import io.github.alyphen.amethyst.client.panel.WorldPanel;
 import io.github.alyphen.amethyst.common.database.DatabaseManager;
 import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
-import io.github.alyphen.amethyst.common.entity.EntityFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,8 +19,6 @@ public class AmethystClient extends JPanel {
     private EncryptionManager encryptionManager;
     private NetworkManager networkManager;
     private PlayerManager playerManager;
-
-    private EntityFactory entityFactory;
 
     private boolean running;
     private String playerName;
@@ -38,6 +35,7 @@ public class AmethystClient extends JPanel {
         databaseManager = new DatabaseManager("client");
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this);
+        characterManager = new CharacterManager(this);
         playerManager = new PlayerManager(this);
 
         setLayout(new CardLayout());
@@ -88,10 +86,6 @@ public class AmethystClient extends JPanel {
 
     public PlayerManager getPlayerManager() {
         return playerManager;
-    }
-
-    public EntityFactory getEntityFactory() {
-        return entityFactory;
     }
 
     public void showPanel(String panel) {

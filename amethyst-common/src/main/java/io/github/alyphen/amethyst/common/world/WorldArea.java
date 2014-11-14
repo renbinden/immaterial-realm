@@ -146,7 +146,6 @@ public class WorldArea {
         for (WorldObject object : getObjects()) {
             Map<String, Object> objectMeta = new HashMap<>();
             objectMeta.put("type", object.getClass());
-            objectMeta.put("data", object.getData());
             objectMeta.put("x", object.getX());
             objectMeta.put("y", object.getY());
             objects.add(objectMeta);

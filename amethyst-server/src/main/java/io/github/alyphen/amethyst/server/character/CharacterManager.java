@@ -1,6 +1,7 @@
 package io.github.alyphen.amethyst.server.character;
 
 import io.github.alyphen.amethyst.common.character.Character;
+import io.github.alyphen.amethyst.common.player.Player;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 import io.github.alyphen.amethyst.common.util.FileUtils;
 import io.github.alyphen.amethyst.server.AmethystServer;
@@ -44,6 +45,7 @@ public class CharacterManager {
                         "race TEXT," +
                         "description TEXT," +
                         "dead BOOLEAN," +
+                        "active BOOLEAN," +
                         "area_name TEXT," +
                         "x INTEGER," +
                         "y INTEGER" +
@@ -207,6 +209,7 @@ public class CharacterManager {
                         resultSet.getString("race"),
                         resultSet.getString("description"),
                         resultSet.getBoolean("dead"),
+                        resultSet.getBoolean("active"),
                         resultSet.getString("area_name"),
                         resultSet.getInt("x"),
                         resultSet.getInt("y")
@@ -218,18 +221,47 @@ public class CharacterManager {
         return null;
     }
 
+    public Character getCharacter(Player player) throws SQLException {
+        Connection connection = server.getDatabaseManager().getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM characters WHERE player_id = ?")) {
+            statement.setLong(1, player.getId());
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                if (resultSet.getBoolean("active")) {
+                    return new Character(
+                            resultSet.getLong("player_id"),
+                            resultSet.getLong("id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("gender"),
+                            resultSet.getString("race"),
+                            resultSet.getString("description"),
+                            resultSet.getBoolean("dead"),
+                            resultSet.getBoolean("active"),
+                            resultSet.getString("area_name"),
+                            resultSet.getInt("x"),
+                            resultSet.getInt("y")
+                    );
+                }
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
     public void addCharacter(Character character) throws SQLException {
         Connection connection = server.getDatabaseManager().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO characters (player_id, name, gender, race, description, dead, area_name, x, y) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO characters (player_id, name, gender, race, description, dead, active, area_name, x, y) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
             statement.setLong(1, character.getPlayerId());
             statement.setString(2, character.getName());
             statement.setString(3, character.getGender());
             statement.setString(4, character.getRace());
             statement.setString(5, character.getDescription());
             statement.setBoolean(6, character.isDead());
-            statement.setString(7, character.getAreaName());
-            statement.setInt(8, character.getX());
-            statement.setInt(9, character.getY());
+            statement.setBoolean(7, character.isActive());
+            statement.setString(8, character.getAreaName());
+            statement.setInt(9, character.getX());
+            statement.setInt(10, character.getY());
             statement.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();

@@ -36,6 +36,7 @@ public class CharacterManager {
                         "race TEXT," +
                         "description TEXT," +
                         "dead BOOLEAN," +
+                        "active BOOLEAN," +
                         "area_name TEXT," +
                         "x INTEGER," +
                         "y INTEGER" +
@@ -121,6 +122,7 @@ public class CharacterManager {
                             resultSet.getString("race"),
                             resultSet.getString("description"),
                             resultSet.getBoolean("dead"),
+                            resultSet.getBoolean("active"),
                             resultSet.getString("area_name"),
                             resultSet.getInt("x"),
                             resultSet.getInt("y")
@@ -137,16 +139,17 @@ public class CharacterManager {
 
     public void addCharacter(Character character) throws SQLException {
         Connection connection = client.getDatabaseManager().getConnection();
-        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO characters (player_id, name, gender, race, description, dead, area_name, x, y) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+        try (PreparedStatement statement = connection.prepareStatement("INSERT INTO characters (player_id, name, gender, race, description, dead, area_name, x, y) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
             statement.setLong(1, character.getPlayerId());
             statement.setString(2, character.getName());
             statement.setString(3, character.getGender());
             statement.setString(4, character.getRace());
             statement.setString(5, character.getDescription());
             statement.setBoolean(6, character.isDead());
-            statement.setString(7, character.getAreaName());
-            statement.setInt(8, character.getX());
-            statement.setInt(9, character.getY());
+            statement.setBoolean(7, character.isActive());
+            statement.setString(8, character.getAreaName());
+            statement.setInt(9, character.getX());
+            statement.setInt(10, character.getY());
             statement.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();

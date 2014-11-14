@@ -1,18 +1,20 @@
 package io.github.alyphen.amethyst.common.entity;
 
-import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
+import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.common.world.WorldArea;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class EntityFactory {
 
-    private int id;
+    private static int id;
 
-    public <T extends Entity> T spawn(Class<T> entityClass, WorldArea area, int x, int y) {
+    private EntityFactory() {}
+
+    public static <T extends Entity> T spawn(Class<T> entityClass, WorldArea area, int x, int y) {
         try {
-            T entity = entityClass.getConstructor(int.class).newInstance(id++);
+            T entity = entityClass.getConstructor(long.class).newInstance(id++);
             entity.setX(x);
             entity.setY(y);
             area.addEntity(entity);
@@ -23,7 +25,7 @@ public class EntityFactory {
         return null;
     }
 
-    public Entity spawn(PacketEntitySpawn packet, World world) {
+    public static Entity spawn(PacketEntitySpawn packet, World world) {
         return spawn(packet.getEntityClass(), world.getArea(packet.getAreaName()), packet.getX(), packet.getY());
     }
 

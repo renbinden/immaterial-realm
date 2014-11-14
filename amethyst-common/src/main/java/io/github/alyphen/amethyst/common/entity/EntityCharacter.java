@@ -11,8 +11,8 @@ public class EntityCharacter extends Entity {
     private Player player;
     private io.github.alyphen.amethyst.common.character.Character character;
 
-    public EntityCharacter(long id, Sprite sprite, Rectangle bounds) {
-        super(id, "entity_character", sprite, bounds);
+    public EntityCharacter(long id) {
+        super(id, "entity_character");
     }
 
     @Override
@@ -21,7 +21,9 @@ public class EntityCharacter extends Entity {
         if (sprite != null) sprite.paint(graphics);
     }
 
+    @Override
     public Sprite getSprite() {
+        if (getCharacter() == null) return null;
         Sprite sprite;
         switch (getDirectionFacing()) {
             case UP:
@@ -40,6 +42,11 @@ public class EntityCharacter extends Entity {
         return sprite;
     }
 
+    @Override
+    public Rectangle getBounds() {
+        return new Rectangle(0, 32, 32, 32);
+    }
+
     public Player getPlayer() {
         return player;
     }
@@ -56,8 +63,4 @@ public class EntityCharacter extends Entity {
         this.character = character;
     }
 
-    @Override
-    public Object[] getData() {
-        return new Object[] {getId()};
-    }
 }

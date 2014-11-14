@@ -4,6 +4,7 @@ import io.github.alyphen.amethyst.client.AmethystClient;
 import io.github.alyphen.amethyst.common.character.Character;
 import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
+import io.github.alyphen.amethyst.common.entity.EntityFactory;
 import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
@@ -121,7 +122,7 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketEntitySpawn) {
             PacketEntitySpawn packet = (PacketEntitySpawn) msg;
             if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
-                Entity entity = client.getEntityFactory().spawn(packet, client.getWorldPanel().getWorld());
+                Entity entity = EntityFactory.spawn(packet, client.getWorldPanel().getWorld());
                 entity.setX(packet.getX());
                 entity.setY(packet.getY());
                 if (entity instanceof EntityCharacter) {

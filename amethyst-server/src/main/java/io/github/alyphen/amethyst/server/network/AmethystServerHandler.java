@@ -2,6 +2,8 @@ package io.github.alyphen.amethyst.server.network;
 
 import io.github.alyphen.amethyst.common.character.Character;
 import io.github.alyphen.amethyst.common.entity.Entity;
+import io.github.alyphen.amethyst.common.entity.EntityCharacter;
+import io.github.alyphen.amethyst.common.entity.EntityFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.PacketPing;
@@ -72,7 +74,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             Player player = server.getPlayerManager().getPlayer(packet.getPlayerName());
             if (player != null) {
                 if (server.getPlayerManager().checkLogin(player, server.getEncryptionManager().decrypt(packet.getEncryptedPasswordHash()))) {
-                    ctx.attr(playerAttributeKey).set(player);
+                    ctx.channel().attr(playerAttributeKey).set(player);
                     ctx.writeAndFlush(new PacketLoginStatus(true));
                 } else {
                     ctx.writeAndFlush(new PacketLoginStatus(false));
@@ -119,6 +121,9 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             area.getObjects().stream().filter(object -> !(object instanceof Entity)).forEach(object -> ctx.writeAndFlush(new PacketCreateObject(object.getType(), area.getWorld().getName(), area.getName(), object.getX(), object.getY())));
             area.getEntities().stream().forEach(entity -> ctx.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY())));
             ctx.writeAndFlush(new PacketShowArea("default"));
+            EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, area, 0, 0);
+            entity.setCharacter(server.getCharacterManager().getCharacter(ctx.channel().attr(playerAttributeKey).get()));
+            channels.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY()));
         }
     }
 

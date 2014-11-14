@@ -68,8 +68,4 @@ public class WorldObject {
         return relativeBounds;
     }
 
-    public Object[] getData() {
-        return new Object[] {id, sprite, bounds};
-    }
-
 }

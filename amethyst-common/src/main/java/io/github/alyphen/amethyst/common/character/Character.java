@@ -16,6 +16,7 @@ public class Character implements Serializable {
     private String race;
     private String description;
     private boolean dead;
+    private boolean active;
     private String areaName;
     private int x;
     private int y;
@@ -25,7 +26,7 @@ public class Character implements Serializable {
     private transient Sprite walkLeftSprite;
     private transient Sprite walkRightSprite;
 
-    public Character(long playerId, long id, String name, String gender, String race, String description, boolean dead, String areaName, int x, int y) {
+    public Character(long playerId, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y) {
         this.playerId = playerId;
         this.id = id;
         this.name = name;
@@ -33,17 +34,18 @@ public class Character implements Serializable {
         this.race = race;
         this.description = description;
         this.dead = dead;
+        this.active = active;
         this.areaName = areaName;
         this.x = x;
         this.y = y;
     }
 
-    public Character(Player player, long id, String name, String gender, String race, String description, boolean dead, String areaName, int x, int y) {
-        this(player.getId(), id, name, gender, race, description, dead, areaName, x, y);
+    public Character(Player player, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y) {
+        this(player.getId(), id, name, gender, race, description, dead, active, areaName, x, y);
     }
 
     public Character(long playerId, long id) {
-        this(playerId, id, "Unknown", "Unknown", "Unknown", "", false, "spawn", 0, 0);
+        this(playerId, id, "Unknown", "Unknown", "Unknown", "", false, true, "spawn", 0, 0);
     }
 
     public void setPlayer(Player player) {
@@ -100,6 +102,14 @@ public class Character implements Serializable {
 
     public void setDead(boolean dead) {
         this.dead = dead;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String getAreaName() {
