@@ -2,7 +2,6 @@ package io.github.alyphen.amethyst.client.panel;
 
 import io.github.alyphen.amethyst.client.AmethystClient;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
-import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.tile.Tile;
 import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.common.world.WorldArea;
@@ -31,19 +30,28 @@ public class WorldPanel extends JPanel {
     public void paintComponent(Graphics graphics) {
         if (getArea() != null && getPlayerCharacter() != null) {
             Graphics2D graphics2D = (Graphics2D) graphics;
-            graphics2D.translate((getWidth() / 2) - getPlayerCharacter().getX(), (getHeight() / 2) - getPlayerCharacter().getY());
+            graphics2D.translate(-getCameraX(), -getCameraY());
             for (int row = 0; row < area.getRows(); row++) {
                 for (int col = 0; col < area.getColumns(); col++) {
                     Tile tile = getArea().getTileAt(row, col);
-                    tile.paint(graphics, col * tile.getSheet().getTileWidth(), row * tile.getSheet().getTileHeight());
+                    int x = col * tile.getSheet().getTileWidth();
+                    int y = row * tile.getSheet().getTileHeight();
+                    if (x + tile.getSheet().getTileWidth() >= getCameraX() - (getWidth() / 2)
+                            && x <= getCameraX() + (getWidth() / 2)
+                            && y + tile.getSheet().getTileHeight() >= getCameraY() - (getHeight() / 2)
+                            && y <= getCameraY() + (getHeight() / 2))
+                        tile.paint(graphics, x, y);
                 }
             }
-            for (WorldObject object : getArea().getObjects()) {
+            getArea().getObjects().stream().filter(object -> object.getX() + object.getBounds().getWidth() >= getCameraX() - (getWidth() / 2)
+                    && object.getX() <= getCameraX() + (getWidth() / 2)
+                    && object.getY() + object.getBounds().getHeight() >= getCameraY() - (getHeight() / 2)
+                    && object.getY() <= getCameraY() + (getHeight() / 2)).forEach(object -> {
                 graphics2D.translate(object.getX(), object.getY());
                 object.paint(graphics);
                 graphics2D.translate(-object.getX(), -object.getY());
-            }
-            graphics2D.translate(getPlayerCharacter().getX() - (getWidth() / 2), getPlayerCharacter().getY() - (getHeight() / 2));
+            });
+            graphics2D.translate(getCameraX(), getCameraY());
         }
     }
 
@@ -79,6 +87,14 @@ public class WorldPanel extends JPanel {
 
     public void setPlayerCharacter(EntityCharacter player) {
         this.playerCharacter = player;
+    }
+
+    private int getCameraX() {
+        return getPlayerCharacter().getX() - (getWidth() / 2);
+    }
+
+    private int getCameraY() {
+        return getPlayerCharacter().getY() - (getHeight() / 2);
     }
 
 }
