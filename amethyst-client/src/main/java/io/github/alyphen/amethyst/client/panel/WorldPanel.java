@@ -31,36 +31,36 @@ public class WorldPanel extends JPanel {
     public void paintComponent(Graphics graphics) {
         if (getArea() != null && getPlayerCharacter() != null) {
             Graphics2D graphics2D = (Graphics2D) graphics;
-            graphics2D.translate(getCameraX(), getCameraY());
+            graphics2D.translate(-getCameraX(), -getCameraY());
             for (int row = 0; row < area.getRows(); row++) {
                 for (int col = 0; col < area.getColumns(); col++) {
                     Tile tile = getArea().getTileAt(row, col);
                     int x = col * tile.getSheet().getTileWidth();
                     int y = row * tile.getSheet().getTileHeight();
-                    if (x + tile.getSheet().getTileWidth() >= getCameraX() - (getWidth() / 2)
-                            && x <= getCameraX() + (getWidth() / 2)
-                            && y + tile.getSheet().getTileHeight() >= getCameraY() - (getHeight() / 2)
-                            && y <= getCameraY() + (getHeight() / 2))
+                    if (x + tile.getSheet().getTileWidth() >= getCameraX()
+                            && x <= getCameraX() + getWidth()
+                            && y + tile.getSheet().getTileHeight() >= getCameraY()
+                            && y <= getCameraY() + getHeight())
                         tile.paint(graphics, x, y);
                 }
             }
-            getArea().getObjects().stream().filter(object -> object.getX() + object.getBounds().getWidth() >= getCameraX() - (getWidth() / 2)
-                    && object.getX() <= getCameraX() + (getWidth() / 2)
-                    && object.getY() + object.getBounds().getHeight() >= getCameraY() - (getHeight() / 2)
-                    && object.getY() <= getCameraY() + (getHeight() / 2)).forEach(object -> {
+            getArea().getObjects().stream().filter(object -> object.getX() + object.getBounds().getWidth() >= getCameraX()
+                    && object.getX() <= getCameraX() + getWidth()
+                    && object.getY() + object.getBounds().getHeight() >= getCameraY()
+                    && object.getY() <= getCameraY() + getHeight()).forEach(object -> {
                 graphics2D.translate(object.getX(), object.getY());
                 object.paint(graphics);
                 graphics2D.translate(-object.getX(), -object.getY());
             });
-            getArea().getEntities().stream().filter(entity -> entity.getX() + entity.getBounds().getWidth() >= getCameraX() - (getWidth() / 2)
-                    && entity.getX() <= getCameraX() + (getWidth() / 2)
-                    && entity.getY() + entity.getBounds().getHeight() >= getCameraY() - (getHeight() / 2)
-                    && entity.getY() <= getCameraY() + (getHeight() /2)).forEach(entity -> {
+            getArea().getEntities().stream().filter(entity -> entity.getX() + entity.getBounds().getWidth() >= getCameraX()
+                    && entity.getX() <= getCameraX() + getWidth()
+                    && entity.getY() + entity.getBounds().getHeight() >= getCameraY()
+                    && entity.getY() <= getCameraY() + getHeight()).forEach(entity -> {
                 graphics2D.translate(entity.getX(), entity.getY());
                 entity.paint(graphics);
                 graphics2D.translate(-entity.getX(), -entity.getY());
             });
-            graphics2D.translate(-getCameraX(), -getCameraY());
+            graphics2D.translate(getCameraX(), getCameraY());
         }
     }
 
@@ -99,11 +99,11 @@ public class WorldPanel extends JPanel {
     }
 
     private int getCameraX() {
-        return (getWidth() / 2) - getPlayerCharacter().getX();
+        return getPlayerCharacter().getX() - (getWidth() / 2);
     }
 
     private int getCameraY() {
-        return (getHeight() / 2) - getPlayerCharacter().getY();
+        return getPlayerCharacter().getY() - (getHeight() / 2);
     }
 
 }
