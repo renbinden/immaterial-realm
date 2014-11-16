@@ -36,21 +36,27 @@ public class World {
         return name;
     }
 
-    private Map<String, WorldArea> getAreas() {
-        return areas;
+    public Collection<WorldArea> getAreas() {
+        return areas.values();
     }
 
     public WorldArea getArea(String name) {
-        return getAreas().get(name);
+        return areas.get(name);
     }
 
     public void addArea(WorldArea area) {
-        getAreas().put(area.getName(), area);
+        areas.put(area.getName(), area);
     }
 
     public void removeArea(WorldArea area) {
         if (area == null) return;
         getAreas().remove(area.getName());
+    }
+
+    public void onTick() {
+        for (WorldArea area : getAreas()) {
+            area.onTick();
+        }
     }
 
     public static World load(File directory) throws IOException, ClassNotFoundException {

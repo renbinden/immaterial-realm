@@ -89,6 +89,11 @@ public class WorldArea {
         getTiles()[row][col] = tile;
     }
 
+    public void onTick() {
+        getObjects().stream().forEach(WorldObject::onTick);
+        getEntities().stream().forEach(Entity::onTick);
+    }
+
     public static WorldArea load(World world, File directory) throws IOException, ClassNotFoundException {
         File metadataFile = new File(directory, "area.json");
         Map<String, Object> metadata = loadMetadata(metadataFile);

@@ -10,6 +10,7 @@ import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.PacketPing;
 import io.github.alyphen.amethyst.common.packet.character.PacketCharacterSpawn;
+import io.github.alyphen.amethyst.common.packet.entity.PacketEntityMove;
 import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginStatus;
 import io.github.alyphen.amethyst.common.packet.login.PacketPublicKey;
@@ -32,7 +33,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -63,9 +63,7 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketLoginStatus) {
             PacketLoginStatus packet = (PacketLoginStatus) msg;
             if (packet.isSuccessful()) {
-                JOptionPane.showMessageDialog(null, "Login successful.");
                 client.showPanel("world");
-                context.writeAndFlush(new PacketPing());
                 context.writeAndFlush(new PacketRequestPlayers());
             } else {
                 client.getLoginPanel().setStatusMessage("Login unsuccessful.");
@@ -164,6 +162,22 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
                 entity.setCharacter(character);
                 if (character.getPlayerId() == client.getPlayerManager().getPlayer(client.getPlayerName()).getId()) {
                     client.getWorldPanel().setPlayerCharacter(entity);
+                }
+            }
+        } else if (msg instanceof PacketEntityMove) {
+            PacketEntityMove packet = (PacketEntityMove) msg;
+            if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
+                Entity entity = null;
+                for (Entity entity1 : client.getWorldPanel().getArea().getEntities()) {
+                    if (packet.getEntityId() == entity1.getId()) {
+                        entity = entity1;
+                        break;
+                    }
+                }
+                if (entity != null) {
+                    entity.setDirectionFacing(packet.getDirectionFacing());
+                    entity.setX(packet.getX());
+                    entity.setY(packet.getY());
                 }
             }
         }

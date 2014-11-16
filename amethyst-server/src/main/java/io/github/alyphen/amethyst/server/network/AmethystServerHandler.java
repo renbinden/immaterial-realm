@@ -1,12 +1,15 @@
 package io.github.alyphen.amethyst.server.network;
 
 import io.github.alyphen.amethyst.common.character.Character;
+import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
 import io.github.alyphen.amethyst.common.entity.EntityFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
-import io.github.alyphen.amethyst.common.packet.PacketPing;
+import io.github.alyphen.amethyst.common.packet.Packet;
 import io.github.alyphen.amethyst.common.packet.character.PacketCharacterSpawn;
+import io.github.alyphen.amethyst.common.packet.control.PacketControlPressed;
+import io.github.alyphen.amethyst.common.packet.control.PacketControlReleased;
 import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginDetails;
 import io.github.alyphen.amethyst.common.packet.login.PacketLoginStatus;
@@ -39,6 +42,7 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
+import static io.github.alyphen.amethyst.common.world.Direction.*;
 import static io.netty.channel.ChannelHandler.Sharable;
 
 @Sharable
@@ -83,8 +87,6 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             } else {
                 ctx.writeAndFlush(new PacketLoginStatus(false));
             }
-        } else if (msg instanceof PacketPing) {
-            ctx.writeAndFlush(new PacketPing());
         } else if (msg instanceof PacketRequestPlayers) {
             ctx.writeAndFlush(new PacketSendPlayers(channels.stream().filter(channel -> channel.attr(playerAttributeKey).get() != null).map(channel -> channel.attr(playerAttributeKey).get()).collect(Collectors.toSet())));
         } else if (msg instanceof PacketRequestTileSheets) {
@@ -144,6 +146,74 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             walkDownSprite.flush();
             walkLeftSprite.flush();
             walkRightSprite.flush();
+        } else if (msg instanceof PacketControlPressed) {
+            PacketControlPressed packet = (PacketControlPressed) msg;
+            Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(playerAttributeKey).get());
+            EntityCharacter characterEntity = null;
+            worldLoop: for (World world : World.getWorlds()) {
+                for (WorldArea area : world.getAreas()) {
+                    for (Entity entity : area.getEntities()) {
+                        if (entity instanceof EntityCharacter) {
+                            if (((EntityCharacter) entity).getCharacter().getId() == character.getId()) {
+                                characterEntity = (EntityCharacter) entity;
+                                break worldLoop;
+                            }
+                        }
+                    }
+                }
+            }
+            if (characterEntity != null) {
+                switch (packet.getControl()) {
+                    case MOVE_UP:
+                        characterEntity.setDirectionFacing(UP);
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() - 4);
+                        break;
+                    case MOVE_DOWN:
+                        characterEntity.setDirectionFacing(DOWN);
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() + 4);
+                        break;
+                    case MOVE_LEFT:
+                        characterEntity.setDirectionFacing(LEFT);
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() - 4);
+                        break;
+                    case MOVE_RIGHT:
+                        characterEntity.setDirectionFacing(RIGHT);
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() + 4);
+                        break;
+                }
+            }
+        } else if (msg instanceof PacketControlReleased) {
+            PacketControlReleased packet = (PacketControlReleased) msg;
+            Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(playerAttributeKey).get());
+            EntityCharacter characterEntity = null;
+            worldLoop: for (World world : World.getWorlds()) {
+                for (WorldArea area : world.getAreas()) {
+                    for (Entity entity : area.getEntities()) {
+                        if (entity instanceof EntityCharacter) {
+                            if (((EntityCharacter) entity).getCharacter().getId() == character.getId()) {
+                                characterEntity = (EntityCharacter) entity;
+                                break worldLoop;
+                            }
+                        }
+                    }
+                }
+            }
+            if (characterEntity != null) {
+                switch (packet.getControl()) {
+                    case MOVE_UP:
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() + 4);
+                        break;
+                    case MOVE_DOWN:
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() - 4);
+                        break;
+                    case MOVE_LEFT:
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() + 4);
+                        break;
+                    case MOVE_RIGHT:
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() - 4);
+                        break;
+                }
+            }
         }
     }
 
@@ -152,4 +222,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
         cause.printStackTrace();
     }
 
+    public void broadcastPacket(Packet packet) {
+        channels.writeAndFlush(packet);
+    }
 }

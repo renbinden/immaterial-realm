@@ -12,6 +12,8 @@ public abstract class Entity {
     private long id;
     private int x;
     private int y;
+    private int dx;
+    private int dy;
     private Direction directionFacing;
 
     public Entity(long id) {
@@ -41,6 +43,27 @@ public abstract class Entity {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public void setVerticalSpeed(int vSpeed) {
+        this.dy = vSpeed;
+    }
+
+    public int getVerticalSpeed() {
+        return dy;
+    }
+
+    public void setHorizontalSpeed(int hSpeed) {
+        this.dx = hSpeed;
+    }
+
+    public int getHorizontalSpeed() {
+        return dx;
+    }
+
+    public void onTick() {
+        x += dx;
+        y += dy;
     }
 
     public void setDirectionFacing(Direction direction) {

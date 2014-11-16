@@ -1,7 +1,9 @@
 package io.github.alyphen.amethyst.server.network;
 
+import io.github.alyphen.amethyst.common.packet.Packet;
 import io.github.alyphen.amethyst.server.AmethystServer;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -44,13 +46,19 @@ public class NetworkManager {
                             );
                         }
                     });
-            bootstrap.bind(port).sync().channel().closeFuture().sync();
+            Channel channel = bootstrap.bind(port).sync().channel();
+            server.run();
+            channel.closeFuture().sync();
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
+    }
+
+    public void broadcastPacket(Packet packet) {
+        handler.broadcastPacket(packet);
     }
 
 }

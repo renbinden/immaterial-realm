@@ -5,6 +5,7 @@ import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
 import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
+import io.github.alyphen.amethyst.common.packet.entity.PacketEntityMove;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.util.FileUtils;
@@ -35,6 +36,8 @@ public class AmethystServer {
     private NetworkManager networkManager;
     private PlayerManager playerManager;
     private ScriptEngineManager scriptEngineManager;
+    private boolean running;
+    private static final long DELAY = 50L;
 
     public static void main(String[] args) {
         new AmethystServer(39752);
@@ -283,6 +286,41 @@ public class AmethystServer {
             defaultWorldDefaultAreaDirectory.mkdirs();
             copy(getClass().getResourceAsStream("/worlds/default/areas/default/area.json"), get(new File(defaultWorldDefaultAreaDirectory, "area.json").getPath()));
         }
+    }
+
+    public void run() {
+        setRunning(true);
+        long beforeTime, timeDiff, sleep;
+        beforeTime = System.currentTimeMillis();
+        while (isRunning()) {
+            doTick();
+            timeDiff = System.currentTimeMillis() - beforeTime;
+            sleep = DELAY - timeDiff;
+            if (sleep < 0) {
+                sleep = 2;
+            }
+            try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
+            }
+            beforeTime = System.currentTimeMillis();
+        }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public void doTick() {
+        World.getWorlds().stream().forEach(world -> {
+            world.onTick();
+            world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(entity -> entity.getHorizontalSpeed() != 0 || entity.getVerticalSpeed() != 0).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY()))));
+        });
     }
 
 }

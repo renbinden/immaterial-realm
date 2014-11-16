@@ -23,6 +23,7 @@ public class WorldPanel extends JPanel {
     }
 
     public void onTick() {
+        world.onTick();
         repaint();
     }
 

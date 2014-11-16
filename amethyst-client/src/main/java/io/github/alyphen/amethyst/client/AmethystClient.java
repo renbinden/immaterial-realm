@@ -5,8 +5,11 @@ import io.github.alyphen.amethyst.client.network.NetworkManager;
 import io.github.alyphen.amethyst.client.panel.ConnectionPanel;
 import io.github.alyphen.amethyst.client.panel.LoginPanel;
 import io.github.alyphen.amethyst.client.panel.WorldPanel;
+import io.github.alyphen.amethyst.common.control.Control;
 import io.github.alyphen.amethyst.common.database.DatabaseManager;
 import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
+import io.github.alyphen.amethyst.common.packet.control.PacketControlPressed;
+import io.github.alyphen.amethyst.common.packet.control.PacketControlReleased;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +20,7 @@ public class AmethystClient extends JPanel {
 
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
+    private InputManager inputManager;
     private LoginManager loginManager;
     private NetworkManager networkManager;
     private PlayerManager playerManager;
@@ -32,13 +36,15 @@ public class AmethystClient extends JPanel {
     private boolean newAccount;
     private CharacterManager characterManager;
 
-    public AmethystClient() {
+    public AmethystClient(AmethystClientFrame frame) {
         databaseManager = new DatabaseManager("client");
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this);
         characterManager = new CharacterManager(this);
         loginManager = new LoginManager(this);
         playerManager = new PlayerManager(this);
+        inputManager = new InputManager(this);
+        frame.addKeyListener(inputManager);
 
         setLayout(new CardLayout());
         connectionPanel = new ConnectionPanel(this);
@@ -147,5 +153,12 @@ public class AmethystClient extends JPanel {
         return worldPanel;
     }
 
+    public void onControlPressed(Control control) {
+        getNetworkManager().sendPacket(new PacketControlPressed(control));
+    }
+
+    public void onControlReleased(Control control) {
+        getNetworkManager().sendPacket(new PacketControlReleased(control));
+    }
 
 }

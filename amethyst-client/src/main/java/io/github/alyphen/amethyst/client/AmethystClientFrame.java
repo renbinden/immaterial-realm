@@ -14,19 +14,18 @@ public class AmethystClientFrame extends JFrame {
         EventQueue.invokeLater(() -> {
             AmethystClientFrame frame = new AmethystClientFrame();
             frame.setVisible(true);
+            frame.requestFocus();
         });
 
     }
 
     public AmethystClientFrame() {
         setTitle("Amethyst");
-        add(new AmethystClient());
+        setFocusable(true);
+        add(new AmethystClient(this));
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        //AmethystClient client = new AmethystClient();
-        //client.connect("localhost", 39752);
-        //add(client);
     }
 
 }
