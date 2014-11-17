@@ -136,32 +136,34 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketCharacterSpawn) {
             PacketCharacterSpawn packet = (PacketCharacterSpawn) msg;
-            if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
-                Character character = client.getCharacterManager().getCharacter(packet.getId());
-                if (character == null) {
-                    character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY());
-                    client.getCharacterManager().addCharacter(character);
-                } else {
-                    character.setPlayerId(packet.getPlayerId());
-                    character.setName(packet.getName());
-                    character.setGender(packet.getGender());
-                    character.setRace(packet.getRace());
-                    character.setDescription(packet.getDescription());
-                    character.setDead(packet.isDead());
-                    character.setActive(packet.isActive());
-                    character.setAreaName(packet.getAreaName());
-                    character.setX(packet.getX());
-                    character.setY(packet.getY());
-                    client.getCharacterManager().updateCharacter(character);
-                }
-                character.setWalkUpSprite(packet.getWalkUpSprite());
-                character.setWalkDownSprite(packet.getWalkDownSprite());
-                character.setWalkLeftSprite(packet.getWalkLeftSprite());
-                character.setWalkRightSprite(packet.getWalkRightSprite());
-                EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, client.getWorldPanel().getArea(), packet.getX(), packet.getY());
-                entity.setCharacter(character);
-                if (character.getPlayerId() == client.getPlayerManager().getPlayer(client.getPlayerName()).getId()) {
-                    client.getWorldPanel().setPlayerCharacter(entity);
+            if (client.getWorldPanel().getArea() != null) {
+                if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
+                    Character character = client.getCharacterManager().getCharacter(packet.getId());
+                    if (character == null) {
+                        character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY());
+                        client.getCharacterManager().addCharacter(character);
+                    } else {
+                        character.setPlayerId(packet.getPlayerId());
+                        character.setName(packet.getName());
+                        character.setGender(packet.getGender());
+                        character.setRace(packet.getRace());
+                        character.setDescription(packet.getDescription());
+                        character.setDead(packet.isDead());
+                        character.setActive(packet.isActive());
+                        character.setAreaName(packet.getAreaName());
+                        character.setX(packet.getX());
+                        character.setY(packet.getY());
+                        client.getCharacterManager().updateCharacter(character);
+                    }
+                    character.setWalkUpSprite(packet.getWalkUpSprite());
+                    character.setWalkDownSprite(packet.getWalkDownSprite());
+                    character.setWalkLeftSprite(packet.getWalkLeftSprite());
+                    character.setWalkRightSprite(packet.getWalkRightSprite());
+                    EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, client.getWorldPanel().getArea(), packet.getX(), packet.getY());
+                    entity.setCharacter(character);
+                    if (character.getPlayerId() == client.getPlayerManager().getPlayer(client.getPlayerName()).getId()) {
+                        client.getWorldPanel().setPlayerCharacter(entity);
+                    }
                 }
             }
         } else if (msg instanceof PacketEntityMove) {
