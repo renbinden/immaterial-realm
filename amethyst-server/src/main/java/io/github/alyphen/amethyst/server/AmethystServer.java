@@ -5,7 +5,7 @@ import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
 import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
-import io.github.alyphen.amethyst.common.packet.entity.PacketEntityMove;
+import io.github.alyphen.amethyst.common.packet.clientbound.entity.PacketEntityMove;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
 import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.util.FileUtils;

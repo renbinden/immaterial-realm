@@ -1,6 +1,7 @@
 package io.github.alyphen.amethyst.client.panel;
 
 import io.github.alyphen.amethyst.client.AmethystClient;
+import io.github.alyphen.amethyst.client.chat.ChatBox;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
 import io.github.alyphen.amethyst.common.tile.Tile;
 import io.github.alyphen.amethyst.common.world.World;
@@ -17,13 +18,17 @@ public class WorldPanel extends JPanel {
     private World world;
     private WorldArea area;
     private EntityCharacter playerCharacter;
+    private ChatBox chatBox;
 
     public WorldPanel(AmethystClient client) {
         this.client = client;
+        chatBox = new ChatBox(client, this);
+        client.getFrame().addKeyListener(chatBox);
     }
 
     public void onTick() {
-        world.onTick();
+        if (getWorld() != null) getWorld().onTick();
+        if (getChatBox() != null) getChatBox().onTick();
         repaint();
     }
 
@@ -62,6 +67,7 @@ public class WorldPanel extends JPanel {
             });
             graphics2D.translate(getCameraX(), getCameraY());
         }
+        chatBox.render(graphics);
     }
 
     public boolean isActive() {
@@ -104,6 +110,10 @@ public class WorldPanel extends JPanel {
 
     private int getCameraY() {
         return getPlayerCharacter().getY() - (getHeight() / 2);
+    }
+
+    public ChatBox getChatBox() {
+        return chatBox;
     }
 
 }

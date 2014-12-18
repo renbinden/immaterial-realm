@@ -1,6 +1,7 @@
 package io.github.alyphen.amethyst.client.network;
 
 import io.github.alyphen.amethyst.client.AmethystClient;
+import io.github.alyphen.amethyst.client.chat.ChatChannel;
 import io.github.alyphen.amethyst.common.character.Character;
 import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
@@ -8,20 +9,25 @@ import io.github.alyphen.amethyst.common.entity.EntityFactory;
 import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
-import io.github.alyphen.amethyst.common.packet.PacketPing;
-import io.github.alyphen.amethyst.common.packet.character.PacketCharacterSpawn;
-import io.github.alyphen.amethyst.common.packet.entity.PacketEntityMove;
-import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
-import io.github.alyphen.amethyst.common.packet.login.PacketLoginStatus;
-import io.github.alyphen.amethyst.common.packet.login.PacketPublicKey;
-import io.github.alyphen.amethyst.common.packet.login.PacketVersion;
-import io.github.alyphen.amethyst.common.packet.object.PacketCreateObject;
-import io.github.alyphen.amethyst.common.packet.object.PacketRequestObjectTypes;
-import io.github.alyphen.amethyst.common.packet.object.PacketSendObjectType;
-import io.github.alyphen.amethyst.common.packet.player.PacketRequestPlayers;
-import io.github.alyphen.amethyst.common.packet.player.PacketSendPlayers;
-import io.github.alyphen.amethyst.common.packet.tile.PacketRequestTileSheets;
-import io.github.alyphen.amethyst.common.packet.tile.PacketSendTileSheet;
+import io.github.alyphen.amethyst.common.packet.clientbound.PacketPong;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketClientboundPublicKey;
+import io.github.alyphen.amethyst.common.packet.serverbound.PacketPing;
+import io.github.alyphen.amethyst.common.packet.clientbound.character.PacketCharacterSpawn;
+import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketRequestChannels;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketSendChannel;
+import io.github.alyphen.amethyst.common.packet.clientbound.entity.PacketEntityMove;
+import io.github.alyphen.amethyst.common.packet.clientbound.entity.PacketEntitySpawn;
+import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketLoginStatus;
+import io.github.alyphen.amethyst.common.packet.serverbound.login.PacketServerboundPublicKey;
+import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketVersion;
+import io.github.alyphen.amethyst.common.packet.clientbound.object.PacketCreateObject;
+import io.github.alyphen.amethyst.common.packet.serverbound.object.PacketRequestObjectTypes;
+import io.github.alyphen.amethyst.common.packet.clientbound.object.PacketSendObjectType;
+import io.github.alyphen.amethyst.common.packet.serverbound.player.PacketRequestPlayers;
+import io.github.alyphen.amethyst.common.packet.clientbound.player.PacketSendPlayers;
+import io.github.alyphen.amethyst.common.packet.serverbound.tile.PacketRequestTileSheets;
+import io.github.alyphen.amethyst.common.packet.clientbound.tile.PacketSendTileSheet;
 import io.github.alyphen.amethyst.common.packet.world.*;
 import io.github.alyphen.amethyst.common.player.Player;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
@@ -52,25 +58,26 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext context, Object msg) throws GeneralSecurityException, IOException, SQLException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws GeneralSecurityException, IOException, SQLException {
         System.out.println(msg.toString());
         if (msg instanceof PacketVersion) {
-            context.writeAndFlush(new PacketPublicKey(client.getEncryptionManager().getKeyPair().getPublic().getEncoded()));
-        } else if (msg instanceof PacketPublicKey) {
-            PacketPublicKey packet = (PacketPublicKey) msg;
+            ctx.writeAndFlush(new PacketServerboundPublicKey(client.getEncryptionManager().getKeyPair().getPublic().getEncoded()));
+        } else if (msg instanceof PacketClientboundPublicKey) {
+            PacketClientboundPublicKey packet = (PacketClientboundPublicKey) msg;
             client.getNetworkManager().setServerPublicKey(packet.getEncodedPublicKey());
             client.showPanel("login");
         } else if (msg instanceof PacketLoginStatus) {
             PacketLoginStatus packet = (PacketLoginStatus) msg;
             if (packet.isSuccessful()) {
                 client.showPanel("world");
-                context.writeAndFlush(new PacketRequestPlayers());
+                client.getWorldPanel().setActive(true);
+                ctx.writeAndFlush(new PacketRequestPlayers());
             } else {
                 client.getLoginPanel().setStatusMessage("Login unsuccessful.");
                 client.getLoginPanel().reEnableLoginButtons();
             }
-        } else if (msg instanceof PacketPing) {
-            timer.newTimeout(timeout -> context.writeAndFlush(new PacketPing()), 20, SECONDS);
+        } else if (msg instanceof PacketPong) {
+            timer.newTimeout(timeout -> ctx.writeAndFlush(new PacketPing()), 20, SECONDS);
         } else if (msg instanceof PacketSendPlayers) {
             PacketSendPlayers packet = (PacketSendPlayers) msg;
             for (Player player : packet.getPlayers()) {
@@ -78,9 +85,10 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
                     client.getPlayerManager().addPlayer(player);
                 }
             }
-            context.writeAndFlush(new PacketRequestTileSheets());
-            context.writeAndFlush(new PacketRequestObjectTypes());
-            context.writeAndFlush(new PacketRequestWorlds());
+            ctx.writeAndFlush(new PacketRequestTileSheets());
+            ctx.writeAndFlush(new PacketRequestObjectTypes());
+            ctx.writeAndFlush(new PacketRequestWorlds());
+            ctx.writeAndFlush(new PacketRequestChannels());
         } else if (msg instanceof PacketSendTileSheet) {
             TileSheet.load((PacketSendTileSheet) msg);
         } else if (msg instanceof PacketSendObjectType) {
@@ -111,11 +119,11 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketSendWorld) {
             PacketSendWorld packet = (PacketSendWorld) msg;
             client.getWorldPanel().setWorld(World.create(packet.getName()));
-            context.writeAndFlush(new PacketRequestCurrentWorldArea());
+            ctx.writeAndFlush(new PacketRequestCurrentWorldArea());
         } else if (msg instanceof PacketSendArea) {
             PacketSendArea packet = (PacketSendArea) msg;
             client.getWorldPanel().getWorld().addArea(WorldArea.load(packet));
-            context.writeAndFlush(new PacketRequestObjects(packet.getWorld(), packet.getArea()));
+            ctx.writeAndFlush(new PacketRequestObjects(packet.getWorld(), packet.getArea()));
         } else if (msg instanceof PacketShowArea) {
             PacketShowArea packet = (PacketShowArea) msg;
             client.getWorldPanel().setArea(client.getWorldPanel().getWorld().getArea(packet.getArea()));
@@ -182,6 +190,15 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
                     entity.setY(packet.getY());
                 }
             }
+        } else if (msg instanceof PacketSendChannel) {
+            PacketSendChannel packet = (PacketSendChannel) msg;
+            client.getChatManager().addChannel(new ChatChannel(packet.getName(), packet.getColour(), packet.getFormat()));
+        } else if (msg instanceof PacketClientboundChatMessage) {
+            PacketClientboundChatMessage packet = (PacketClientboundChatMessage) msg;
+            client.getWorldPanel().getArea().getEntities().stream().filter(entity -> (entity instanceof EntityCharacter && ((EntityCharacter) entity).getCharacter().getId() == packet.getCharacterId())).forEach(entity -> {
+                EntityCharacter character = (EntityCharacter) entity;
+                character.setLastChatMessage(packet.getMessage());
+            });
         }
     }
 

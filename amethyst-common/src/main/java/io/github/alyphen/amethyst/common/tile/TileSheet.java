@@ -1,6 +1,6 @@
 package io.github.alyphen.amethyst.common.tile;
 
-import io.github.alyphen.amethyst.common.packet.tile.PacketSendTileSheet;
+import io.github.alyphen.amethyst.common.packet.clientbound.tile.PacketSendTileSheet;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

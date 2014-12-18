@@ -7,21 +7,24 @@ import io.github.alyphen.amethyst.common.entity.EntityFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.Packet;
-import io.github.alyphen.amethyst.common.packet.character.PacketCharacterSpawn;
-import io.github.alyphen.amethyst.common.packet.control.PacketControlPressed;
-import io.github.alyphen.amethyst.common.packet.control.PacketControlReleased;
-import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
-import io.github.alyphen.amethyst.common.packet.login.PacketLoginDetails;
-import io.github.alyphen.amethyst.common.packet.login.PacketLoginStatus;
-import io.github.alyphen.amethyst.common.packet.login.PacketPublicKey;
-import io.github.alyphen.amethyst.common.packet.login.PacketVersion;
-import io.github.alyphen.amethyst.common.packet.object.PacketCreateObject;
-import io.github.alyphen.amethyst.common.packet.object.PacketRequestObjectTypes;
-import io.github.alyphen.amethyst.common.packet.object.PacketSendObjectType;
-import io.github.alyphen.amethyst.common.packet.player.PacketRequestPlayers;
-import io.github.alyphen.amethyst.common.packet.player.PacketSendPlayers;
-import io.github.alyphen.amethyst.common.packet.tile.PacketRequestTileSheets;
-import io.github.alyphen.amethyst.common.packet.tile.PacketSendTileSheet;
+import io.github.alyphen.amethyst.common.packet.clientbound.character.PacketCharacterSpawn;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketClientboundPublicKey;
+import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketServerboundChatMessage;
+import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlPressed;
+import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlReleased;
+import io.github.alyphen.amethyst.common.packet.clientbound.entity.PacketEntitySpawn;
+import io.github.alyphen.amethyst.common.packet.serverbound.login.PacketLoginDetails;
+import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketLoginStatus;
+import io.github.alyphen.amethyst.common.packet.serverbound.login.PacketServerboundPublicKey;
+import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketVersion;
+import io.github.alyphen.amethyst.common.packet.clientbound.object.PacketCreateObject;
+import io.github.alyphen.amethyst.common.packet.serverbound.object.PacketRequestObjectTypes;
+import io.github.alyphen.amethyst.common.packet.clientbound.object.PacketSendObjectType;
+import io.github.alyphen.amethyst.common.packet.serverbound.player.PacketRequestPlayers;
+import io.github.alyphen.amethyst.common.packet.clientbound.player.PacketSendPlayers;
+import io.github.alyphen.amethyst.common.packet.serverbound.tile.PacketRequestTileSheets;
+import io.github.alyphen.amethyst.common.packet.clientbound.tile.PacketSendTileSheet;
 import io.github.alyphen.amethyst.common.packet.world.*;
 import io.github.alyphen.amethyst.common.player.Player;
 import io.github.alyphen.amethyst.common.sprite.Sprite;
@@ -51,8 +54,8 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
     private AmethystServer server;
 
     private ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-    private AttributeKey<Player> playerAttributeKey = AttributeKey.valueOf("player");
-    private AttributeKey<byte[]> publicKeyAttributeKey = AttributeKey.valueOf("publicKey");
+    private static final AttributeKey<Player> PLAYER = AttributeKey.valueOf("player");
+    private static final AttributeKey<byte[]> PUBLIC_KEY = AttributeKey.valueOf("publicKey");
 
     public AmethystServerHandler(AmethystServer server) {
         this.server = server;
@@ -67,10 +70,10 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws GeneralSecurityException, SQLException, UnsupportedEncodingException {
         System.out.println(msg.toString());
-        if (msg instanceof PacketPublicKey) {
-            PacketPublicKey packet = (PacketPublicKey) msg;
-            ctx.channel().attr(publicKeyAttributeKey).set(packet.getEncodedPublicKey());
-            ctx.writeAndFlush(new PacketPublicKey(server.getEncryptionManager().getKeyPair().getPublic().getEncoded()));
+        if (msg instanceof PacketServerboundPublicKey) {
+            PacketServerboundPublicKey packet = (PacketServerboundPublicKey) msg;
+            ctx.channel().attr(PUBLIC_KEY).set(packet.getEncodedPublicKey());
+            ctx.writeAndFlush(new PacketClientboundPublicKey(server.getEncryptionManager().getKeyPair().getPublic().getEncoded()));
         } else if (msg instanceof PacketLoginDetails) {
             PacketLoginDetails packet = (PacketLoginDetails) msg;
             if (packet.isSignUp()) {
@@ -79,7 +82,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             Player player = server.getPlayerManager().getPlayer(packet.getPlayerName());
             if (player != null) {
                 if (server.getPlayerManager().checkLogin(player, server.getEncryptionManager().decrypt(packet.getEncryptedPasswordHash()))) {
-                    ctx.channel().attr(playerAttributeKey).set(player);
+                    ctx.channel().attr(PLAYER).set(player);
                     ctx.writeAndFlush(new PacketLoginStatus(true));
                 } else {
                     ctx.writeAndFlush(new PacketLoginStatus(false));
@@ -88,7 +91,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
                 ctx.writeAndFlush(new PacketLoginStatus(false));
             }
         } else if (msg instanceof PacketRequestPlayers) {
-            ctx.writeAndFlush(new PacketSendPlayers(channels.stream().filter(channel -> channel.attr(playerAttributeKey).get() != null).map(channel -> channel.attr(playerAttributeKey).get()).collect(Collectors.toSet())));
+            ctx.writeAndFlush(new PacketSendPlayers(channels.stream().filter(channel -> channel.attr(PLAYER).get() != null).map(channel -> channel.attr(PLAYER).get()).collect(Collectors.toSet())));
         } else if (msg instanceof PacketRequestTileSheets) {
             for (TileSheet tileSheet : TileSheet.getTileSheets()) {
                 ctx.writeAndFlush(new PacketSendTileSheet(tileSheet.getName(), tileSheet.getSheet(), tileSheet.getTileWidth(), tileSheet.getTileHeight()));
@@ -124,7 +127,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
                 walkLeftSprite.flush();
                 walkRightSprite.flush();
             });
-            Player player = ctx.channel().attr(playerAttributeKey).get();
+            Player player = ctx.channel().attr(PLAYER).get();
             Character character = server.getCharacterManager().getCharacter(player);
             if (character == null) {
                 character = new Character(player.getId(), -1);
@@ -148,7 +151,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             walkRightSprite.flush();
         } else if (msg instanceof PacketControlPressed) {
             PacketControlPressed packet = (PacketControlPressed) msg;
-            Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(playerAttributeKey).get());
+            Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
             EntityCharacter characterEntity = null;
             worldLoop: for (World world : World.getWorlds()) {
                 for (WorldArea area : world.getAreas()) {
@@ -184,7 +187,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketControlReleased) {
             PacketControlReleased packet = (PacketControlReleased) msg;
-            Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(playerAttributeKey).get());
+            Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
             EntityCharacter characterEntity = null;
             worldLoop: for (World world : World.getWorlds()) {
                 for (WorldArea area : world.getAreas()) {
@@ -214,6 +217,10 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
                         break;
                 }
             }
+        } else if (msg instanceof PacketServerboundChatMessage) {
+            PacketServerboundChatMessage packet = (PacketServerboundChatMessage) msg;
+            Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
+            channels.writeAndFlush(new PacketClientboundChatMessage(character, packet.getChannel(), packet.getMessage()));
         }
     }
 

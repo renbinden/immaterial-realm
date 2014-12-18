@@ -1,7 +1,7 @@
 package io.github.alyphen.amethyst.client.panel;
 
 import io.github.alyphen.amethyst.client.AmethystClient;
-import io.github.alyphen.amethyst.common.packet.login.PacketLoginDetails;
+import io.github.alyphen.amethyst.common.packet.serverbound.login.PacketLoginDetails;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.swing.*;

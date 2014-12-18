@@ -1,6 +1,6 @@
 package io.github.alyphen.amethyst.common.entity;
 
-import io.github.alyphen.amethyst.common.packet.entity.PacketEntitySpawn;
+import io.github.alyphen.amethyst.common.packet.clientbound.entity.PacketEntitySpawn;
 import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.common.world.WorldArea;
 

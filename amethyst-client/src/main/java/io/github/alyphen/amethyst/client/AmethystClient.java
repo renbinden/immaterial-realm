@@ -1,6 +1,7 @@
 package io.github.alyphen.amethyst.client;
 
 import io.github.alyphen.amethyst.client.character.CharacterManager;
+import io.github.alyphen.amethyst.client.chat.ChatManager;
 import io.github.alyphen.amethyst.client.network.NetworkManager;
 import io.github.alyphen.amethyst.client.panel.ConnectionPanel;
 import io.github.alyphen.amethyst.client.panel.LoginPanel;
@@ -8,8 +9,8 @@ import io.github.alyphen.amethyst.client.panel.WorldPanel;
 import io.github.alyphen.amethyst.common.control.Control;
 import io.github.alyphen.amethyst.common.database.DatabaseManager;
 import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
-import io.github.alyphen.amethyst.common.packet.control.PacketControlPressed;
-import io.github.alyphen.amethyst.common.packet.control.PacketControlReleased;
+import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlPressed;
+import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlReleased;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +19,9 @@ public class AmethystClient extends JPanel {
 
     private static final long DELAY = 25L;
 
+    private AmethystClientFrame frame;
+
+    private ChatManager chatManager;
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
     private InputManager inputManager;
@@ -37,6 +41,8 @@ public class AmethystClient extends JPanel {
     private CharacterManager characterManager;
 
     public AmethystClient(AmethystClientFrame frame) {
+        this.frame = frame;
+        chatManager = new ChatManager(this);
         databaseManager = new DatabaseManager("client");
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this);
@@ -80,8 +86,16 @@ public class AmethystClient extends JPanel {
         if (worldPanel.isActive()) worldPanel.onTick();
     }
 
+    public AmethystClientFrame getFrame() {
+        return frame;
+    }
+
     public CharacterManager getCharacterManager() {
         return characterManager;
+    }
+
+    public ChatManager getChatManager() {
+        return chatManager;
     }
 
     public DatabaseManager getDatabaseManager() {

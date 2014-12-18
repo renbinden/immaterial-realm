@@ -39,6 +39,7 @@ public class InputManager extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent event) {
+        if (client.getWorldPanel().getChatBox().isActive()) return;
         Control control = controls.get(event.getKeyCode());
         if (control != null) {
             if (!pressedControls.contains(control)) {
@@ -50,6 +51,7 @@ public class InputManager extends KeyAdapter {
 
     @Override
     public void keyReleased(KeyEvent event) {
+        if (client.getWorldPanel().getChatBox().isActive()) return;
         Control control = controls.get(event.getKeyCode());
         if (control != null) {
             if (pressedControls.contains(control)) {
