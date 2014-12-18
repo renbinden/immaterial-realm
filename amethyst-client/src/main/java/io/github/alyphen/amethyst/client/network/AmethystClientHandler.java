@@ -1,7 +1,7 @@
 package io.github.alyphen.amethyst.client.network;
 
 import io.github.alyphen.amethyst.client.AmethystClient;
-import io.github.alyphen.amethyst.client.chat.ChatChannel;
+import io.github.alyphen.amethyst.common.chat.ChatChannel;
 import io.github.alyphen.amethyst.common.character.Character;
 import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
@@ -192,7 +192,7 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketSendChannel) {
             PacketSendChannel packet = (PacketSendChannel) msg;
-            client.getChatManager().addChannel(new ChatChannel(packet.getName(), packet.getColour(), packet.getFormat()));
+            client.getChatManager().addChannel(new ChatChannel(packet.getName(), packet.getColour(), packet.getRadius()));
         } else if (msg instanceof PacketClientboundChatMessage) {
             PacketClientboundChatMessage packet = (PacketClientboundChatMessage) msg;
             client.getWorldPanel().getArea().getEntities().stream().filter(entity -> (entity instanceof EntityCharacter && ((EntityCharacter) entity).getCharacter().getId() == packet.getCharacterId())).forEach(entity -> {

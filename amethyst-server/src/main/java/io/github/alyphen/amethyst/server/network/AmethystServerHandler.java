@@ -1,6 +1,7 @@
 package io.github.alyphen.amethyst.server.network;
 
 import io.github.alyphen.amethyst.common.character.Character;
+import io.github.alyphen.amethyst.common.chat.ChatChannel;
 import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.entity.EntityCharacter;
 import io.github.alyphen.amethyst.common.entity.EntityFactory;
@@ -9,7 +10,9 @@ import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.Packet;
 import io.github.alyphen.amethyst.common.packet.clientbound.character.PacketCharacterSpawn;
 import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketSendChannel;
 import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketClientboundPublicKey;
+import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketRequestChannels;
 import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketServerboundChatMessage;
 import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlPressed;
 import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlReleased;
@@ -221,6 +224,10 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             PacketServerboundChatMessage packet = (PacketServerboundChatMessage) msg;
             Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
             channels.writeAndFlush(new PacketClientboundChatMessage(character, packet.getChannel(), packet.getMessage()));
+        } else if (msg instanceof PacketRequestChannels) {
+            for (ChatChannel channel : server.getChatManager().getChannels()) {
+                ctx.writeAndFlush(new PacketSendChannel(channel));
+            }
         }
     }
 

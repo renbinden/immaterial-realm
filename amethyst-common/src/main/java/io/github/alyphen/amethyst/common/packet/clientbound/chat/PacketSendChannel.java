@@ -1,5 +1,6 @@
 package io.github.alyphen.amethyst.common.packet.clientbound.chat;
 
+import io.github.alyphen.amethyst.common.chat.ChatChannel;
 import io.github.alyphen.amethyst.common.packet.Packet;
 
 import java.awt.*;
@@ -8,12 +9,18 @@ public class PacketSendChannel extends Packet {
 
     private String name;
     private Color colour;
-    private String format;
+    private int radius;
 
-    public PacketSendChannel(String name, Color colour, String format) {
+    public PacketSendChannel(String name, Color colour, int radius) {
         this.name = name;
         this.colour = colour;
-        this.format = format;
+        this.radius = radius;
+    }
+
+    public PacketSendChannel(ChatChannel channel) {
+        this.name = channel.getName();
+        this.colour = channel.getColour();
+        this.radius = channel.getRadius();
     }
 
     public String getName() {
@@ -24,8 +31,8 @@ public class PacketSendChannel extends Packet {
         return colour;
     }
 
-    public String getFormat() {
-        return format;
+    public int getRadius() {
+        return radius;
     }
 
 }

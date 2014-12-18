@@ -1,4 +1,4 @@
-package io.github.alyphen.amethyst.client.chat;
+package io.github.alyphen.amethyst.common.chat;
 
 import java.awt.*;
 
@@ -6,12 +6,12 @@ public class ChatChannel {
 
     private String name;
     private Color colour;
-    private String format;
+    private int radius;
 
-    public ChatChannel(String name, Color colour, String format) {
+    public ChatChannel(String name, Color colour, int radius) {
         this.name = name;
         this.colour = colour;
-        this.format = format;
+        this.radius = radius;
     }
 
     public String getName() {
@@ -22,8 +22,8 @@ public class ChatChannel {
         return colour;
     }
 
-    public String getFormat() {
-        return format;
+    public int getRadius() {
+        return radius;
     }
 
 }

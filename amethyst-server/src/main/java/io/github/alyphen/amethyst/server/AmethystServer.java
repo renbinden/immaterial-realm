@@ -11,6 +11,7 @@ import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.util.FileUtils;
 import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.server.character.CharacterManager;
+import io.github.alyphen.amethyst.server.chat.ChatManager;
 import io.github.alyphen.amethyst.server.network.NetworkManager;
 
 import javax.script.Invocable;
@@ -31,6 +32,7 @@ import static java.nio.file.Paths.get;
 public class AmethystServer {
 
     private CharacterManager characterManager;
+    private ChatManager chatManager;
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
     private NetworkManager networkManager;
@@ -47,6 +49,7 @@ public class AmethystServer {
         scriptEngineManager = new ScriptEngineManager();
         databaseManager = new DatabaseManager("server");
         characterManager = new CharacterManager(this);
+        chatManager = new ChatManager();
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this, port);
         try {
@@ -211,6 +214,10 @@ public class AmethystServer {
         return characterManager;
     }
 
+    public ChatManager getChatManager() {
+        return chatManager;
+    }
+
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
@@ -243,7 +250,9 @@ public class AmethystServer {
     }
 
     private void saveDefaultConfiguration() throws IOException {
-        File configFile = new File("./server.json");
+        File configDir = new File("./config");
+        if (!configDir.exists()) configDir.mkdirs();
+        File configFile = new File(configDir, "server.json");
         if (!configFile.exists()) {
             copy(getClass().getResourceAsStream("/server.json"), get(configFile.getPath()));
         }

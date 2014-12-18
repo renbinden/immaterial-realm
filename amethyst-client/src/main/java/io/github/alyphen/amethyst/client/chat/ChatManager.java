@@ -1,6 +1,7 @@
 package io.github.alyphen.amethyst.client.chat;
 
 import io.github.alyphen.amethyst.client.AmethystClient;
+import io.github.alyphen.amethyst.common.chat.ChatChannel;
 import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketServerboundChatMessage;
 
 import java.util.HashMap;
