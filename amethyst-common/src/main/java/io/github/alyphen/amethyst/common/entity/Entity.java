@@ -45,6 +45,16 @@ public abstract class Entity {
         this.y = y;
     }
 
+    public int distance(Entity entity) {
+        return (int) Math.round(Math.sqrt(distanceSquared(entity)));
+    }
+
+    public int distanceSquared(Entity entity) {
+        int dx = entity.getX() - getX();
+        int dy = entity.getY() - getY();
+        return (dx * dx) + (dy * dy);
+    }
+
     public void setVerticalSpeed(int vSpeed) {
         this.dy = vSpeed;
     }

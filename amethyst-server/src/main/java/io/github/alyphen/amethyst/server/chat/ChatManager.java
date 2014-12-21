@@ -15,6 +15,7 @@ import java.util.Scanner;
 public class ChatManager {
 
     private Map<String, ChatChannel> channels;
+    private ChatChannel defaultChannel;
 
     public ChatManager() {
         channels = new HashMap<>();
@@ -32,7 +33,11 @@ public class ChatManager {
     public Collection<ChatChannel> getChannels() {
         return channels.values();
     }
-    
+
+    public ChatChannel getDefaultChannel() {
+        return defaultChannel;
+    }
+
     private void saveDefaultChannels() {
         File configDir = new File("./config");
         if (!configDir.exists()) configDir.mkdirs();
@@ -67,7 +72,26 @@ public class ChatManager {
             shoutChannelColour.put("alpha", 255);
             shoutChannelConfig.put("colour", shoutChannelColour);
             defaultChannelsConfig.put("shout", shoutChannelConfig);
+            Map<String, Object> generalChannelConfig = new HashMap<>();
+            generalChannelConfig.put("radius", -1);
+            Map<String, Object> generalChannelColour = new HashMap<>();
+            generalChannelColour.put("red", 120);
+            generalChannelColour.put("green", 255);
+            generalChannelColour.put("blue", 120);
+            generalChannelColour.put("alpha", 255);
+            generalChannelConfig.put("colour", generalChannelColour);
+            defaultChannelsConfig.put("general", generalChannelConfig);
+            Map<String, Object> supportChannelConfig = new HashMap<>();
+            supportChannelConfig.put("radius", -1);
+            Map<String, Object> supportChannelColour = new HashMap<>();
+            supportChannelColour.put("red", 192);
+            supportChannelColour.put("green", 120);
+            supportChannelColour.put("blue", 255);
+            supportChannelColour.put("alpha", 255);
+            supportChannelConfig.put("colour", supportChannelColour);
+            defaultChannelsConfig.put("support", supportChannelConfig);
             defaultChatConfig.put("channels", defaultChannelsConfig);
+            defaultChatConfig.put("default-channel", "say");
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(defaultChatConfig);
             try (FileWriter writer = new FileWriter(defaultChatConfigFile)) {
@@ -111,6 +135,7 @@ public class ChatManager {
                     );
                     addChannel(channel);
                 }
+                defaultChannel = this.channels.get(chatConfig.get("default-channel"));
             }
         }
     }
@@ -134,6 +159,7 @@ public class ChatManager {
                 channelsConfig.put(channel.getName(), channelConfig);
             }
             chatConfig.put("channels", channelsConfig);
+            chatConfig.put("default-channel", getDefaultChannel().getName());
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(chatConfig);
             try (FileWriter writer = new FileWriter(chatConfigFile)) {

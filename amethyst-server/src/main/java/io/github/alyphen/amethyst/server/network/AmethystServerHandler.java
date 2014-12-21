@@ -9,11 +9,16 @@ import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.Packet;
 import io.github.alyphen.amethyst.common.packet.clientbound.character.PacketCharacterSpawn;
-import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundGlobalChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundLocalChatMessage;
 import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketSendChannel;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketSetChannel;
 import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketClientboundPublicKey;
+import io.github.alyphen.amethyst.common.packet.clientbound.player.PacketPlayerJoin;
+import io.github.alyphen.amethyst.common.packet.clientbound.player.PacketPlayerLeave;
 import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketRequestChannels;
-import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketServerboundChatMessage;
+import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketServerboundGlobalChatMessage;
+import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketServerboundLocalChatMessage;
 import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlPressed;
 import io.github.alyphen.amethyst.common.packet.serverbound.control.PacketControlReleased;
 import io.github.alyphen.amethyst.common.packet.clientbound.entity.PacketEntitySpawn;
@@ -35,6 +40,7 @@ import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.common.world.WorldArea;
 import io.github.alyphen.amethyst.server.AmethystServer;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
@@ -71,6 +77,14 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> {
+            Player player = ctx.channel().attr(PLAYER).get();
+            channel.writeAndFlush(new PacketPlayerLeave(player.getId()));
+        });
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws GeneralSecurityException, SQLException, UnsupportedEncodingException {
         System.out.println(msg.toString());
         if (msg instanceof PacketServerboundPublicKey) {
@@ -87,6 +101,7 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
                 if (server.getPlayerManager().checkLogin(player, server.getEncryptionManager().decrypt(packet.getEncryptedPasswordHash()))) {
                     ctx.channel().attr(PLAYER).set(player);
                     ctx.writeAndFlush(new PacketLoginStatus(true));
+                    channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerJoin(player.getId(), player.getName())));
                 } else {
                     ctx.writeAndFlush(new PacketLoginStatus(false));
                 }
@@ -220,14 +235,40 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
                         break;
                 }
             }
-        } else if (msg instanceof PacketServerboundChatMessage) {
-            PacketServerboundChatMessage packet = (PacketServerboundChatMessage) msg;
+        } else if (msg instanceof PacketServerboundLocalChatMessage) {
+            PacketServerboundLocalChatMessage packet = (PacketServerboundLocalChatMessage) msg;
+            ChatChannel chatChannel = server.getChatManager().getChannel(packet.getChannel());
             Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
-            channels.writeAndFlush(new PacketClientboundChatMessage(character, packet.getChannel(), packet.getMessage()));
+            channels.stream().filter(channel -> {
+                Player player = channel.attr(PLAYER).get();
+                EntityCharacter characterEntity = null;
+                for (Entity entity : World.getWorld("default").getArea(character.getAreaName()).getEntities()) {
+                    if (entity instanceof EntityCharacter) {
+                        if (((EntityCharacter) entity).getCharacter().getId() == character.getId()) {
+                            characterEntity = (EntityCharacter) entity;
+                        }
+                    }
+                }
+                if (characterEntity != null) {
+                    for (Entity entity : World.getWorld("default").getArea(character.getAreaName()).getEntities()) {
+                        if (entity instanceof EntityCharacter) {
+                            EntityCharacter otherCharacterEntity = (EntityCharacter) entity;
+                            if (otherCharacterEntity.getCharacter().getPlayerId() == player.getId() && (otherCharacterEntity.distanceSquared(characterEntity) <= chatChannel.getRadius() * chatChannel.getRadius())) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }).forEach(channel -> channel.writeAndFlush(new PacketClientboundLocalChatMessage(character, packet.getChannel(), packet.getMessage())));
         } else if (msg instanceof PacketRequestChannels) {
             for (ChatChannel channel : server.getChatManager().getChannels()) {
                 ctx.writeAndFlush(new PacketSendChannel(channel));
             }
+            ctx.writeAndFlush(new PacketSetChannel(server.getChatManager().getDefaultChannel().getName()));
+        } else if (msg instanceof PacketServerboundGlobalChatMessage) {
+            PacketServerboundGlobalChatMessage packet = (PacketServerboundGlobalChatMessage) msg;
+            channels.writeAndFlush(new PacketClientboundGlobalChatMessage(ctx.channel().attr(PLAYER).get(), packet.getChannel(), packet.getMessage()));
         }
     }
 

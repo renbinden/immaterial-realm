@@ -10,8 +10,12 @@ import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
 import io.github.alyphen.amethyst.common.packet.clientbound.PacketPong;
-import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundGlobalChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketClientboundLocalChatMessage;
+import io.github.alyphen.amethyst.common.packet.clientbound.chat.PacketSetChannel;
 import io.github.alyphen.amethyst.common.packet.clientbound.login.PacketClientboundPublicKey;
+import io.github.alyphen.amethyst.common.packet.clientbound.player.PacketPlayerJoin;
+import io.github.alyphen.amethyst.common.packet.clientbound.player.PacketPlayerLeave;
 import io.github.alyphen.amethyst.common.packet.serverbound.PacketPing;
 import io.github.alyphen.amethyst.common.packet.clientbound.character.PacketCharacterSpawn;
 import io.github.alyphen.amethyst.common.packet.serverbound.chat.PacketRequestChannels;
@@ -193,11 +197,32 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketSendChannel) {
             PacketSendChannel packet = (PacketSendChannel) msg;
             client.getChatManager().addChannel(new ChatChannel(packet.getName(), packet.getColour(), packet.getRadius()));
-        } else if (msg instanceof PacketClientboundChatMessage) {
-            PacketClientboundChatMessage packet = (PacketClientboundChatMessage) msg;
+        } else if (msg instanceof PacketClientboundLocalChatMessage) {
+            PacketClientboundLocalChatMessage packet = (PacketClientboundLocalChatMessage) msg;
             client.getWorldPanel().getArea().getEntities().stream().filter(entity -> (entity instanceof EntityCharacter && ((EntityCharacter) entity).getCharacter().getId() == packet.getCharacterId())).forEach(entity -> {
                 EntityCharacter character = (EntityCharacter) entity;
                 character.setLastChatMessage(packet.getMessage());
+            });
+        } else if (msg instanceof PacketSetChannel) {
+            PacketSetChannel packet = (PacketSetChannel) msg;
+            client.getChatManager().setChannel(client.getChatManager().getChannel(packet.getChannel()));
+        } else if (msg instanceof PacketClientboundGlobalChatMessage) {
+            PacketClientboundGlobalChatMessage packet = (PacketClientboundGlobalChatMessage) msg;
+            client.getWorldPanel().getChatBox().onGlobalMessage(packet.getPlayerId(), packet.getChannel(), packet.getMessage());
+        } else if (msg instanceof PacketPlayerJoin) {
+            PacketPlayerJoin packet = (PacketPlayerJoin) msg;
+            if (client.getPlayerManager().getPlayer(packet.getPlayerId()) == null) {
+                client.getPlayerManager().addPlayer(new Player(packet.getPlayerId(), packet.getPlayerName()));
+            } else {
+                client.getPlayerManager().updatePlayer(new Player(packet.getPlayerId(), packet.getPlayerName()));
+            }
+        } else if (msg instanceof PacketPlayerLeave) {
+            PacketPlayerLeave packet = (PacketPlayerLeave) msg;
+            client.getWorldPanel().getArea().getEntities().stream().filter(entity -> entity instanceof EntityCharacter).forEach(entity -> {
+                EntityCharacter characterEntity  = (EntityCharacter) entity;
+                if (characterEntity.getCharacter().getPlayerId() == packet.getPlayerId()) {
+                    client.getWorldPanel().getArea().removeEntity(characterEntity);
+                }
             });
         }
     }

@@ -2,7 +2,7 @@ package io.github.alyphen.amethyst.common.chat;
 
 import java.awt.*;
 
-public class ChatChannel {
+public class ChatChannel implements Comparable<ChatChannel> {
 
     private String name;
     private Color colour;
@@ -24,6 +24,11 @@ public class ChatChannel {
 
     public int getRadius() {
         return radius;
+    }
+
+    @Override
+    public int compareTo(ChatChannel channel) {
+        return getName().compareTo(channel.getName());
     }
 
 }

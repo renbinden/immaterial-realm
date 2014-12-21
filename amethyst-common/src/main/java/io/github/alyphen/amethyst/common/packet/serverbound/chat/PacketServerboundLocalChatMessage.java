@@ -2,12 +2,13 @@ package io.github.alyphen.amethyst.common.packet.serverbound.chat;
 
 import io.github.alyphen.amethyst.common.packet.Packet;
 
-public class PacketServerboundChatMessage extends Packet {
+public class PacketServerboundLocalChatMessage extends Packet {
 
     private String channel;
     private String message;
 
-    public PacketServerboundChatMessage(String channel, String message) {
+    public PacketServerboundLocalChatMessage(String channel, String message) {
+        this.channel = channel;
         this.message = message;
     }
 
