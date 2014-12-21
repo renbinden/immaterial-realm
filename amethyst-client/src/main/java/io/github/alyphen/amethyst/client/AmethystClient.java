@@ -21,6 +21,7 @@ public class AmethystClient extends JPanel {
 
     private AmethystClientFrame frame;
 
+    private CharacterManager characterManager;
     private ChatManager chatManager;
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
@@ -31,14 +32,10 @@ public class AmethystClient extends JPanel {
 
     private boolean running;
     private String playerName;
-    private String passwordHash;
 
     private ConnectionPanel connectionPanel;
     private LoginPanel loginPanel;
     private WorldPanel worldPanel;
-
-    private boolean newAccount;
-    private CharacterManager characterManager;
 
     public AmethystClient(AmethystClientFrame frame) {
         this.frame = frame;
@@ -137,22 +134,6 @@ public class AmethystClient extends JPanel {
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public boolean isNewAccount() {
-        return newAccount;
-    }
-
-    public void setNewAccount(boolean newAccount) {
-        this.newAccount = newAccount;
     }
 
     public ConnectionPanel getConnectionPanel() {

@@ -40,13 +40,13 @@ import io.github.alyphen.amethyst.common.tile.TileSheet;
 import io.github.alyphen.amethyst.common.world.World;
 import io.github.alyphen.amethyst.common.world.WorldArea;
 import io.github.alyphen.amethyst.server.AmethystServer;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 
 import static io.github.alyphen.amethyst.common.world.Direction.*;
 import static io.netty.channel.ChannelHandler.Sharable;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 
 @Sharable
 public class AmethystServerHandler extends ChannelHandlerAdapter {
@@ -94,11 +95,11 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketLoginDetails) {
             PacketLoginDetails packet = (PacketLoginDetails) msg;
             if (packet.isSignUp()) {
-                server.getPlayerManager().addPlayer(packet.getPlayerName(), server.getEncryptionManager().decrypt(packet.getEncryptedPasswordHash()));
+                server.getPlayerManager().addPlayer(packet.getPlayerName(), server.getEncryptionManager().decrypt(packet.getEncryptedPassword()));
             }
             Player player = server.getPlayerManager().getPlayer(packet.getPlayerName());
             if (player != null) {
-                if (server.getPlayerManager().checkLogin(player, server.getEncryptionManager().decrypt(packet.getEncryptedPasswordHash()))) {
+                if (server.getPlayerManager().checkLogin(player, sha256Hex(server.getEncryptionManager().decrypt(packet.getEncryptedPassword()) + server.getPlayerManager().getSalt(player)))) {
                     ctx.channel().attr(PLAYER).set(player);
                     ctx.writeAndFlush(new PacketLoginStatus(true));
                     channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerJoin(player.getId(), player.getName())));

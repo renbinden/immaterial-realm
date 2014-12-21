@@ -57,15 +57,14 @@ public class LoginPanel extends JPanel {
             btnSignUp.setEnabled(false);
             try {
                 client.setPlayerName(userNameField.getText());
-                String salt = client.getLoginManager().getSalt();
                 client.getNetworkManager().sendPacket(
                         new PacketLoginDetails(
                                 userNameField.getText(),
-                                client.getEncryptionManager().encrypt(DigestUtils.sha256Hex(new String(passwordField.getPassword()) + salt), client.getNetworkManager().getServerPublicKey()),
+                                client.getEncryptionManager().encrypt(new String(passwordField.getPassword()), client.getNetworkManager().getServerPublicKey()),
                                 false
                         )
                 );
-            } catch (SQLException | GeneralSecurityException | UnsupportedEncodingException exception) {
+            } catch (GeneralSecurityException | UnsupportedEncodingException exception) {
                 exception.printStackTrace();
             }
         });
@@ -79,16 +78,14 @@ public class LoginPanel extends JPanel {
             btnSignUp.setEnabled(false);
             try {
                 client.setPlayerName(userNameField.getText());
-                String salt = client.getLoginManager().getSalt();
-                client.setPasswordHash(DigestUtils.sha256Hex(new String(passwordField.getPassword()) + salt));
                 client.getNetworkManager().sendPacket(
                         new PacketLoginDetails(
                                 userNameField.getText(),
-                                client.getEncryptionManager().encrypt(DigestUtils.sha256Hex(new String(passwordField.getPassword()) + salt), client.getNetworkManager().getServerPublicKey()),
+                                client.getEncryptionManager().encrypt(new String(passwordField.getPassword()), client.getNetworkManager().getServerPublicKey()),
                                 true
                         )
                 );
-            } catch (SQLException | GeneralSecurityException | UnsupportedEncodingException exception) {
+            } catch (GeneralSecurityException | UnsupportedEncodingException exception) {
                 exception.printStackTrace();
             }
         });
