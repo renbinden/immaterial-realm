@@ -2,6 +2,7 @@ package io.github.alyphen.amethyst.server;
 
 import io.github.alyphen.amethyst.common.database.DatabaseManager;
 import io.github.alyphen.amethyst.common.encrypt.EncryptionManager;
+import io.github.alyphen.amethyst.common.entity.Entity;
 import io.github.alyphen.amethyst.common.object.WorldObject;
 import io.github.alyphen.amethyst.common.object.WorldObjectFactory;
 import io.github.alyphen.amethyst.common.object.WorldObjectInitializer;
@@ -39,7 +40,7 @@ public class AmethystServer {
     private PlayerManager playerManager;
     private ScriptEngineManager scriptEngineManager;
     private boolean running;
-    private static final long DELAY = 50L;
+    private static final long DELAY = 25L;
 
     public static void main(String[] args) {
         new AmethystServer(39752);
@@ -328,7 +329,7 @@ public class AmethystServer {
     public void doTick() {
         World.getWorlds().stream().forEach(world -> {
             world.onTick();
-            world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(entity -> entity.getHorizontalSpeed() != 0 || entity.getVerticalSpeed() != 0).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY()))));
+            world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(Entity::isSpeedChanged).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
         });
     }
 

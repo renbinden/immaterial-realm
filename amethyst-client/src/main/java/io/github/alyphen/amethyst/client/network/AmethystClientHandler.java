@@ -192,6 +192,8 @@ public class AmethystClientHandler extends ChannelHandlerAdapter {
                     entity.setDirectionFacing(packet.getDirectionFacing());
                     entity.setX(packet.getX());
                     entity.setY(packet.getY());
+                    entity.setHorizontalSpeed(packet.getHorizontalSpeed());
+                    entity.setVerticalSpeed(packet.getVerticalSpeed());
                 }
             }
         } else if (msg instanceof PacketSendChannel) {

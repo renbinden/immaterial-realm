@@ -188,19 +188,19 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
                 switch (packet.getControl()) {
                     case MOVE_UP:
                         characterEntity.setDirectionFacing(UP);
-                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() - 4);
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() - 2);
                         break;
                     case MOVE_DOWN:
                         characterEntity.setDirectionFacing(DOWN);
-                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() + 4);
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() + 2);
                         break;
                     case MOVE_LEFT:
                         characterEntity.setDirectionFacing(LEFT);
-                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() - 4);
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() - 2);
                         break;
                     case MOVE_RIGHT:
                         characterEntity.setDirectionFacing(RIGHT);
-                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() + 4);
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() + 2);
                         break;
                 }
             }
@@ -223,16 +223,16 @@ public class AmethystServerHandler extends ChannelHandlerAdapter {
             if (characterEntity != null) {
                 switch (packet.getControl()) {
                     case MOVE_UP:
-                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() + 4);
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() + 2);
                         break;
                     case MOVE_DOWN:
-                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() - 4);
+                        characterEntity.setVerticalSpeed(characterEntity.getVerticalSpeed() - 2);
                         break;
                     case MOVE_LEFT:
-                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() + 4);
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() + 2);
                         break;
                     case MOVE_RIGHT:
-                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() - 4);
+                        characterEntity.setHorizontalSpeed(characterEntity.getHorizontalSpeed() - 2);
                         break;
                 }
             }

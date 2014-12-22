@@ -14,6 +14,9 @@ public abstract class Entity {
     private int y;
     private int dx;
     private int dy;
+    private int oldDx;
+    private int oldDy;
+    private boolean speedChanged;
     private Direction directionFacing;
 
     public Entity(long id) {
@@ -56,7 +59,7 @@ public abstract class Entity {
     }
 
     public void setVerticalSpeed(int vSpeed) {
-        this.dy = vSpeed;
+        dy = vSpeed;
     }
 
     public int getVerticalSpeed() {
@@ -64,7 +67,7 @@ public abstract class Entity {
     }
 
     public void setHorizontalSpeed(int hSpeed) {
-        this.dx = hSpeed;
+        dx = hSpeed;
     }
 
     public int getHorizontalSpeed() {
@@ -72,8 +75,18 @@ public abstract class Entity {
     }
 
     public void onTick() {
-        x += dx;
-        y += dy;
+        speedChanged = oldDx != dx || oldDy != dy;
+        if (speedChanged) {
+            oldDx = dx;
+            oldDy = dy;
+        } else {
+            x += dx;
+            y += dy;
+        }
+    }
+
+    public boolean isSpeedChanged() {
+        return speedChanged;
     }
 
     public void setDirectionFacing(Direction direction) {

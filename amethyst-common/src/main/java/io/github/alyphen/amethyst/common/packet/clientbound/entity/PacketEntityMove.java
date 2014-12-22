@@ -10,13 +10,17 @@ public class PacketEntityMove extends Packet {
     private String areaName;
     private int x;
     private int y;
+    private int dx;
+    private int dy;
 
-    public PacketEntityMove(long entityId, Direction directionFacing, String areaName, int x, int y) {
+    public PacketEntityMove(long entityId, Direction directionFacing, String areaName, int x, int y, int dx, int dy) {
         this.entityId = entityId;
         this.directionFacing = directionFacing.name();
         this.areaName = areaName;
         this.x = x;
         this.y = y;
+        this.dx = dx;
+        this.dy = dy;
     }
 
     public long getEntityId() {
@@ -38,4 +42,13 @@ public class PacketEntityMove extends Packet {
     public int getY() {
         return y;
     }
+
+    public int getHorizontalSpeed() {
+        return dx;
+    }
+
+    public int getVerticalSpeed() {
+        return dy;
+    }
+
 }

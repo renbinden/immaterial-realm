@@ -19,6 +19,16 @@ public class EntityCharacter extends Entity {
     }
 
     @Override
+    public void onTick() {
+        super.onTick();
+        if (getSprite() != null) {
+            if (getHorizontalSpeed() != 0 || getVerticalSpeed() != 0) {
+                getSprite().onTick();
+            }
+        }
+    }
+
+    @Override
     public void paint(Graphics graphics) {
         Sprite sprite = getSprite();
         if (sprite != null) sprite.paint(graphics);
