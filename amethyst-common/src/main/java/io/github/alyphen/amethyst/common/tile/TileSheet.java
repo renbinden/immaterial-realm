@@ -6,9 +6,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static io.github.alyphen.amethyst.common.util.FileUtils.*;
 
@@ -68,8 +66,26 @@ public class TileSheet {
         return tiles[row][col];
     }
 
+    public List<Tile> getTiles() {
+        List<Tile> tiles = new ArrayList<>();
+        for (int x = 0; x < getWidth() / getTileHeight(); x++) {
+            for (int y = 0; y < getHeight() / getTileHeight(); y ++) {
+                tiles.add(getTile(x, y));
+            }
+        }
+        return tiles;
+    }
+
     public BufferedImage getSheet() {
         return sheet;
+    }
+
+    public int getWidth() {
+        return sheet.getWidth();
+    }
+
+    public int getHeight() {
+        return sheet.getHeight();
     }
 
     public int getTileWidth() {

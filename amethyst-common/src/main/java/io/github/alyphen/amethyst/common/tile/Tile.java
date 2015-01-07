@@ -29,6 +29,14 @@ public class Tile {
         return col;
     }
 
+    public int getWidth() {
+        return getSheet().getTileWidth();
+    }
+
+    public int getHeight() {
+        return getSheet().getTileHeight();
+    }
+
     public void paint(Graphics graphics, int x, int y) {
         graphics.drawImage(image, x, y, null);
     }

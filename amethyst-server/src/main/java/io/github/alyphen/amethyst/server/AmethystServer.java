@@ -20,11 +20,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.logging.*;
 
 import static io.github.alyphen.amethyst.common.util.FileUtils.read;
 import static java.nio.file.Files.copy;
@@ -39,6 +38,7 @@ public class AmethystServer {
     private NetworkManager networkManager;
     private PlayerManager playerManager;
     private ScriptEngineManager scriptEngineManager;
+    private Logger logger;
     private boolean running;
     private static final long DELAY = 25L;
 
@@ -47,6 +47,8 @@ public class AmethystServer {
     }
 
     public AmethystServer(int port) {
+        logger = Logger.getLogger(getClass().getName());
+        logger.addHandler(new FileWriterHandler());
         scriptEngineManager = new ScriptEngineManager();
         databaseManager = new DatabaseManager("server");
         characterManager = new CharacterManager(this);
@@ -331,6 +333,10 @@ public class AmethystServer {
             world.onTick();
             world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(Entity::isSpeedChanged).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
         });
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 
 }

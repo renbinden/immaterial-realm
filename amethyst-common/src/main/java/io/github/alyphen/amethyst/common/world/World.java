@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.github.alyphen.amethyst.common.util.FileUtils.loadMetadata;
+import static io.github.alyphen.amethyst.common.util.FileUtils.saveMetadata;
 
 public class World {
 
@@ -50,13 +51,24 @@ public class World {
 
     public void removeArea(WorldArea area) {
         if (area == null) return;
-        getAreas().remove(area.getName());
+        areas.remove(area.getName());
     }
 
     public void onTick() {
         for (WorldArea area : getAreas()) {
             area.onTick();
         }
+    }
+
+    public void save(File directory) throws IOException {
+        File metadataFile = new File(directory, "world.json");
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("name", getName());
+        File areaDirectory = new File(directory, "areas");
+        for (Map.Entry<String, WorldArea> entry : areas.entrySet()) {
+            entry.getValue().save(new File(areaDirectory, entry.getKey()));
+        }
+        saveMetadata(metadata, metadataFile);
     }
 
     public static World load(File directory) throws IOException, ClassNotFoundException {

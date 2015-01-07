@@ -44,23 +44,22 @@
         <module>amethyst-server</module>
         <module>amethyst-client</module>
         <module>amethyst-common</module>
+        <module>amethyst-builder</module>
     </modules>
     <dependencies>
+        <!-- Networking -->
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
+            <artifactId>netty-all</artifactId>
             <version>5.0.0.Alpha1</version>
         </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>5.0.0.Alpha1</version>
-        </dependency>
+        <!-- JDBC connectors -->
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.7.15-M1</version>
         </dependency>
+        <!-- Apache commons -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -71,17 +70,26 @@
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
         </dependency>
+        <!-- Other generally useful libs -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>17.0</version>
+        </dependency>
+        <!-- Testing -->
         <dependency>
             <groupId>com.insightfullogic</groupId>
             <artifactId>lambda-behave</artifactId>
             <version>0.3</version>
             <scope>test</scope>
         </dependency>
+        <!-- Serialisation -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.2.4</version>
         </dependency>
+        <!-- Scripting -->
         <dependency>
             <groupId>org.python</groupId>
             <artifactId>jython</artifactId>
