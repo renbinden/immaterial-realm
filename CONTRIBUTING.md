@@ -1,4 +1,4 @@
-Contributing to Amethyst
+Contributing to Immaterial Realm
 ========================
 
 Code standards
@@ -13,7 +13,7 @@ Code standards
 * Conditionals should have one space between the statement and the conditional
 * Argument definitions should have no spaces between the brackets and arguments
 * Don't worry too much about line length - if using a builder or similar, separate lines, but in general weird mid-statement line breaks are a bit silly.
-* Order access modifiers followed by final/volatile/transient followed by static 
+* Order access modifiers followed by final/volatile/transient followed by static
 
 How to get your feature included
 --------------------------------

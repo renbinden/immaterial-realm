@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.alyphen</groupId>
-    <artifactId>amethyst-parent</artifactId>
+    <artifactId>immaterial-realm-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Amethyst</name>
+    <name>Immaterial Realm</name>
     <description>Multiplayer roleplay platform</description>
     <packaging>pom</packaging>
     <properties>
@@ -19,7 +19,7 @@
         </license>
     </licenses>
     <issueManagement>
-        <url>https://github.com/alyphen/amethyst/issues</url>
+        <url>https://github.com/alyphen/immaterial-realm/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
     <developers>
@@ -35,16 +35,16 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:https://github.com/alyphen/amethyst.git</connection>
-        <url>https://github.com/alyphen/amethyst</url>
-        <developerConnection>scm:git:https://github.com/alyphen/amethyst.git</developerConnection>
+        <connection>scm:git:https://github.com/alyphen/immaterial-realm.git</connection>
+        <url>https://github.com/alyphen/immaterial-realm</url>
+        <developerConnection>scm:git:https://github.com/alyphen/immaterial-realm.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <modules>
-        <module>amethyst-server</module>
-        <module>amethyst-client</module>
-        <module>amethyst-common</module>
-        <module>amethyst-builder</module>
+        <module>immaterial-realm-server</module>
+        <module>immaterial-realm-client</module>
+        <module>immaterial-realm-common</module>
+        <module>immaterial-realm-builder</module>
     </modules>
     <dependencies>
         <!-- Networking -->
