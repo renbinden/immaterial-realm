@@ -2,26 +2,22 @@ package io.github.alyphen.immaterial_realm.builder.panel;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
 import io.github.alyphen.immaterial_realm.builder.celleditor.ColourChooserCellEditor;
 import io.github.alyphen.immaterial_realm.builder.celleditor.SpinnerCellEditor;
+import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
-import static java.awt.BorderLayout.CENTER;
-import static java.awt.BorderLayout.NORTH;
-import static java.awt.BorderLayout.SOUTH;
+import static java.awt.BorderLayout.*;
 import static javax.swing.JOptionPane.showMessageDialog;
 
 public class ChatDesignerPanel extends JPanel {
@@ -106,7 +102,40 @@ public class ChatDesignerPanel extends JPanel {
         buttonsPanel.add(btnSave);
         JButton btnOpen = new JButton("Open");
         btnOpen.addActionListener(event -> {
-
+            File configDir = new File("./config");
+            if (configDir.exists()) {
+                File chatConfigFile = new File(configDir, "chat.json");
+                if (chatConfigFile.exists()) {
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    StringBuilder jsonBuilder = new StringBuilder();
+                    try {
+                        Scanner scanner = new Scanner(new FileInputStream(chatConfigFile));
+                        while (scanner.hasNextLine()) {
+                            jsonBuilder.append(scanner.nextLine()).append('\n');
+                        }
+                    } catch (FileNotFoundException exception) {
+                        exception.printStackTrace();
+                    }
+                    Map<String, Object> chatConfig = gson.fromJson(jsonBuilder.toString(), new TypeToken<Map<String, Object>>(){}.getType());
+                    Map<String, Object> channels = (Map<String, Object>) chatConfig.get("channels");
+                    for (Map.Entry<String, Object> entry : channels.entrySet()) {
+                        Map<String, Object> channelConfig = (Map<String, Object>) entry.getValue();
+                        Map<String, Object> channelColour = (Map<String, Object>) channelConfig.get("colour");
+                        ChatChannel channel = new ChatChannel(
+                                entry.getKey(),
+                                new Color(
+                                        (int) ((double) channelColour.get("red")),
+                                        (int) ((double) channelColour.get("green")),
+                                        (int) ((double) channelColour.get("blue")),
+                                        (int) ((double) channelColour.get("alpha"))
+                                ),
+                                (int) ((double) channelConfig.get("radius"))
+                        );
+                        ((DefaultTableModel) channelTable.getModel()).insertRow(channelTable.getRowCount(), new Object[] {channel.getName(), channel.getColour(), channel.getRadius()});
+                    }
+                    defaultChannel.setSelectedItem(chatConfig.get("default-channel"));
+                }
+            }
         });
         buttonsPanel.add(btnOpen);
         JButton btnBack = new JButton("Back");

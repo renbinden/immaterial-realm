@@ -1,5 +1,6 @@
 package io.github.alyphen.immaterial_realm.builder.panel;
 
+import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.AreaSelectPanel;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.MapEditorPanel;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.TilePanel;
@@ -13,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 
 import static java.awt.BorderLayout.*;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 public class MapBuilderPanel extends JPanel {
 
@@ -23,12 +26,13 @@ public class MapBuilderPanel extends JPanel {
     private TilePanel tilePanel;
     private MapEditorPanel mapEditorPanel;
 
-    public MapBuilderPanel() {
+    public MapBuilderPanel(ImmaterialRealmBuilder application) {
         File worldFile  = new File("./worlds/default");
         if (worldFile.exists()) {
             try {
                 world = World.load(worldFile);
             } catch (IOException | ClassNotFoundException exception) {
+                showMessageDialog(null, "Failed to load world:\n" + exception.getMessage(), "Failed to load world", ERROR_MESSAGE);
                 exception.printStackTrace();
             }
         } else {
@@ -44,6 +48,27 @@ public class MapBuilderPanel extends JPanel {
         tilesPanel.setLayout(new GridLayout(2, 1));
         tilesPanel.add(tileSheetPanel);
         tilesPanel.add(tilePanel);
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new FlowLayout());
+        JButton btnSave = new JButton("Save");
+        btnSave.addActionListener(event -> {
+            try {
+                world.save(new File("./worlds/default"));
+            } catch (IOException exception) {
+                showMessageDialog(null, "Failed to save world:\n" + exception.getMessage(), "Failed to save world", ERROR_MESSAGE);
+                exception.printStackTrace();
+            }
+        });
+        buttonsPanel.add(btnSave);
+        JButton btnAddRow = new JButton("Add row");
+        btnAddRow.addActionListener(event -> getArea().addRows(1));
+        buttonsPanel.add(btnAddRow);
+        JButton btnAddColumn = new JButton("Add column");
+        btnAddColumn.addActionListener(event -> getArea().addColumns(1));
+        buttonsPanel.add(btnAddColumn);
+        JButton btnBack = new JButton("Back");
+        btnBack.addActionListener(event -> application.showPanel("menu"));
+        add(buttonsPanel, SOUTH);
         add(tilesPanel, EAST);
         add(mapEditorPanel, CENTER);
         add(areaSelectPanel, WEST);

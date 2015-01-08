@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.saveMetadata;
+import static java.lang.System.arraycopy;
 
 public class WorldArea {
 
@@ -77,6 +78,43 @@ public class WorldArea {
         return cols;
     }
 
+    public void resize(int cols, int rows) {
+        addColumns(rows - getRows());
+        addRows(cols - getColumns());
+    }
+
+    public void addColumns(int n) {
+        if (n == 0) {
+            return;
+        }
+        int oldCols = getTiles().length;
+        int newCols = oldCols + n;
+        int cols = getColumns();
+        Tile[][] copy = new Tile[newCols][];
+        arraycopy(getTiles(), 0, copy, 0, n > 0 ? oldCols : newCols);
+        for (int i = oldCols; i < newCols; i++) {
+            copy[i] = new Tile[cols];
+        }
+        tiles = copy;
+        rows += n;
+    }
+
+    public void addRows(int n) {
+        if (n == 0) {
+            return;
+        }
+        int oldRows = getColumns();
+        int newRows = oldRows + n;
+        int height = getTiles().length;
+        Tile[][] copy = new Tile[height][newRows];
+        for (int i = 0; i < height; i++) {
+            copy[i] = new Tile[newRows];
+            arraycopy(getTiles()[i], 0, copy[i], 0, n > 0 ? oldRows : newRows);
+        }
+        tiles = copy;
+        cols += n;
+    }
+
     public Tile[][] getTiles() {
         return tiles;
     }
@@ -86,6 +124,8 @@ public class WorldArea {
     }
 
     public void setTileAt(int row, int col, Tile tile) {
+        if (row >= getTiles().length) return;
+        if (col >= getTiles()[row].length) return;
         getTiles()[row][col] = tile;
     }
 

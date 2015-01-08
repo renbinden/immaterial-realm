@@ -35,7 +35,7 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         add(chatDesignerPanel, "chat designer");
         logViewerPanel = new LogViewerPanel(this);
         add(logViewerPanel, "log viewer");
-        mapBuilderPanel = new MapBuilderPanel();
+        mapBuilderPanel = new MapBuilderPanel(this);
         add(mapBuilderPanel, "map builder");
         objectScripterPanel = new ObjectScripterPanel();
         add(objectScripterPanel, "object scripter");

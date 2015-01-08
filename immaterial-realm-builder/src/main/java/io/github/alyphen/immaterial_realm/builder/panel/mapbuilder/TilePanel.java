@@ -64,16 +64,16 @@ public class TilePanel extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent event) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
         Tile selectTile = getTileAt(event.getX(), event.getY());
         if (selectTile != null) {
             selectedTile = selectTile;
             repaint();
         }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent event) {
-
     }
 
     @Override

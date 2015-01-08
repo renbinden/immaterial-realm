@@ -34,25 +34,25 @@ public class MapEditorPanel extends JPanel implements MouseListener, MouseMotion
         getActionMap().put("scrollUp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                yScroll = -SCROLL_SPEED;
+                yScroll = SCROLL_SPEED;
             }
         });
         getActionMap().put("scrollDown", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                yScroll = SCROLL_SPEED;
+                yScroll = -SCROLL_SPEED;
             }
         });
         getActionMap().put("scrollRight", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                xScroll = SCROLL_SPEED;
+                xScroll = -SCROLL_SPEED;
             }
         });
         getActionMap().put("scrollLeft", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                xScroll = -SCROLL_SPEED;
+                xScroll = SCROLL_SPEED;
             }
         });
         getActionMap().put("stopScrollUp", new AbstractAction() {
@@ -91,7 +91,8 @@ public class MapEditorPanel extends JPanel implements MouseListener, MouseMotion
             for (int x = 0; x < mapBuilderPanel.getArea().getTiles().length; x++) {
                 for (int y = 0; y < mapBuilderPanel.getArea().getTiles()[x].length; y++) {
                     Tile tile = mapBuilderPanel.getArea().getTileAt(x, y);
-                    tile.paint(graphics, x * tile.getWidth(), y * tile.getHeight());
+                    if (tile != null)
+                        tile.paint(graphics, x * tile.getWidth(), y * tile.getHeight());
                 }
             }
             graphics2D.translate(xOffset, yOffset);
@@ -101,17 +102,17 @@ public class MapEditorPanel extends JPanel implements MouseListener, MouseMotion
 
     @Override
     public void mouseClicked(MouseEvent event) {
-        if (mapBuilderPanel.getArea() != null) {
-            Tile tile = mapBuilderPanel.getTilePanel().getSelectedTile();
-            if (tile != null) {
-                mapBuilderPanel.getArea().setTileAt(event.getX() / tile.getWidth(), event.getY() / tile.getHeight(), tile);
-            }
-        }
+
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
-
+        if (mapBuilderPanel.getArea() != null) {
+            Tile tile = mapBuilderPanel.getTilePanel().getSelectedTile();
+            if (tile != null) {
+                mapBuilderPanel.getArea().setTileAt((event.getX() + xOffset) / tile.getWidth(), (event.getY() + yOffset) / tile.getHeight(), tile);
+            }
+        }
     }
 
     @Override
@@ -139,7 +140,7 @@ public class MapEditorPanel extends JPanel implements MouseListener, MouseMotion
         if (mapBuilderPanel.getArea() != null) {
             Tile tile = mapBuilderPanel.getTilePanel().getSelectedTile();
             if (tile != null) {
-                mapBuilderPanel.getArea().setTileAt(event.getX() / tile.getWidth(), event.getY() / tile.getHeight(), tile);
+                mapBuilderPanel.getArea().setTileAt((event.getX() + xOffset) / tile.getWidth(), (event.getY() + yOffset) / tile.getHeight(), tile);
             }
         }
     }
