@@ -16,6 +16,11 @@
             <artifactId>immaterial-realm-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>rsyntaxtextarea</artifactId>
+            <version>2.5.6</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
