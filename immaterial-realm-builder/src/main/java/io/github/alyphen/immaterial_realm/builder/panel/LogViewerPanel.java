@@ -66,8 +66,10 @@ public class LogViewerPanel extends JPanel{
     public void loadLogs() {
         textPane.setEditable(false);
         File logDirectory = new File("./logs");
-        for (File file : logDirectory.listFiles((dir, name) -> name.endsWith(".log"))) {
-            loadLog(file);
+        if (logDirectory.exists() && logDirectory.isDirectory()) {
+            for (File file : logDirectory.listFiles((dir, name) -> name.endsWith(".log"))) {
+                loadLog(file);
+            }
         }
     }
 
