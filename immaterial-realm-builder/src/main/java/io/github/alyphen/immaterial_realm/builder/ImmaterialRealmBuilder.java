@@ -37,7 +37,7 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         add(logViewerPanel, "log viewer");
         mapBuilderPanel = new MapBuilderPanel(this);
         add(mapBuilderPanel, "map builder");
-        objectScripterPanel = new ObjectScripterPanel();
+        objectScripterPanel = new ObjectScripterPanel(this);
         add(objectScripterPanel, "object scripter");
         pluginsPanel = new PluginsPanel();
         add(pluginsPanel, "plugins");
@@ -94,6 +94,10 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
             }
             beforeTime = System.currentTimeMillis();
         }
+    }
+
+    public ImmaterialRealmBuilderFrame getFrame() {
+        return frame;
     }
 
 }
