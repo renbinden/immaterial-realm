@@ -43,6 +43,19 @@ public class ObjectScripterPanel extends JPanel {
             exception.printStackTrace();
         }
         editor.setSyntaxEditingStyle(SYNTAX_STYLE_JAVASCRIPT);
+        editor.setText(
+                "function create() {\n" +
+                "    \n" +
+                "}\n" +
+                "\n" +
+                "function interact() {\n" +
+                "    \n" +
+                "}\n" +
+                "\n" +
+                "function tick() {\n" +
+                "    \n" +
+                "}\n"
+        );
         add(new RTextScrollPane(editor), CENTER);
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BorderLayout());
@@ -113,7 +126,19 @@ public class ObjectScripterPanel extends JPanel {
                 yOffsetSpinner.setValue(0);
                 widthSpinner.setValue(32);
                 heightSpinner.setValue(32);
-                editor.setText("");
+                editor.setText(
+                        "function create() {\n" +
+                                "    \n" +
+                                "}\n" +
+                                "\n" +
+                                "function interact() {\n" +
+                                "    \n" +
+                                "}\n" +
+                                "\n" +
+                                "function tick() {\n" +
+                                "    \n" +
+                                "}\n"
+                );
                 languageSelectionBox.setSelectedItem(SYNTAX_STYLE_JAVASCRIPT);
             }
         });
@@ -230,6 +255,21 @@ public class ObjectScripterPanel extends JPanel {
                 editor.append(scriptScanner.nextLine() + "\n");
             }
             scriptScanner.close();
+        }
+        if (editor.getText().equals("")) {
+            editor.setText(
+                    "function create() {\n" +
+                    "    \n" +
+                    "}\n" +
+                    "\n" +
+                    "function interact() {\n" +
+                    "    \n" +
+                    "}\n" +
+                    "\n" +
+                    "function tick() {\n" +
+                    "    \n" +
+                    "}\n"
+            );
         }
     }
 
