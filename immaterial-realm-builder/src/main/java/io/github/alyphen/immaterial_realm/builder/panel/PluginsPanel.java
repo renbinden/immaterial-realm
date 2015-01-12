@@ -1,11 +1,9 @@
 package io.github.alyphen.immaterial_realm.builder.panel;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -31,17 +29,12 @@ public class PluginsPanel extends JPanel {
 
     private void createScene() {
         Platform.runLater(() -> {
-            stage = new Stage();
-            stage.setTitle("Web View");
-            stage.setResizable(true);
-            Group root = new Group();
-            Scene scene = new Scene(root,80,20);
-            stage.setScene(scene);
+            BorderPane border = new BorderPane();
+            Scene scene = new Scene(border);
             browser = new WebView();
             webEngine = browser.getEngine();
             webEngine.load("https://duckduckgo.com/");
-            ObservableList<Node> children = root.getChildren();
-            children.add(browser);
+            border.setCenter(browser);
             jfxPanel.setScene(scene);
         });
     }
