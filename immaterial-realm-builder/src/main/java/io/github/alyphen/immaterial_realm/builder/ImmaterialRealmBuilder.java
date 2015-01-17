@@ -39,7 +39,7 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         add(mapBuilderPanel, "map builder");
         objectScripterPanel = new ObjectScripterPanel(this);
         add(objectScripterPanel, "object scripter");
-        pluginsPanel = new PluginsPanel();
+        pluginsPanel = new PluginsPanel(this);
         add(pluginsPanel, "plugins");
         settingsPanel = new SettingsPanel();
         add(settingsPanel, "settings");
