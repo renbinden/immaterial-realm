@@ -4,9 +4,9 @@ import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
 
 import javax.swing.*;
 
-public class TileSheetsPanel extends JPanel {
+public class SpritesPanel extends JPanel {
 
-    public TileSheetsPanel(ImmaterialRealmBuilder application) {
+    public SpritesPanel(ImmaterialRealmBuilder application) {
 
     }
 

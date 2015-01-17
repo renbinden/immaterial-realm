@@ -37,6 +37,9 @@ public class MenuPanel extends JPanel {
             JButton btnTilesheets = new JButton("Tilesheets", new ImageIcon(read(getClass().getResourceAsStream("/icon_tilesheets.png"))));
             btnTilesheets.addActionListener(event -> application.showPanel("tilesheets"));
             add(btnTilesheets);
+            JButton btnSprites = new JButton("Sprites", new ImageIcon(read(getClass().getResourceAsStream("/icon_sprites.png"))));
+            btnSprites.addActionListener(event -> application.showPanel("sprites"));
+            add(btnSprites);
         } catch (IOException exception) {
             exception.printStackTrace();
         }

@@ -24,6 +24,7 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
     private PluginsPanel pluginsPanel;
     private SettingsPanel settingsPanel;
     private TileSheetsPanel tileSheetsPanel;
+    private SpritesPanel spritesPanel;
 
     public ImmaterialRealmBuilder(ImmaterialRealmBuilderFrame frame) {
         this.frame = frame;
@@ -43,8 +44,10 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         add(pluginsPanel, "plugins");
         settingsPanel = new SettingsPanel(this);
         add(settingsPanel, "settings");
-        tileSheetsPanel = new TileSheetsPanel();
+        tileSheetsPanel = new TileSheetsPanel(this);
         add(tileSheetsPanel, "tilesheets");
+        spritesPanel = new SpritesPanel(this);
+        add(spritesPanel, "sprites");
         new Thread(this).start();
     }
 
