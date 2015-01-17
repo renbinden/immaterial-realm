@@ -42,21 +42,27 @@ public class TileSheet {
     }
 
     private String name;
-    private BufferedImage sheet;
+    private BufferedImage sheetImage;
     private int tileWidth;
     private int tileHeight;
     private Tile[][] tiles;
 
-    private TileSheet(String name, BufferedImage sheet, int tileWidth, int tileHeight) {
+    private TileSheet(String name, BufferedImage sheetImage, int tileWidth, int tileHeight) {
         this.name = name;
-        this.sheet = sheet;
+        this.sheetImage = sheetImage;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
-        tiles = new Tile[sheet.getHeight() / tileHeight][sheet.getWidth() / tileWidth];
+        tiles = new Tile[sheetImage.getHeight() / tileHeight][sheetImage.getWidth() / tileWidth];
     }
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        tileSheets.remove(this.name);
+        this.name = name;
+        tileSheets.put(name, this);
     }
 
     public Tile getTile(int row, int col) {
@@ -76,24 +82,42 @@ public class TileSheet {
         return tiles;
     }
 
-    public BufferedImage getSheet() {
-        return sheet;
+    public BufferedImage getSheetImage() {
+        return sheetImage;
+    }
+
+    public void setSheetImage(BufferedImage sheetImage) {
+        this.sheetImage.flush();
+        for (int row = 0; row < tiles.length; row++) {
+            for (int col = 0; col < tiles[row].length; col++) {
+                tiles[row][col] = null;
+            }
+        }
+        this.sheetImage = sheetImage;
     }
 
     public int getWidth() {
-        return sheet.getWidth();
+        return sheetImage.getWidth();
     }
 
     public int getHeight() {
-        return sheet.getHeight();
+        return sheetImage.getHeight();
     }
 
     public int getTileWidth() {
         return tileWidth;
     }
 
+    public void setTileWidth(int tileWidth) {
+        this.tileWidth = tileWidth;
+    }
+
     public int getTileHeight() {
         return tileHeight;
+    }
+
+    public void setTileHeight(int tileHeight) {
+        this.tileHeight = tileHeight;
     }
 
     public static TileSheet load(File directory) throws IOException {
@@ -111,6 +135,12 @@ public class TileSheet {
         return sheet;
     }
 
+    public static TileSheet create(String name, BufferedImage image, int tileWidth, int tileHeight) {
+        TileSheet tileSheet = new TileSheet(name, image, tileWidth, tileHeight);
+        tileSheets.put(name, tileSheet);
+        return tileSheet;
+    }
+
     public void save(File directory) throws IOException {
         if ((directory.exists() && deleteDirectory(directory) && directory.mkdir()) || directory.mkdir()) {
             File metadataFile = new File(directory, "tilesheet.json");
@@ -119,7 +149,7 @@ public class TileSheet {
             metadata.put("tile_height", tileHeight);
             saveMetadata(metadata, metadataFile);
             File imageFile = new File(directory, "tilesheet.png");
-            ImageIO.write(sheet, "png", imageFile);
+            ImageIO.write(sheetImage, "png", imageFile);
         }
     }
 

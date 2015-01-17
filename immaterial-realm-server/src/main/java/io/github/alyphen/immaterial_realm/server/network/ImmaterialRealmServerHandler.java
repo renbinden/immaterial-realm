@@ -112,7 +112,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             ctx.writeAndFlush(new PacketSendPlayers(channels.stream().filter(channel -> channel.attr(PLAYER).get() != null).map(channel -> channel.attr(PLAYER).get()).collect(Collectors.toSet())));
         } else if (msg instanceof PacketRequestTileSheets) {
             for (TileSheet tileSheet : TileSheet.getTileSheets()) {
-                ctx.writeAndFlush(new PacketSendTileSheet(tileSheet.getName(), tileSheet.getSheet(), tileSheet.getTileWidth(), tileSheet.getTileHeight()));
+                ctx.writeAndFlush(new PacketSendTileSheet(tileSheet.getName(), tileSheet.getSheetImage(), tileSheet.getTileWidth(), tileSheet.getTileHeight()));
             }
         } else if (msg instanceof PacketRequestObjectTypes) {
             for (WorldObjectInitializer initializer : WorldObjectFactory.getObjectInitializers()) {

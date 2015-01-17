@@ -14,7 +14,7 @@ public class Tile {
         this.sheet = sheet;
         this.row = row;
         this.col = col;
-        image = sheet.getSheet().getSubimage(col * sheet.getTileWidth(), row * sheet.getTileHeight(), sheet.getTileWidth(), sheet.getTileHeight());
+        image = sheet.getSheetImage().getSubimage(col * sheet.getTileWidth(), row * sheet.getTileHeight(), sheet.getTileWidth(), sheet.getTileHeight());
     }
 
     public TileSheet getSheet() {
