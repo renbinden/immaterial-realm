@@ -68,6 +68,7 @@ public class MapBuilderPanel extends JPanel {
         buttonsPanel.add(btnAddColumn);
         JButton btnBack = new JButton("Back");
         btnBack.addActionListener(event -> application.showPanel("menu"));
+        buttonsPanel.add(btnBack);
         add(buttonsPanel, SOUTH);
         add(tilesPanel, EAST);
         add(mapEditorPanel, CENTER);
