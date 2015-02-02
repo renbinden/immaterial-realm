@@ -28,7 +28,7 @@ public class WorldArea {
     private int cols;
     private Tile[][] tiles;
 
-    private WorldArea(World world, String name, int rows, int cols) {
+    public WorldArea(World world, String name, int rows, int cols) {
         this.world = world;
         this.name = name;
         this.objects = new ArrayList<>();
@@ -124,8 +124,8 @@ public class WorldArea {
     }
 
     public void setTileAt(int row, int col, Tile tile) {
-        if (row >= getTiles().length) return;
-        if (col >= getTiles()[row].length) return;
+        if (row >= getTiles().length || row < 0) return;
+        if (col >= getTiles()[row].length || col < 0) return;
         getTiles()[row][col] = tile;
     }
 
