@@ -1,11 +1,11 @@
 package io.github.alyphen.immaterial_realm.builder;
 
 import io.github.alyphen.immaterial_realm.builder.panel.*;
+import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
 import static java.lang.Thread.sleep;
@@ -58,24 +58,20 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
     }
 
     public void loadData() {
-        loadTileSheets();
-    }
-
-    public void loadTileSheets() {
-        File tileSheetDirectory = new File("./tilesheets");
-        if (tileSheetDirectory.exists() && tileSheetDirectory.isDirectory()) {
-            for (File file : tileSheetDirectory.listFiles(File::isDirectory)) {
-                try {
-                    TileSheet.load(file);
-                } catch (IOException exception) {
-                    exception.printStackTrace();
-                }
-            }
+        try {
+            TileSheet.loadTileSheets();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+        try {
+            Sprite.loadSprites();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
     public void doTick() {
-        mapBuilderPanel.onTick();
+        if (mapBuilderPanel.isVisible()) mapBuilderPanel.onTick();
     }
 
     @Override

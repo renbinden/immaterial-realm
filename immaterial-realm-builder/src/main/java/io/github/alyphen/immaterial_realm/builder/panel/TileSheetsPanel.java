@@ -99,7 +99,7 @@ public class TileSheetsPanel extends JPanel {
                     return "Portable Network Graphics (*.png)";
                 }
             });
-            if (fileChooser.showSaveDialog(null) == APPROVE_OPTION) {
+            if (fileChooser.showOpenDialog(null) == APPROVE_OPTION) {
                 try {
                     currentTileSheet.setSheetImage(ImageIO.read(fileChooser.getSelectedFile()));
                 } catch (IOException exception) {

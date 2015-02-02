@@ -96,7 +96,7 @@ public class PacketCharacterSpawn extends Packet {
 
     public Sprite getWalkUpSprite() {
         try {
-            return Sprite.fromByteArray(walkUpSprite, walkUpFrameDelay);
+            return Sprite.fromByteArray("__character_walk_up_" + name, walkUpSprite, walkUpFrameDelay);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -105,7 +105,7 @@ public class PacketCharacterSpawn extends Packet {
 
     public Sprite getWalkLeftSprite() {
         try {
-            return Sprite.fromByteArray(walkLeftSprite, walkLeftFrameDelay);
+            return Sprite.fromByteArray("__character_walk_left_" + name, walkLeftSprite, walkLeftFrameDelay);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -114,7 +114,7 @@ public class PacketCharacterSpawn extends Packet {
 
     public Sprite getWalkRightSprite() {
         try {
-            return Sprite.fromByteArray(walkRightSprite, walkRightFrameDelay);
+            return Sprite.fromByteArray("__character_walk_right_" + name, walkRightSprite, walkRightFrameDelay);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -123,7 +123,7 @@ public class PacketCharacterSpawn extends Packet {
 
     public Sprite getWalkDownSprite() {
         try {
-            return Sprite.fromByteArray(walkDownSprite, walkDownFrameDelay);
+            return Sprite.fromByteArray("__character_walk_down_" + name, walkDownSprite, walkDownFrameDelay);
         } catch (IOException exception) {
             exception.printStackTrace();
         }

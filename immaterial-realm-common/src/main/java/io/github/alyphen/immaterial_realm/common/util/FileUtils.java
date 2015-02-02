@@ -1,6 +1,7 @@
 package io.github.alyphen.immaterial_realm.common.util;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
@@ -37,8 +38,9 @@ public class FileUtils {
     }
 
     public static void saveMetadata(Map<String, Object> metadata, File file) throws IOException {
+        if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         writer.write(gson.toJson(metadata));
         writer.close();
     }

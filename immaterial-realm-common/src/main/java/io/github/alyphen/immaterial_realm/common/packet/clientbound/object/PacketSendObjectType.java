@@ -30,7 +30,7 @@ public class PacketSendObjectType extends Packet {
 
     public Sprite getSprite() {
         try {
-            return Sprite.fromByteArray(sprite, frameDelay);
+            return Sprite.fromByteArray("__object_" + name, sprite, frameDelay);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
