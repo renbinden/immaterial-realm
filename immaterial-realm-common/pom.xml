@@ -11,4 +11,34 @@
     <groupId>io.github.alyphen</groupId>
     <artifactId>immaterial-realm-common</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.google.code.gson:gson</include>
+                                    <include>com.google.guava:guava</include>
+                                    <include>commons-codec:commons-codec</include>
+                                    <include>commons-lang:commons-lang</include>
+                                    <include>io.netty:netty-all</include>
+                                    <include>org.jruby:jruby</include>
+                                    <include>org.python:jython</include>
+                                    <include>org.xerial:sqlite-jdbc</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

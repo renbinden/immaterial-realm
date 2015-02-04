@@ -26,12 +26,31 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>io.github.immaterial_realm.client.ImmaterialRealmClientFrame</mainClass>
+                            <mainClass>io.github.alyphen.immaterial_realm.client.ImmaterialRealmClientFrame</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>io.github.alyphen:immaterial-realm-common</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
