@@ -45,6 +45,10 @@ public class Sprite {
         return sprites.values();
     }
 
+    public static void addSprite(Sprite sprite) {
+        sprites.put(sprite.getName(), sprite);
+    }
+
     private String name;
     private BufferedImage[] frames;
     private int index;
@@ -65,6 +69,10 @@ public class Sprite {
 
     public void paint(Graphics graphics) {
         graphics.drawImage(frames[index], 0, 0, null);
+    }
+
+    public void paint(Graphics graphics, int x, int y) {
+        graphics.drawImage(frames[index], x, y, null);
     }
 
     public String getName() {

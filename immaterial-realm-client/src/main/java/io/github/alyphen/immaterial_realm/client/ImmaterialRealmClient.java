@@ -3,6 +3,7 @@ package io.github.alyphen.immaterial_realm.client;
 import io.github.alyphen.immaterial_realm.client.character.CharacterManager;
 import io.github.alyphen.immaterial_realm.client.chat.ChatManager;
 import io.github.alyphen.immaterial_realm.client.network.NetworkManager;
+import io.github.alyphen.immaterial_realm.client.panel.CharacterCreationPanel;
 import io.github.alyphen.immaterial_realm.client.panel.ConnectionPanel;
 import io.github.alyphen.immaterial_realm.client.panel.LoginPanel;
 import io.github.alyphen.immaterial_realm.client.panel.WorldPanel;
@@ -36,6 +37,7 @@ public class ImmaterialRealmClient extends JPanel {
     private ConnectionPanel connectionPanel;
     private LoginPanel loginPanel;
     private WorldPanel worldPanel;
+    private CharacterCreationPanel characterCreationPanel;
 
     public ImmaterialRealmClient(ImmaterialRealmClientFrame frame) {
         this.frame = frame;
@@ -56,6 +58,8 @@ public class ImmaterialRealmClient extends JPanel {
         add(loginPanel, "login");
         worldPanel = new WorldPanel(this);
         add(worldPanel, "world");
+        characterCreationPanel = new CharacterCreationPanel();
+        add(characterCreationPanel, "character creation");
     }
 
     public void run() {
@@ -146,6 +150,10 @@ public class ImmaterialRealmClient extends JPanel {
 
     public WorldPanel getWorldPanel() {
         return worldPanel;
+    }
+
+    public CharacterCreationPanel getCharacterCreationPanel() {
+        return characterCreationPanel;
     }
 
     public void onControlPressed(Control control) {

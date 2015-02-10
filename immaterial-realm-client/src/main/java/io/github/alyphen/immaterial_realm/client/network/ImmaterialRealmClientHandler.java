@@ -1,8 +1,8 @@
 package io.github.alyphen.immaterial_realm.client.network;
 
 import io.github.alyphen.immaterial_realm.client.ImmaterialRealmClient;
-import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
 import io.github.alyphen.immaterial_realm.common.character.Character;
+import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
 import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
@@ -10,28 +10,29 @@ import io.github.alyphen.immaterial_realm.common.object.WorldObject;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.PacketPong;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.character.PacketCharacterSpawn;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketClientboundGlobalChatMessage;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketClientboundLocalChatMessage;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSetChannel;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketClientboundPublicKey;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketPlayerJoin;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketPlayerLeave;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.PacketPing;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.character.PacketCharacterSpawn;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.chat.PacketRequestChannels;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSendChannel;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSetChannel;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityMove;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntitySpawn;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketClientboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketLoginStatus;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketServerboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketVersion;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.object.PacketCreateObject;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.object.PacketSendObjectType;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketPlayerJoin;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketPlayerLeave;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketSendPlayers;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTileSheets;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.sprite.*;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTileSheet;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.PacketPing;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.chat.PacketRequestChannels;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketServerboundPublicKey;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTileSheets;
 import io.github.alyphen.immaterial_realm.common.packet.world.*;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
@@ -226,6 +227,20 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                     client.getWorldPanel().getArea().removeEntity(characterEntity);
                 }
             });
+        } else if (msg instanceof PacketAddSprite) {
+            PacketAddSprite packet = (PacketAddSprite) msg;
+            Sprite.addSprite(packet.getSprite());
+            if (msg instanceof PacketAddFaceSprite) {
+                client.getCharacterCreationPanel().addFaceSprite(packet.getSprite());
+            } else if (msg instanceof PacketAddFeetSprite) {
+                client.getCharacterCreationPanel().addFeetSprite(packet.getSprite());
+            } else if (msg instanceof PacketAddHairSprite) {
+                client.getCharacterCreationPanel().addHairSprite(packet.getSprite());
+            } else if (msg instanceof PacketAddLegsSprite) {
+                client.getCharacterCreationPanel().addLegsSprite(packet.getSprite());
+            } else if (msg instanceof PacketAddTorsoSprite) {
+                client.getCharacterCreationPanel().addTorsoSprite(packet.getSprite());
+            }
         }
     }
 
