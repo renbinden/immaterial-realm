@@ -1,11 +1,11 @@
-package io.github.alyphen.immaterial_realm.common.packet.world;
+package io.github.alyphen.immaterial_realm.common.packet.clientbound.world;
 
-public class PacketRequestObjects {
+public class PacketRequestWorldArea {
 
     private String world;
     private String area;
 
-    public PacketRequestObjects(String world, String area) {
+    public PacketRequestWorldArea(String world, String area) {
         this.world = world;
         this.area = area;
     }

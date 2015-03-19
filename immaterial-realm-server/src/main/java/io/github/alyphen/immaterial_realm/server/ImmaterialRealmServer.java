@@ -9,8 +9,8 @@ import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityMove;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
-import io.github.alyphen.immaterial_realm.common.util.FileUtils;
 import io.github.alyphen.immaterial_realm.common.world.World;
+import io.github.alyphen.immaterial_realm.server.character.CharacterComponentManager;
 import io.github.alyphen.immaterial_realm.server.character.CharacterManager;
 import io.github.alyphen.immaterial_realm.server.chat.ChatManager;
 import io.github.alyphen.immaterial_realm.server.network.NetworkManager;
@@ -20,17 +20,23 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
+import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.read;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Paths.get;
+import static java.util.logging.Level.SEVERE;
 
 public class ImmaterialRealmServer {
 
+    private CharacterComponentManager characterComponentManager;
     private CharacterManager characterManager;
     private ChatManager chatManager;
     private DatabaseManager databaseManager;
@@ -38,6 +44,7 @@ public class ImmaterialRealmServer {
     private NetworkManager networkManager;
     private PlayerManager playerManager;
     private ScriptEngineManager scriptEngineManager;
+    private Map<String, Object> configuration;
     private Logger logger;
     private boolean running;
     private static final long DELAY = 25L;
@@ -51,6 +58,7 @@ public class ImmaterialRealmServer {
         logger.addHandler(new FileWriterHandler());
         scriptEngineManager = new ScriptEngineManager();
         databaseManager = new DatabaseManager("server");
+        characterComponentManager = new CharacterComponentManager(this);
         characterManager = new CharacterManager(this);
         chatManager = new ChatManager();
         encryptionManager = new EncryptionManager();
@@ -60,6 +68,7 @@ public class ImmaterialRealmServer {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+        loadConfiguration();
         try {
             TileSheet.loadTileSheets();
         } catch (IOException exception) {
@@ -69,7 +78,7 @@ public class ImmaterialRealmServer {
         for (File objectDirectory : objectsDirectory.listFiles(File::isDirectory)) {
             try {
                 File propertiesFile = new File(objectDirectory, "object.json");
-                Map<String, Object> properties = FileUtils.loadMetadata(propertiesFile);
+                Map<String, Object> properties = loadMetadata(propertiesFile);
                 WorldObjectFactory.registerObjectInitializer((String) properties.get("name"), new WorldObjectInitializer() {
 
                     @Override
@@ -213,6 +222,10 @@ public class ImmaterialRealmServer {
         playerManager = new PlayerManager(this);
     }
 
+    public CharacterComponentManager getCharacterComponentManager() {
+        return characterComponentManager;
+    }
+
     public CharacterManager getCharacterManager() {
         return characterManager;
     }
@@ -259,6 +272,30 @@ public class ImmaterialRealmServer {
         if (!configFile.exists()) {
             copy(getClass().getResourceAsStream("/server.json"), get(configFile.getPath()));
         }
+    }
+
+    private void loadConfiguration() {
+        try {
+            saveDefaultConfiguration();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to save default configuration", exception);
+        }
+        File configDir = new File("./config");
+        File configFile = new File(configDir, "server.json");
+        if (configFile.exists()) {
+            try {
+                configuration = loadMetadata(configFile);
+            } catch (IOException exception) {
+                getLogger().log(SEVERE, "Failed to load configuration", exception);
+                configuration = new HashMap<>();
+            }
+        } else {
+            configuration = new HashMap<>();
+        }
+    }
+
+    public Map<String, Object> getConfiguration() {
+        return configuration;
     }
 
     private void saveDefaultTileSheets() throws IOException {

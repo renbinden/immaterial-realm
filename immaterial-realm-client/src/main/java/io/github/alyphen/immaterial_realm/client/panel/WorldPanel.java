@@ -2,6 +2,7 @@ package io.github.alyphen.immaterial_realm.client.panel;
 
 import io.github.alyphen.immaterial_realm.client.ImmaterialRealmClient;
 import io.github.alyphen.immaterial_realm.client.chat.ChatBox;
+import io.github.alyphen.immaterial_realm.client.menu.MenuBox;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
@@ -10,19 +11,22 @@ import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 import javax.swing.*;
 import java.awt.*;
 
+import static java.awt.Color.BLACK;
+
 public class WorldPanel extends JPanel {
 
     private ImmaterialRealmClient client;
 
-    private boolean active;
     private World world;
     private WorldArea area;
     private EntityCharacter playerCharacter;
     private ChatBox chatBox;
+    private MenuBox menuBox;
 
     public WorldPanel(ImmaterialRealmClient client) {
         this.client = client;
         chatBox = new ChatBox(client, this);
+        menuBox = new MenuBox(client, this);
         client.getFrame().addKeyListener(chatBox);
     }
 
@@ -34,6 +38,8 @@ public class WorldPanel extends JPanel {
 
     @Override
     public void paintComponent(Graphics graphics) {
+        graphics.setColor(BLACK);
+        graphics.fillRect(0, 0, getWidth(), getHeight());
         if (getArea() != null && getPlayerCharacter() != null) {
             Graphics2D graphics2D = (Graphics2D) graphics;
             graphics2D.translate(-getCameraX(), -getCameraY());
@@ -67,15 +73,8 @@ public class WorldPanel extends JPanel {
             });
             graphics2D.translate(getCameraX(), getCameraY());
         }
-        chatBox.render(graphics);
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+        chatBox.paint(graphics);
+        menuBox.paint(graphics);
     }
 
     public World getWorld() {

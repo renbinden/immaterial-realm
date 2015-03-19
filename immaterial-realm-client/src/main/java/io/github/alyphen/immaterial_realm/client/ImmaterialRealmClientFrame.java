@@ -2,6 +2,8 @@ package io.github.alyphen.immaterial_realm.client;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ImmaterialRealmClientFrame extends JFrame {
 
@@ -22,10 +24,18 @@ public class ImmaterialRealmClientFrame extends JFrame {
     public ImmaterialRealmClientFrame() {
         setTitle("ImmaterialRealm");
         setFocusable(true);
-        add(new ImmaterialRealmClient(this));
+        ImmaterialRealmClient client = new ImmaterialRealmClient(this);
+        add(client);
         pack();
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent event) {
+                client.getNetworkManager().closeConnections();
+                System.exit(0);
+            }
+        });
     }
 
 }

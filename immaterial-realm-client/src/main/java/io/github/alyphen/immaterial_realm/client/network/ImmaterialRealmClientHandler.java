@@ -10,7 +10,7 @@ import io.github.alyphen.immaterial_realm.common.object.WorldObject;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.PacketPong;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.character.PacketCharacterSpawn;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.character.*;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketClientboundGlobalChatMessage;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketClientboundLocalChatMessage;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSendChannel;
@@ -28,12 +28,15 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.Packe
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.sprite.*;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTileSheet;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.PacketPing;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestCharacterSprites;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestGenders;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestRaces;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.chat.PacketRequestChannels;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketServerboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTileSheets;
-import io.github.alyphen.immaterial_realm.common.packet.world.*;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.*;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
@@ -75,7 +78,6 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             PacketLoginStatus packet = (PacketLoginStatus) msg;
             if (packet.isSuccessful()) {
                 client.showPanel("world");
-                client.getWorldPanel().setActive(true);
                 ctx.writeAndFlush(new PacketRequestPlayers());
             } else {
                 client.getLoginPanel().setStatusMessage("Login unsuccessful.");
@@ -94,6 +96,9 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             ctx.writeAndFlush(new PacketRequestObjectTypes());
             ctx.writeAndFlush(new PacketRequestWorlds());
             ctx.writeAndFlush(new PacketRequestChannels());
+            ctx.writeAndFlush(new PacketRequestRaces());
+            ctx.writeAndFlush(new PacketRequestGenders());
+            ctx.writeAndFlush(new PacketRequestCharacterSprites());
         } else if (msg instanceof PacketSendTileSheet) {
             TileSheet.load((PacketSendTileSheet) msg);
         } else if (msg instanceof PacketSendObjectType) {
@@ -179,6 +184,39 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                     }
                 }
             }
+        } else if (msg instanceof PacketCharacterUpdate) {
+            PacketCharacterUpdate packet = (PacketCharacterUpdate) msg;
+            if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
+                Character character = client.getCharacterManager().getCharacter(packet.getId());
+                if (character == null) {
+                    character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY());
+                    client.getCharacterManager().addCharacter(character);
+                } else {
+                    character.setPlayerId(packet.getPlayerId());
+                    character.setName(packet.getName());
+                    character.setGender(packet.getGender());
+                    character.setRace(packet.getRace());
+                    character.setDescription(packet.getDescription());
+                    character.setDead(packet.isDead());
+                    character.setActive(packet.isActive());
+                    character.setAreaName(packet.getAreaName());
+                    character.setX(packet.getX());
+                    character.setY(packet.getY());
+                    client.getCharacterManager().updateCharacter(character);
+                }
+                character.setWalkUpSprite(packet.getWalkUpSprite());
+                character.setWalkDownSprite(packet.getWalkDownSprite());
+                character.setWalkLeftSprite(packet.getWalkLeftSprite());
+                character.setWalkRightSprite(packet.getWalkRightSprite());
+                for (Entity entity : client.getWorldPanel().getArea().getEntities()) {
+                    if (entity instanceof EntityCharacter) {
+                        if (((EntityCharacter) entity).getCharacter().getId() == character.getId()) {
+                            ((EntityCharacter) entity).setCharacter(character);
+                            break;
+                        }
+                    }
+                }
+            }
         } else if (msg instanceof PacketEntityMove) {
             PacketEntityMove packet = (PacketEntityMove) msg;
             if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
@@ -241,6 +279,18 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             } else if (msg instanceof PacketAddTorsoSprite) {
                 client.getCharacterCreationPanel().addTorsoSprite(packet.getSprite());
             }
+        } else if (msg instanceof PacketSendGenders) {
+            PacketSendGenders packet = (PacketSendGenders) msg;
+            for (String gender : packet.getGenders()) {
+                client.getCharacterCreationPanel().addGender(gender);
+            }
+        } else if (msg instanceof PacketSendRaces) {
+            PacketSendRaces packet = (PacketSendRaces) msg;
+            for (String race : packet.getRaces()) {
+                client.getCharacterCreationPanel().addRace(race);
+            }
+        } else if (msg instanceof PacketCharacterSaveSuccessful) {
+            client.showPanel("world");
         }
     }
 

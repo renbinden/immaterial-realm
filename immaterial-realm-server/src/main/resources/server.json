@@ -1,3 +1,13 @@
 {
-
+  "genders": [
+    "Male",
+    "Female",
+    "Other"
+  ],
+  "races": [
+    "Human",
+    "Elf",
+    "Dwarf",
+    "Orc"
+  ]
 }

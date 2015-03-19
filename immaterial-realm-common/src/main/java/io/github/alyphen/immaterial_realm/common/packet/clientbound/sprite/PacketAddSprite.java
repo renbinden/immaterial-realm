@@ -11,14 +11,14 @@ public class PacketAddSprite extends Packet {
     private byte[][] sprite;
     private int frameDelay;
 
-    public PacketAddSprite(String name, Sprite sprite, int frameDelay) {
-        this.name = name;
+    public PacketAddSprite(Sprite sprite) {
+        this.name = sprite.getName();
         try {
             this.sprite = sprite.toByteArray();
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-        this.frameDelay = frameDelay;
+        this.frameDelay = sprite.getFrameDelay();
     }
 
     public String getName() {

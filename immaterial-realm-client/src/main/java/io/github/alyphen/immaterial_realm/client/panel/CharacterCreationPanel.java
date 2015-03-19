@@ -1,105 +1,114 @@
 package io.github.alyphen.immaterial_realm.client.panel;
 
+import io.github.alyphen.immaterial_realm.client.ImmaterialRealmClient;
+import io.github.alyphen.immaterial_realm.common.character.Character;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketSaveCharacter;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import static javax.swing.BoxLayout.Y_AXIS;
 
 public class CharacterCreationPanel extends JPanel {
 
-    private List<Sprite> hairSprites;
-    private int hairIndex;
-    private List<Sprite> faceSprites;
-    private int faceIndex;
-    private List<Sprite> torsoSprites;
-    private int torsoIndex;
-    private List<Sprite> legsSprites;
-    private int legsIndex;
-    private List<Sprite> feetSprites;
-    private int feetIndex;
+    private CharacterAppearancePanel characterAppearancePanel;
 
-    public CharacterCreationPanel() {
-        hairSprites = new ArrayList<>();
-        faceSprites = new ArrayList<>();
-        torsoSprites = new ArrayList<>();
-        legsSprites = new ArrayList<>();
-        feetSprites = new ArrayList<>();
+    private JTextField textFieldName;
+    private JComboBox<String> comboBoxGender;
+    private JComboBox<String> comboBoxRace;
+    private JTextArea textAreaDescription;
+
+    public CharacterCreationPanel(ImmaterialRealmClient client) {
+        setLayout(new BoxLayout(this, Y_AXIS));
+        characterAppearancePanel = new CharacterAppearancePanel();
+        add(characterAppearancePanel);
+        textFieldName = new JTextField();
+        textFieldName.setColumns(10);
+        textFieldName.setMaximumSize(new Dimension(1920, 24));
+        JLabel lblName = new JLabel("Name: ");
+        lblName.setAlignmentX(CENTER_ALIGNMENT);
+        lblName.setLabelFor(textFieldName);
+        add(lblName);
+        add(textFieldName);
+        comboBoxGender = new JComboBox<>();
+        comboBoxGender.setMaximumSize(new Dimension(1920, 24));
+        JLabel lblGender = new JLabel("Gender: ");
+        lblGender.setAlignmentX(CENTER_ALIGNMENT);
+        lblGender.setLabelFor(comboBoxGender);
+        add(lblGender);
+        add(comboBoxGender);
+        comboBoxRace = new JComboBox<>();
+        comboBoxRace.setMaximumSize(new Dimension(1920, 24));
+        JLabel lblRace = new JLabel("Race: ");
+        lblRace.setAlignmentX(CENTER_ALIGNMENT);
+        lblRace.setLabelFor(comboBoxRace);
+        add(lblRace);
+        add(comboBoxRace);
+        textAreaDescription = new JTextArea();
+        textAreaDescription.setColumns(32);
+        textAreaDescription.setRows(8);
+        textAreaDescription.setLineWrap(true);
+        JLabel lblDescription = new JLabel("Description: ");
+        lblDescription.setAlignmentX(CENTER_ALIGNMENT);
+        lblDescription.setLabelFor(textAreaDescription);
+        add(lblDescription);
+        add(textAreaDescription);
+        JButton btnSave = new JButton("Save");
+        btnSave.setAlignmentX(CENTER_ALIGNMENT);
+        btnSave.addActionListener(event -> client.getNetworkManager().sendPacket(
+                new PacketSaveCharacter(
+                        characterAppearancePanel.getHairId(),
+                        characterAppearancePanel.getFaceId(),
+                        characterAppearancePanel.getTorsoId(),
+                        characterAppearancePanel.getLegsId(),
+                        characterAppearancePanel.getFeetId(),
+                        textFieldName.getText(),
+                        (String) comboBoxGender.getSelectedItem(),
+                        (String) comboBoxRace.getSelectedItem(),
+                        textAreaDescription.getText(),
+                        false
+                )
+        ));
+        add(btnSave);
     }
 
-    @Override
-    public void paintComponent(Graphics graphics) {
-        graphics.setColor(Color.DARK_GRAY);
-        graphics.fillRect(0, 0, getWidth(), getHeight());
-        graphics.setColor(Color.WHITE);
-        graphics.drawRect(16, 16, 48, 80);
-        getSelectedHairSprite().paint(graphics, 32, 32);
-        getSelectedLegsSprite().paint(graphics, 32, 32);
-        getSelectedFeetSprite().paint(graphics, 32, 32);
-        getSelectedTorsoSprite().paint(graphics, 32, 32);
-        getSelectedFaceSprite().paint(graphics, 32, 32);
-
+    public void addGender(String gender) {
+        comboBoxGender.addItem(gender);
     }
 
-    public List<Sprite> getHairSprites() {
-        return hairSprites;
-    }
-
-    public Sprite getSelectedHairSprite() {
-        return getHairSprites().get(hairIndex);
+    public void addRace(String race) {
+        comboBoxRace.addItem(race);
     }
 
     public void addHairSprite(Sprite sprite) {
-        hairSprites.add(sprite);
-    }
-
-    public List<Sprite> getFaceSprites() {
-        return faceSprites;
-    }
-
-    public Sprite getSelectedFaceSprite() {
-        return getFaceSprites().get(faceIndex);
+        characterAppearancePanel.addHairSprite(sprite);
     }
 
     public void addFaceSprite(Sprite sprite) {
-        faceSprites.add(sprite);
-    }
-
-    public List<Sprite> getTorsoSprites() {
-        return torsoSprites;
-    }
-
-    public Sprite getSelectedTorsoSprite() {
-        return getTorsoSprites().get(torsoIndex);
+        characterAppearancePanel.addFaceSprite(sprite);
     }
 
     public void addTorsoSprite(Sprite sprite) {
-        torsoSprites.add(sprite);
-    }
-
-    public List<Sprite> getLegsSprites() {
-        return legsSprites;
-    }
-
-    public Sprite getSelectedLegsSprite() {
-        return getLegsSprites().get(legsIndex);
+        characterAppearancePanel.addTorsoSprite(sprite);
     }
 
     public void addLegsSprite(Sprite sprite) {
-        legsSprites.add(sprite);
-    }
-
-    public List<Sprite> getFeetSprites() {
-        return feetSprites;
-    }
-
-    public Sprite getSelectedFeetSprite() {
-        return getFeetSprites().get(feetIndex);
+        characterAppearancePanel.addLegsSprite(sprite);
     }
 
     public void addFeetSprite(Sprite sprite) {
-        feetSprites.add(sprite);
+        characterAppearancePanel.addFeetSprite(sprite);
     }
 
+    public void onTick() {
+        characterAppearancePanel.onTick();
+    }
+
+    public void updateFields(Character character) {
+        textFieldName.setText(character.getName());
+        comboBoxGender.setSelectedItem(character.getGender());
+        comboBoxRace.setSelectedItem(character.getRace());
+        textAreaDescription.setText(character.getDescription());
+    }
 }

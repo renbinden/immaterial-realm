@@ -4,7 +4,7 @@ import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
-import io.github.alyphen.immaterial_realm.common.packet.world.PacketSendArea;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.PacketSendArea;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
 
 import java.io.File;

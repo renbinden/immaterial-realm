@@ -58,8 +58,9 @@ public class ImmaterialRealmClient extends JPanel {
         add(loginPanel, "login");
         worldPanel = new WorldPanel(this);
         add(worldPanel, "world");
-        characterCreationPanel = new CharacterCreationPanel();
+        characterCreationPanel = new CharacterCreationPanel(this);
         add(characterCreationPanel, "character creation");
+        new Thread(this::run).start();
     }
 
     public void run() {
@@ -84,7 +85,8 @@ public class ImmaterialRealmClient extends JPanel {
     }
 
     private void doTick() {
-        if (worldPanel.isActive()) worldPanel.onTick();
+        if (worldPanel.isVisible()) worldPanel.onTick();
+        if (characterCreationPanel.isVisible()) characterCreationPanel.onTick();
     }
 
     public ImmaterialRealmClientFrame getFrame() {

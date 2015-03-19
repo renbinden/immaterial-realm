@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.nio.file.Files.copy;
 import static java.nio.file.Paths.get;
@@ -248,6 +250,35 @@ public class CharacterManager {
         return null;
     }
 
+    public Set<Character> getCharacters(Player player) throws SQLException {
+        Connection connection = server.getDatabaseManager().getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM characters WHERE player_id = ?")) {
+            statement.setLong(1, player.getId());
+            ResultSet resultSet = statement.executeQuery();
+            Set<Character> characters = new HashSet<>();
+            while (resultSet.next()) {
+                characters.add(
+                    new Character(
+                        resultSet.getLong("player_id"),
+                        resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("gender"),
+                        resultSet.getString("race"),
+                        resultSet.getString("description"),
+                        resultSet.getBoolean("dead"),
+                        resultSet.getBoolean("active"),
+                        resultSet.getString("area_name"),
+                        resultSet.getInt("x"),
+                        resultSet.getInt("y")
+                    )
+                );
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
     public void addCharacter(Character character) throws SQLException {
         Connection connection = server.getDatabaseManager().getConnection();
         try (PreparedStatement statement = connection.prepareStatement("INSERT INTO characters (player_id, name, gender, race, description, dead, active, area_name, x, y) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
@@ -264,6 +295,24 @@ public class CharacterManager {
             statement.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();
+        }
+    }
+
+    public void updateCharacter(Character character) throws SQLException {
+        Connection connection = server.getDatabaseManager().getConnection();
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE characters SET player_id = ?, name = ?, gender = ?, race = ?, description = ?, dead = ?, active = ?, area_name = ?, x = ?, y = ? WHERE id = ?")) {
+            statement.setLong(1, character.getPlayerId());
+            statement.setString(2, character.getName());
+            statement.setString(3, character.getGender());
+            statement.setString(4, character.getRace());
+            statement.setString(5, character.getDescription());
+            statement.setBoolean(6, character.isDead());
+            statement.setBoolean(7, character.isActive());
+            statement.setString(8, character.getAreaName());
+            statement.setInt(9, character.getX());
+            statement.setInt(10, character.getY());
+            statement.setLong(11, character.getId());
+            statement.executeUpdate();
         }
     }
 

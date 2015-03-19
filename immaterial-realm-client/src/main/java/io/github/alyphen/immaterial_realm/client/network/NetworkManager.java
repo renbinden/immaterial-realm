@@ -85,4 +85,9 @@ public class NetworkManager {
     public byte[] getServerPublicKey() {
         return serverPublicKey;
     }
+
+    public void closeConnections() {
+        if (channel != null) channel.close();
+    }
+
 }

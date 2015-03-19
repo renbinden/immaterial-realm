@@ -34,7 +34,7 @@ public class ChatBox implements KeyListener {
         globalMessages = new HashMap<>();
     }
 
-    public void render(Graphics graphics) {
+    public void paint(Graphics graphics) {
         graphics.setColor(new Color(64, 64, 64, 128));
         graphics.fillRoundRect(16, panel.getHeight() - HEIGHT, panel.getWidth() - 32, HEIGHT + 16, 16, 16);
         if (isActive()) {

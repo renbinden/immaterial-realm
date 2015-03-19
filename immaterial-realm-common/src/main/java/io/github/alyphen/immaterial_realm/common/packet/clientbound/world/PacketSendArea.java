@@ -1,4 +1,4 @@
-package io.github.alyphen.immaterial_realm.common.packet.world;
+package io.github.alyphen.immaterial_realm.common.packet.clientbound.world;
 
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
