@@ -60,7 +60,6 @@ public class ImmaterialRealmClient extends JPanel {
         add(worldPanel, "world");
         characterCreationPanel = new CharacterCreationPanel(this);
         add(characterCreationPanel, "character creation");
-        new Thread(this::run).start();
     }
 
     public void run() {
