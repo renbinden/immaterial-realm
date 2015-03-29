@@ -19,6 +19,7 @@ public class PacketCharacterSpawn extends Packet {
     private String areaName;
     private int x;
     private int y;
+    private long entityId;
     private byte[][] walkUpSprite;
     private int walkUpFrameDelay;
     private byte[][] walkLeftSprite;
@@ -28,7 +29,7 @@ public class PacketCharacterSpawn extends Packet {
     private byte[][] walkDownSprite;
     private int walkDownFrameDelay;
 
-    public PacketCharacterSpawn(Character character, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) throws IOException {
+    public PacketCharacterSpawn(Character character, long entityId, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) throws IOException {
         this.id = character.getId();
         this.playerId = character.getPlayerId();
         this.name = character.getName();
@@ -40,6 +41,7 @@ public class PacketCharacterSpawn extends Packet {
         this.areaName = character.getAreaName();
         this.x = character.getX();
         this.y = character.getY();
+        this.entityId = entityId;
         this.walkUpSprite = walkUpSprite.toByteArray();
         this.walkUpFrameDelay = walkUpSprite.getFrameDelay();
         this.walkDownSprite = walkDownSprite.toByteArray();
@@ -92,6 +94,10 @@ public class PacketCharacterSpawn extends Packet {
 
     public int getY() {
         return y;
+    }
+
+    public long getEntityId() {
+        return entityId;
     }
 
     public Sprite getWalkUpSprite() {

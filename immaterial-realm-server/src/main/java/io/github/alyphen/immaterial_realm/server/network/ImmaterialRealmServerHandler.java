@@ -24,6 +24,7 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.Packe
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketSendPlayers;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.sprite.*;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTileSheet;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.*;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestCharacterSprites;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestGenders;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestRaces;
@@ -38,7 +39,6 @@ import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.Packet
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTileSheets;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.*;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
@@ -55,8 +55,10 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,15 +88,37 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> {
-            Player player = ctx.channel().attr(PLAYER).get();
-            channel.writeAndFlush(new PacketPlayerLeave(player.getId()));
-        });
+        Player player = ctx.channel().attr(PLAYER).get();
+        Character character = server.getCharacterManager().getCharacter(player);
+        for (World world : World.getWorlds()) {
+            for (WorldArea area : world.getAreas()) {
+                Iterator<Entity> entityIterator = area.getEntities().iterator();
+                while (entityIterator.hasNext()) {
+                    Entity entity = entityIterator.next();
+                    if (entity instanceof EntityCharacter) {
+                        EntityCharacter characterEntity = (EntityCharacter) entity;
+                        if (characterEntity.getCharacter().getPlayerId() == player.getId()) {
+                            character.setArea(area);
+                            character.setX(characterEntity.getX());
+                            character.setY(characterEntity.getY());
+                            try {
+                                server.getCharacterManager().updateCharacter(character);
+                            } catch (SQLException exception) {
+                                server.getLogger().log(SEVERE, "Failed to update character", exception);
+                            }
+                            entityIterator.remove();
+
+                        }
+                    }
+                }
+            }
+        }
+        channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerLeave(player.getId())));
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws GeneralSecurityException, SQLException, UnsupportedEncodingException {
-        System.out.println(msg.toString());
+        printPacketDetails(msg);
         if (msg instanceof PacketServerboundPublicKey) {
             PacketServerboundPublicKey packet = (PacketServerboundPublicKey) msg;
             ctx.channel().attr(PUBLIC_KEY).set(packet.getEncodedPublicKey());
@@ -144,7 +168,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 Sprite walkLeftSprite = server.getCharacterManager().getWalkLeftSprite(character);
                 Sprite walkRightSprite = server.getCharacterManager().getWalkRightSprite(character);
                 try {
-                    ctx.writeAndFlush(new PacketCharacterSpawn(character, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
+                    ctx.writeAndFlush(new PacketCharacterSpawn(character, entity.getId(), walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
@@ -164,12 +188,14 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             Sprite walkDownSprite = server.getCharacterManager().getWalkDownSprite(character);
             Sprite walkLeftSprite = server.getCharacterManager().getWalkLeftSprite(character);
             Sprite walkRightSprite = server.getCharacterManager().getWalkRightSprite(character);
-            EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, area, 0, 0);
-            entity.setCharacter(character);
-            try {
-                channels.writeAndFlush(new PacketCharacterSpawn(character, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
-            } catch (IOException exception) {
-                exception.printStackTrace();
+            EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, area, character.getX(), character.getY());
+            if (entity != null) {
+                entity.setCharacter(character);
+                try {
+                    channels.writeAndFlush(new PacketCharacterSpawn(character, entity.getId(), walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
             }
             walkUpSprite.flush();
             walkDownSprite.flush();
@@ -364,6 +390,18 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             }
             for (Sprite sprite : server.getCharacterComponentManager().getFeetSprites(DOWN)) {
                 ctx.writeAndFlush(new PacketAddFeetSprite(sprite));
+            }
+        }
+    }
+
+    private void printPacketDetails(Object packet) {
+        Class packetClass = packet.getClass();
+        System.out.println(packetClass.getSimpleName());
+        for (Field field : packetClass.getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                System.out.println("  " + field.getName() + ": " + field.get(packet));
+            } catch (IllegalAccessException ignored) {
             }
         }
     }

@@ -15,6 +15,7 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketC
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketClientboundLocalChatMessage;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSendChannel;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSetChannel;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityDespawn;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityMove;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntitySpawn;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketClientboundPublicKey;
@@ -49,8 +50,10 @@ import io.netty.util.Timer;
 
 import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import static io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory.registerObjectInitializer;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -67,7 +70,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws GeneralSecurityException, IOException, SQLException {
-        System.out.println(msg.toString());
+        printPacketDetails(msg);
         if (msg instanceof PacketVersion) {
             ctx.writeAndFlush(new PacketServerboundPublicKey(client.getEncryptionManager().getKeyPair().getPublic().getEncoded()));
         } else if (msg instanceof PacketClientboundPublicKey) {
@@ -177,10 +180,12 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                     character.setWalkDownSprite(packet.getWalkDownSprite());
                     character.setWalkLeftSprite(packet.getWalkLeftSprite());
                     character.setWalkRightSprite(packet.getWalkRightSprite());
-                    EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, client.getWorldPanel().getArea(), packet.getX(), packet.getY());
-                    entity.setCharacter(character);
-                    if (character.getPlayerId() == client.getPlayerManager().getPlayer(client.getPlayerName()).getId()) {
-                        client.getWorldPanel().setPlayerCharacter(entity);
+                    EntityCharacter entity = EntityFactory.spawn(packet.getEntityId(), EntityCharacter.class, client.getWorldPanel().getArea(), packet.getX(), packet.getY());
+                    if (entity != null) {
+                        entity.setCharacter(character);
+                        if (character.getPlayerId() == client.getPlayerManager().getPlayer(client.getPlayerName()).getId()) {
+                            client.getWorldPanel().setPlayerCharacter(entity);
+                        }
                     }
                 }
             }
@@ -233,6 +238,20 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                     entity.setY(packet.getY());
                     entity.setHorizontalSpeed(packet.getHorizontalSpeed());
                     entity.setVerticalSpeed(packet.getVerticalSpeed());
+                }
+            }
+        } else if (msg instanceof PacketEntityDespawn) {
+            PacketEntityDespawn packet = (PacketEntityDespawn) msg;
+            long entityId = packet.getEntityId();
+            for (World world : World.getWorlds()) {
+                for (WorldArea area : world.getAreas()) {
+                    Iterator<Entity> entityIterator = area.getEntities().iterator();
+                    while (entityIterator.hasNext()) {
+                        Entity entity = entityIterator.next();
+                        if (entity.getId() == entityId) {
+                            entityIterator.remove();
+                        }
+                    }
                 }
             }
         } else if (msg instanceof PacketSendChannel) {
@@ -291,6 +310,18 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketCharacterSaveSuccessful) {
             client.showPanel("world");
+        }
+    }
+
+    private void printPacketDetails(Object packet) {
+        Class packetClass = packet.getClass();
+        System.out.println(packetClass.getSimpleName());
+        for (Field field : packetClass.getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                System.out.println("  " + field.getName() + ": " + field.get(packet));
+            } catch (IllegalAccessException ignored) {
+            }
         }
     }
 

@@ -30,6 +30,7 @@
                                     <include>commons-codec:commons-codec</include>
                                     <include>commons-lang:commons-lang</include>
                                     <include>io.netty:netty-all</include>
+                                    <include>net.sourceforge.argparse4j:argparse4j</include>
                                     <include>org.jruby:jruby</include>
                                     <include>org.python:jython</include>
                                     <include>org.xerial:sqlite-jdbc</include>

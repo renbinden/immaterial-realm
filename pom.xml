@@ -59,7 +59,7 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.7.15-M1</version>
         </dependency>
-        <!-- Apache commons -->
+        <!-- Utilities -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -70,11 +70,15 @@
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
         </dependency>
-        <!-- Other generally useful libs -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.argparse4j</groupId>
+            <artifactId>argparse4j</artifactId>
+            <version>0.5.0</version>
         </dependency>
         <!-- Testing -->
         <dependency>

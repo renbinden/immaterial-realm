@@ -25,8 +25,21 @@ public class EntityFactory {
         return null;
     }
 
+    public static <T extends Entity> T spawn(long id, Class<T> entityClass, WorldArea area, int x, int y) {
+        try {
+            T entity = entityClass.getConstructor(long.class).newInstance(id);
+            entity.setX(x);
+            entity.setY(y);
+            area.addEntity(entity);
+            return entity;
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
     public static Entity spawn(PacketEntitySpawn packet, World world) {
-        return spawn(packet.getEntityClass(), world.getArea(packet.getAreaName()), packet.getX(), packet.getY());
+        return spawn(packet.getId(), packet.getEntityClass(), world.getArea(packet.getAreaName()), packet.getX(), packet.getY());
     }
 
 }
