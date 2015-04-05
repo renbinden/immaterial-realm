@@ -1,15 +1,15 @@
 package io.github.alyphen.immaterial_realm.common.character;
 
+import io.github.alyphen.immaterial_realm.common.database.TableRow;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 
 import java.io.Serializable;
 
-public class Character implements Serializable {
+public class Character extends TableRow implements Serializable {
 
     private long playerId;
-    private long id;
     private String name;
     private String gender;
     private String race;
@@ -25,9 +25,17 @@ public class Character implements Serializable {
     private transient Sprite walkLeftSprite;
     private transient Sprite walkRightSprite;
 
-    public Character(long playerId, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y) {
+    public Character(Player player, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
+        this(player.getId(), id, name, gender, race, description, dead, active, areaName, x, y, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite);
+    }
+
+    public Character(long playerId, long id, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
+        this(playerId, id, "Unknown", "Unknown", "Unknown", "", false, true, "default", 0, 0, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite);
+    }
+
+    public Character(long playerId, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
+        super(id);
         this.playerId = playerId;
-        this.id = id;
         this.name = name;
         this.gender = gender;
         this.race = race;
@@ -37,14 +45,10 @@ public class Character implements Serializable {
         this.areaName = areaName;
         this.x = x;
         this.y = y;
-    }
-
-    public Character(Player player, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y) {
-        this(player.getId(), id, name, gender, race, description, dead, active, areaName, x, y);
-    }
-
-    public Character(long playerId, long id) {
-        this(playerId, id, "Unknown", "Unknown", "Unknown", "", false, true, "default", 0, 0);
+        this.walkUpSprite = walkUpSprite;
+        this.walkDownSprite = walkDownSprite;
+        this.walkLeftSprite = walkLeftSprite;
+        this.walkRightSprite = walkRightSprite;
     }
 
     public void setPlayer(Player player) {
@@ -57,10 +61,6 @@ public class Character implements Serializable {
 
     public void setPlayerId(long playerId) {
         this.playerId = playerId;
-    }
-
-    public long getId() {
-        return id;
     }
 
     public String getName() {

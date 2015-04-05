@@ -1,17 +1,18 @@
 package io.github.alyphen.immaterial_realm.common.player;
 
-public class Player {
+import io.github.alyphen.immaterial_realm.common.database.TableRow;
 
-    private long id;
+public class Player extends TableRow {
+
     private String name;
 
     public Player(long id, String name) {
-        this.id = id;
+        super(id);
         this.name = name;
     }
 
-    public long getId() {
-        return id;
+    public Player(String name) {
+        this(0, name);
     }
 
     public String getName() {

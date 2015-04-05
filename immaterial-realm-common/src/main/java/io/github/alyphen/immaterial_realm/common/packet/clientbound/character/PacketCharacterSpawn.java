@@ -29,7 +29,7 @@ public class PacketCharacterSpawn extends Packet {
     private byte[][] walkDownSprite;
     private int walkDownFrameDelay;
 
-    public PacketCharacterSpawn(Character character, long entityId, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) throws IOException {
+    public PacketCharacterSpawn(Character character, long entityId) throws IOException {
         this.id = character.getId();
         this.playerId = character.getPlayerId();
         this.name = character.getName();
@@ -42,14 +42,14 @@ public class PacketCharacterSpawn extends Packet {
         this.x = character.getX();
         this.y = character.getY();
         this.entityId = entityId;
-        this.walkUpSprite = walkUpSprite.toByteArray();
-        this.walkUpFrameDelay = walkUpSprite.getFrameDelay();
-        this.walkDownSprite = walkDownSprite.toByteArray();
-        this.walkDownFrameDelay = walkDownSprite.getFrameDelay();
-        this.walkLeftSprite = walkLeftSprite.toByteArray();
-        this.walkLeftFrameDelay = walkLeftSprite.getFrameDelay();
-        this.walkRightSprite = walkRightSprite.toByteArray();
-        this.walkRightFrameDelay = walkRightSprite.getFrameDelay();
+        this.walkUpSprite = character.getWalkUpSprite().toByteArray();
+        this.walkUpFrameDelay = character.getWalkUpSprite().getFrameDelay();
+        this.walkDownSprite = character.getWalkDownSprite().toByteArray();
+        this.walkDownFrameDelay = character.getWalkDownSprite().getFrameDelay();
+        this.walkLeftSprite = character.getWalkLeftSprite().toByteArray();
+        this.walkLeftFrameDelay = character.getWalkLeftSprite().getFrameDelay();
+        this.walkRightSprite = character.getWalkRightSprite().toByteArray();
+        this.walkRightFrameDelay = character.getWalkRightSprite().getFrameDelay();
     }
 
     public long getId() {

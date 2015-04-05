@@ -18,7 +18,7 @@ public class LoginManager {
     }
 
     public void createLoginTable() throws SQLException {
-        Connection connection = client.getDatabaseManager().getConnection();
+        Connection connection = client.getDatabaseManager().getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS login (" +
                         "id INTEGER PRIMARY KEY ASC," +

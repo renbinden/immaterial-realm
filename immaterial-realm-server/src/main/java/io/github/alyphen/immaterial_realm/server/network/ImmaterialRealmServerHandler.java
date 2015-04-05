@@ -2,6 +2,7 @@ package io.github.alyphen.immaterial_realm.server.network;
 
 import io.github.alyphen.immaterial_realm.common.character.Character;
 import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
+import io.github.alyphen.immaterial_realm.common.database.table.PlayerTable;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
 import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
@@ -65,7 +66,6 @@ import java.util.stream.Collectors;
 import static io.github.alyphen.immaterial_realm.common.world.Direction.*;
 import static io.netty.channel.ChannelHandler.Sharable;
 import static java.util.logging.Level.SEVERE;
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 
 @Sharable
 public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
@@ -126,11 +126,15 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketLoginDetails) {
             PacketLoginDetails packet = (PacketLoginDetails) msg;
             if (packet.isSignUp()) {
-                server.getPlayerManager().addPlayer(packet.getPlayerName(), server.getEncryptionManager().decrypt(packet.getEncryptedPassword()));
+                try {
+                    ((PlayerTable) server.getDatabaseManager().getDatabase().getTable(Player.class)).insert(new Player(packet.getPlayerName()), server.getEncryptionManager().decrypt(packet.getEncryptedPassword()));
+                } catch (SQLException exception) {
+                    ctx.writeAndFlush(new PacketLoginStatus(false));
+                }
             }
-            Player player = server.getPlayerManager().getPlayer(packet.getPlayerName());
+            Player player = ((PlayerTable) server.getDatabaseManager().getDatabase().getTable(Player.class)).get(packet.getPlayerName());
             if (player != null) {
-                if (server.getPlayerManager().checkLogin(player, sha256Hex(server.getEncryptionManager().decrypt(packet.getEncryptedPassword()) + server.getPlayerManager().getSalt(player)))) {
+                if (((PlayerTable) server.getDatabaseManager().getDatabase().getTable(Player.class)).checkLogin(player, server.getEncryptionManager().decrypt(packet.getEncryptedPassword()))) {
                     ctx.channel().attr(PLAYER).set(player);
                     ctx.writeAndFlush(new PacketLoginStatus(true));
                     channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerJoin(player.getId(), player.getName())));
@@ -163,44 +167,28 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             area.getEntities().stream().filter(entity -> entity instanceof EntityCharacter).forEach(entity -> {
                 EntityCharacter entityCharacter = (EntityCharacter) entity;
                 Character character = entityCharacter.getCharacter();
-                Sprite walkUpSprite = server.getCharacterManager().getWalkUpSprite(character);
-                Sprite walkDownSprite = server.getCharacterManager().getWalkDownSprite(character);
-                Sprite walkLeftSprite = server.getCharacterManager().getWalkLeftSprite(character);
-                Sprite walkRightSprite = server.getCharacterManager().getWalkRightSprite(character);
                 try {
-                    ctx.writeAndFlush(new PacketCharacterSpawn(character, entity.getId(), walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
+                    ctx.writeAndFlush(new PacketCharacterSpawn(character, entity.getId()));
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
-                walkUpSprite.flush();
-                walkDownSprite.flush();
-                walkLeftSprite.flush();
-                walkRightSprite.flush();
             });
             Player player = ctx.channel().attr(PLAYER).get();
             Character character = server.getCharacterManager().getCharacter(player);
             if (character == null) {
-                character = new Character(player.getId(), -1);
+                character = new Character(player.getId(), -1, server.getCharacterManager().getDefaultWalkUpSprite(), server.getCharacterManager().getDefaultWalkDownSprite(), server.getCharacterManager().getDefaultWalkLeftSprite(), server.getCharacterManager().getDefaultWalkRightSprite());
                 server.getCharacterManager().addCharacter(character);
                 character = server.getCharacterManager().getCharacter(player);
             }
-            Sprite walkUpSprite = server.getCharacterManager().getWalkUpSprite(character);
-            Sprite walkDownSprite = server.getCharacterManager().getWalkDownSprite(character);
-            Sprite walkLeftSprite = server.getCharacterManager().getWalkLeftSprite(character);
-            Sprite walkRightSprite = server.getCharacterManager().getWalkRightSprite(character);
             EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, area, character.getX(), character.getY());
             if (entity != null) {
                 entity.setCharacter(character);
                 try {
-                    channels.writeAndFlush(new PacketCharacterSpawn(character, entity.getId(), walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite));
+                    channels.writeAndFlush(new PacketCharacterSpawn(character, entity.getId()));
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
             }
-            walkUpSprite.flush();
-            walkDownSprite.flush();
-            walkLeftSprite.flush();
-            walkRightSprite.flush();
         } else if (msg instanceof PacketControlPressed) {
             PacketControlPressed packet = (PacketControlPressed) msg;
             Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
@@ -323,7 +311,11 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                                 true,
                                 "default",
                                 0,
-                                0
+                                0,
+                                server.getCharacterManager().getDefaultWalkUpSprite(),
+                                server.getCharacterManager().getDefaultWalkDownSprite(),
+                                server.getCharacterManager().getDefaultWalkLeftSprite(),
+                                server.getCharacterManager().getDefaultWalkRightSprite()
                         )
                 );
                 try {

@@ -1,5 +1,6 @@
 package io.github.alyphen.immaterial_realm.common.sprite;
 
+import io.github.alyphen.immaterial_realm.common.database.TableRow;
 import io.github.alyphen.immaterial_realm.common.util.FileUtils;
 import io.github.alyphen.immaterial_realm.common.util.ImageUtils;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.saveMetadata;
 
-public class Sprite {
+public class Sprite extends TableRow {
 
     private static Map<String, Sprite> sprites;
 
@@ -56,6 +57,11 @@ public class Sprite {
     private int tick;
 
     public Sprite(String name, int frameDelay, BufferedImage... frames) {
+        this(0, name, frameDelay, frames);
+    }
+
+    public Sprite(long id, String name, int frameDelay, BufferedImage... frames) {
+        super(id);
         this.name = name;
         this.frameDelay = frameDelay;
         this.frames = frames;

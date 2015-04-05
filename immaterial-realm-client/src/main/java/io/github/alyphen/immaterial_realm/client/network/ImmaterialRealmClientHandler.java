@@ -161,7 +161,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                 if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
                     Character character = client.getCharacterManager().getCharacter(packet.getId());
                     if (character == null) {
-                        character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY());
+                        character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY(), packet.getWalkUpSprite(), packet.getWalkDownSprite(), packet.getWalkLeftSprite(), packet.getWalkRightSprite());
                         client.getCharacterManager().addCharacter(character);
                     } else {
                         character.setPlayerId(packet.getPlayerId());
@@ -194,7 +194,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
                 Character character = client.getCharacterManager().getCharacter(packet.getId());
                 if (character == null) {
-                    character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY());
+                    character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY(), packet.getWalkUpSprite(), packet.getWalkDownSprite(), packet.getWalkLeftSprite(), packet.getWalkRightSprite());
                     client.getCharacterManager().addCharacter(character);
                 } else {
                     character.setPlayerId(packet.getPlayerId());

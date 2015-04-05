@@ -1,6 +1,5 @@
 package io.github.alyphen.immaterial_realm.server;
 
-import io.github.alyphen.immaterial_realm.common.database.DatabaseManager;
 import io.github.alyphen.immaterial_realm.common.encrypt.EncryptionManager;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
@@ -13,6 +12,7 @@ import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.server.character.CharacterComponentManager;
 import io.github.alyphen.immaterial_realm.server.character.CharacterManager;
 import io.github.alyphen.immaterial_realm.server.chat.ChatManager;
+import io.github.alyphen.immaterial_realm.server.database.DatabaseManager;
 import io.github.alyphen.immaterial_realm.server.network.NetworkManager;
 
 import javax.script.Invocable;
@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -42,7 +43,6 @@ public class ImmaterialRealmServer {
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
     private NetworkManager networkManager;
-    private PlayerManager playerManager;
     private ScriptEngineManager scriptEngineManager;
     private Map<String, Object> configuration;
     private Logger logger;
@@ -57,7 +57,11 @@ public class ImmaterialRealmServer {
         logger = Logger.getLogger(getClass().getName());
         logger.addHandler(new FileWriterHandler());
         scriptEngineManager = new ScriptEngineManager();
-        databaseManager = new DatabaseManager("server");
+        try {
+            databaseManager = new DatabaseManager();
+        } catch (SQLException exception) {
+            logger.log(SEVERE, "Failed to connect to databaseManager", exception);
+        }
         characterComponentManager = new CharacterComponentManager(this);
         characterManager = new CharacterManager(this);
         chatManager = new ChatManager();
@@ -219,7 +223,6 @@ public class ImmaterialRealmServer {
             }
         }
         new Thread(networkManager::start).start();
-        playerManager = new PlayerManager(this);
     }
 
     public CharacterComponentManager getCharacterComponentManager() {
@@ -244,10 +247,6 @@ public class ImmaterialRealmServer {
 
     public NetworkManager getNetworkManager() {
         return networkManager;
-    }
-
-    public PlayerManager getPlayerManager() {
-        return playerManager;
     }
 
     public ScriptEngineManager getScriptEngineManager() {
