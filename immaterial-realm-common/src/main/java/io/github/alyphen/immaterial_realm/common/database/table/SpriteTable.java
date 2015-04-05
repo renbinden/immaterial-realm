@@ -26,7 +26,7 @@ public class SpriteTable extends Table<Sprite> {
         Connection connection = getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS sprite (" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "id INTEGER PRIMARY KEY," +
                         "name TEXT," +
                         "frame_delay INTEGER" +
                 ")"

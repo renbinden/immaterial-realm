@@ -19,7 +19,7 @@ public class SpriteFrameTable extends Table<SpriteFrame> {
         Connection connection = getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS sprite_frame (" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "id INTEGER PRIMARY KEY," +
                         "sprite_id INTEGER," +
                         "image_id INTEGER," +
                         "FOREIGN KEY(sprite_id) REFERENCES sprite(id)," +

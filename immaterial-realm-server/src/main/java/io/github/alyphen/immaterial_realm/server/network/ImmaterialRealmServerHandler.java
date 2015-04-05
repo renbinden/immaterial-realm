@@ -53,7 +53,6 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -177,8 +176,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             Character character = server.getCharacterManager().getCharacter(player);
             if (character == null) {
                 character = new Character(player.getId(), -1, server.getCharacterManager().getDefaultWalkUpSprite(), server.getCharacterManager().getDefaultWalkDownSprite(), server.getCharacterManager().getDefaultWalkLeftSprite(), server.getCharacterManager().getDefaultWalkRightSprite());
-                server.getCharacterManager().addCharacter(character);
-                character = server.getCharacterManager().getCharacter(player);
+                server.getDatabaseManager().getDatabase().getTable(Character.class).insert(character);
             }
             EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, area, character.getX(), character.getY());
             if (entity != null) {
@@ -299,7 +297,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                     character.setActive(false);
                     server.getCharacterManager().updateCharacter(character);
                 }
-                server.getCharacterManager().addCharacter(
+                server.getDatabaseManager().getDatabase().getTable(Character.class).insert(
                         new Character(
                                 player,
                                 0,
@@ -312,20 +310,12 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                                 "default",
                                 0,
                                 0,
-                                server.getCharacterManager().getDefaultWalkUpSprite(),
-                                server.getCharacterManager().getDefaultWalkDownSprite(),
-                                server.getCharacterManager().getDefaultWalkLeftSprite(),
-                                server.getCharacterManager().getDefaultWalkRightSprite()
+                                server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), UP),
+                                server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), DOWN),
+                                server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), LEFT),
+                                server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), RIGHT)
                         )
                 );
-                try {
-                    server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), DOWN).save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_down"));
-                    server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), LEFT).save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_left"));
-                    server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), RIGHT).save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_right"));
-                    server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), UP).save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_up"));
-                } catch (IOException exception) {
-                    server.getLogger().log(SEVERE, "Failed to save character sprites", exception);
-                }
             } else {
                 Player player = ctx.channel().attr(PLAYER).get();
                 Character character = server.getCharacterManager().getCharacter(player);
@@ -333,26 +323,15 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 character.setGender(packet.getGender());
                 character.setRace(packet.getRace());
                 character.setDescription(packet.getDescription());
+                character.setWalkUpSprite(server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), UP));
+                character.setWalkDownSprite(server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), DOWN));
+                character.setWalkLeftSprite(server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), LEFT));
+                character.setWalkRightSprite(server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), RIGHT));
+                server.getDatabaseManager().getDatabase().getTable(Character.class).update(character);
                 try {
-                    Sprite downSprite = server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), DOWN);
-                    downSprite.save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_down"));
-                    Sprite leftSprite = server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), LEFT);
-                    leftSprite.save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_left"));
-                    Sprite rightSprite = server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), RIGHT);
-                    rightSprite.save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_right"));
-                    Sprite upSprite = server.getCharacterComponentManager().combine(packet.getHairId(), packet.getFaceId(), packet.getTorsoId(), packet.getLegsId(), packet.getFeetId(), UP);
-                    upSprite.save(new File("./characters/" + server.getCharacterManager().getCharacter(player).getId() + "/walk_up"));
-                    try {
-                        channels.writeAndFlush(new PacketCharacterUpdate(character, upSprite, downSprite, leftSprite, rightSprite));
-                    } catch (IOException exception) {
-                        server.getLogger().log(SEVERE, "Failed to send character update", exception);
-                    }
-                    downSprite.flush();
-                    leftSprite.flush();
-                    rightSprite.flush();
-                    upSprite.flush();
+                    channels.writeAndFlush(new PacketCharacterUpdate(character));
                 } catch (IOException exception) {
-                    server.getLogger().log(SEVERE, "Failed to save character sprites", exception);
+                    server.getLogger().log(SEVERE, "Failed to send character update", exception);
                 }
                 server.getCharacterManager().updateCharacter(character);
             }

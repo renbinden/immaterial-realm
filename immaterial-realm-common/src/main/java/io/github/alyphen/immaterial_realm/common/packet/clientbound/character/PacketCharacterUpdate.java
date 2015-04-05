@@ -27,7 +27,7 @@ public class PacketCharacterUpdate extends Packet {
     private byte[][] walkDownSprite;
     private int walkDownFrameDelay;
 
-    public PacketCharacterUpdate(io.github.alyphen.immaterial_realm.common.character.Character character, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) throws IOException {
+    public PacketCharacterUpdate(io.github.alyphen.immaterial_realm.common.character.Character character) throws IOException {
         this.id = character.getId();
         this.playerId = character.getPlayerId();
         this.name = character.getName();
@@ -39,14 +39,14 @@ public class PacketCharacterUpdate extends Packet {
         this.areaName = character.getAreaName();
         this.x = character.getX();
         this.y = character.getY();
-        this.walkUpSprite = walkUpSprite.toByteArray();
-        this.walkUpFrameDelay = walkUpSprite.getFrameDelay();
-        this.walkDownSprite = walkDownSprite.toByteArray();
-        this.walkDownFrameDelay = walkDownSprite.getFrameDelay();
-        this.walkLeftSprite = walkLeftSprite.toByteArray();
-        this.walkLeftFrameDelay = walkLeftSprite.getFrameDelay();
-        this.walkRightSprite = walkRightSprite.toByteArray();
-        this.walkRightFrameDelay = walkRightSprite.getFrameDelay();
+        this.walkUpSprite = character.getWalkUpSprite().toByteArray();
+        this.walkUpFrameDelay = character.getWalkUpSprite().getFrameDelay();
+        this.walkDownSprite = character.getWalkDownSprite().toByteArray();
+        this.walkDownFrameDelay = character.getWalkDownSprite().getFrameDelay();
+        this.walkLeftSprite = character.getWalkLeftSprite().toByteArray();
+        this.walkLeftFrameDelay = character.getWalkLeftSprite().getFrameDelay();
+        this.walkRightSprite = character.getWalkRightSprite().toByteArray();
+        this.walkRightFrameDelay = character.getWalkRightSprite().getFrameDelay();
     }
 
     public long getId() {

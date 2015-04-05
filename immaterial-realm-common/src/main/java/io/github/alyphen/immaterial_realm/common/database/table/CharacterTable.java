@@ -24,7 +24,7 @@ public class CharacterTable extends Table<Character> {
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS character (" +
                         "player_id INTEGER," +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "id INTEGER PRIMARY KEY," +
                         "name TEXT," +
                         "gender TEXT," +
                         "race TEXT," +
@@ -52,10 +52,23 @@ public class CharacterTable extends Table<Character> {
 
     @Override
     public long insert(Character character) throws SQLException {
-        getDatabase().getTable(Sprite.class).insert(character.getWalkUpSprite());
-        getDatabase().getTable(Sprite.class).insert(character.getWalkDownSprite());
-        getDatabase().getTable(Sprite.class).insert(character.getWalkLeftSprite());
-        getDatabase().getTable(Sprite.class).insert(character.getWalkRightSprite());
+        Table<Sprite> spriteTable = getDatabase().getTable(Sprite.class);
+        if (spriteTable.get(character.getWalkUpSprite().getId()) == null)
+            spriteTable.insert(character.getWalkUpSprite());
+        else
+            spriteTable.update(character.getWalkUpSprite());
+        if (spriteTable.get(character.getWalkDownSprite().getId()) == null)
+            spriteTable.insert(character.getWalkDownSprite());
+        else
+            spriteTable.update(character.getWalkDownSprite());
+        if (spriteTable.get(character.getWalkLeftSprite().getId()) == null)
+            spriteTable.insert(character.getWalkLeftSprite());
+        else
+            spriteTable.update(character.getWalkLeftSprite());
+        if (spriteTable.get(character.getWalkRightSprite().getId()) == null)
+            spriteTable.insert(character.getWalkRightSprite());
+        else
+            spriteTable.update(character.getWalkRightSprite());
         Connection connection = getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO character (player_id, name, gender, race, description, dead, active, area_name, x, y, walk_up_sprite_id, walk_down_sprite_id, walk_left_sprite_id, walk_right_sprite_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -88,10 +101,23 @@ public class CharacterTable extends Table<Character> {
 
     @Override
     public long update(Character character) throws SQLException {
-        getDatabase().getTable(Sprite.class).update(character.getWalkUpSprite());
-        getDatabase().getTable(Sprite.class).update(character.getWalkDownSprite());
-        getDatabase().getTable(Sprite.class).update(character.getWalkLeftSprite());
-        getDatabase().getTable(Sprite.class).update(character.getWalkRightSprite());
+        Table<Sprite> spriteTable = getDatabase().getTable(Sprite.class);
+        if (spriteTable.get(character.getWalkUpSprite().getId()) == null)
+            spriteTable.insert(character.getWalkUpSprite());
+        else
+            spriteTable.update(character.getWalkUpSprite());
+        if (spriteTable.get(character.getWalkDownSprite().getId()) == null)
+            spriteTable.insert(character.getWalkDownSprite());
+        else
+            spriteTable.update(character.getWalkDownSprite());
+        if (spriteTable.get(character.getWalkLeftSprite().getId()) == null)
+            spriteTable.insert(character.getWalkLeftSprite());
+        else
+            spriteTable.update(character.getWalkLeftSprite());
+        if (spriteTable.get(character.getWalkRightSprite().getId()) == null)
+            spriteTable.insert(character.getWalkRightSprite());
+        else
+            spriteTable.update(character.getWalkRightSprite());
         Connection connection = getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement("UPDATE character SET player_id = ?, name = ?, gender = ?, race = ?, description = ?, dead = ?, active = ?, area_name = ?, x = ?, y = ?, walk_up_sprite_id = ?, walk_down_sprite_id = ?, walk_left_sprite_id = ?, walk_right_sprite_id = ? WHERE id = ?")) {
             statement.setLong(1, character.getPlayerId());

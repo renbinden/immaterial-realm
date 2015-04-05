@@ -21,7 +21,7 @@ public class ImageTable extends Table<IndexedImage> {
         Connection connection = getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS image (" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "id INTEGER PRIMARY KEY," +
                         "image BLOB" +
                 ")"
         )) {

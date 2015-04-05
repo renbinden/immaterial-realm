@@ -21,7 +21,7 @@ public class PlayerTable extends Table<Player> {
         Connection connection = getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS player (" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "id INTEGER PRIMARY KEY," +
                         "name TEXT UNIQUE," +
                         "password_hash TEXT," +
                         "password_salt TEXT" +
