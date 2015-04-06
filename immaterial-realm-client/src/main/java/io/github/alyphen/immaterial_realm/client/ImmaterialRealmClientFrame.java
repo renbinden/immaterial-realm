@@ -22,6 +22,8 @@ public class ImmaterialRealmClientFrame extends JFrame {
     }
 
     public ImmaterialRealmClientFrame() {
+        setExtendedState(MAXIMIZED_BOTH);
+        setUndecorated(true);
         setTitle("ImmaterialRealm");
         setFocusable(true);
         ImmaterialRealmClient client = new ImmaterialRealmClient(this);

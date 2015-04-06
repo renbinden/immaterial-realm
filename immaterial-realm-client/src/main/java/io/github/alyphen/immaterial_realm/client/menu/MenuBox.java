@@ -47,6 +47,18 @@ public class MenuBox {
                         }
                         client.showPanel("character creation");
                     }
+                },
+                new MenuItem() {
+                    @Override
+                    public String getName() {
+                        return "Exit";
+                    }
+
+                    @Override
+                    public void doSelect() {
+                        client.getNetworkManager().closeConnections();
+                        System.exit(0);
+                    }
                 }
         };
         panel.addMouseListener(new MouseInputAdapter() {
