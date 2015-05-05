@@ -26,18 +26,21 @@ public class FileUtils {
     }
 
     public static Map<String, Object> loadMetadata(File file) throws IOException {
+        return loadMetadata(new FileInputStream(file));
+    }
+
+    public static Map<String, Object> loadMetadata(InputStream stream) throws IOException {
         StringBuilder metadataBuilder = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            metadataBuilder.append(line).append('\n');
+        Scanner scanner = new Scanner(stream);
+        while (scanner.hasNextLine()) {
+            metadataBuilder.append(scanner.nextLine()).append('\n');
         }
-        reader.close();
         Gson gson = new Gson();
         return gson.fromJson(metadataBuilder.toString(), new TypeToken<HashMap<String, Object>>() {}.getType());
     }
 
     public static void saveMetadata(Map<String, Object> metadata, File file) throws IOException {
+        if (!file.getParentFile().isDirectory()) file.getParentFile().delete();
         if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
