@@ -13,7 +13,9 @@ import io.github.alyphen.immaterial_realm.server.character.CharacterComponentMan
 import io.github.alyphen.immaterial_realm.server.character.CharacterManager;
 import io.github.alyphen.immaterial_realm.server.chat.ChatManager;
 import io.github.alyphen.immaterial_realm.server.database.DatabaseManager;
+import io.github.alyphen.immaterial_realm.server.event.EventManager;
 import io.github.alyphen.immaterial_realm.server.network.NetworkManager;
+import io.github.alyphen.immaterial_realm.server.plugin.PluginManager;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -42,7 +44,9 @@ public class ImmaterialRealmServer {
     private ChatManager chatManager;
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
+    private EventManager eventManager;
     private NetworkManager networkManager;
+    private PluginManager pluginManager;
     private ScriptEngineManager scriptEngineManager;
     private Map<String, Object> configuration;
     private Logger logger;
@@ -67,6 +71,8 @@ public class ImmaterialRealmServer {
         chatManager = new ChatManager();
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this, port);
+        eventManager = new EventManager(this);
+        pluginManager = new PluginManager(this);
         try {
             saveDefaults();
         } catch (IOException exception) {
@@ -245,8 +251,16 @@ public class ImmaterialRealmServer {
         return encryptionManager;
     }
 
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
     public NetworkManager getNetworkManager() {
         return networkManager;
+    }
+
+    public PluginManager getPluginManager() {
+        return pluginManager;
     }
 
     public ScriptEngineManager getScriptEngineManager() {
