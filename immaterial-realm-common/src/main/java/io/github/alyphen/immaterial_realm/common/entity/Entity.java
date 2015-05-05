@@ -17,6 +17,8 @@ public abstract class Entity {
     private int oldDx;
     private int oldDy;
     private boolean speedChanged;
+    private boolean movementCancelled;
+    private boolean forceUpdate;
     private Direction directionFacing;
 
     public Entity(long id) {
@@ -75,18 +77,37 @@ public abstract class Entity {
     }
 
     public void onTick() {
-        speedChanged = oldDx != dx || oldDy != dy;
-        if (speedChanged) {
-            oldDx = dx;
-            oldDy = dy;
-        } else {
-            x += dx;
-            y += dy;
+        if (!movementCancelled) {
+            speedChanged = oldDx != dx || oldDy != dy;
+            if (speedChanged) {
+                oldDx = dx;
+                oldDy = dy;
+            } else {
+                x += dx;
+                y += dy;
+            }
         }
+        movementCancelled = false;
     }
 
     public boolean isSpeedChanged() {
         return speedChanged;
+    }
+
+    public boolean isMovementCancelled() {
+        return movementCancelled;
+    }
+
+    public void setMovementCancelled(boolean movementCancelled) {
+        this.movementCancelled = movementCancelled;
+    }
+
+    public boolean isForceUpdate() {
+        return forceUpdate;
+    }
+
+    public void setForceUpdate(boolean forceUpdate) {
+        this.forceUpdate = forceUpdate;
     }
 
     public void setDirectionFacing(Direction direction) {

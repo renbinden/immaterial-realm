@@ -33,6 +33,7 @@
                                     <include>net.sourceforge.argparse4j:argparse4j</include>
                                     <include>org.jruby:jruby</include>
                                     <include>org.python:jython</include>
+                                    <include>org.reflections:reflections</include>
                                     <include>org.xerial:sqlite-jdbc</include>
                                 </includes>
                             </artifactSet>

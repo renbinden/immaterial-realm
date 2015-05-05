@@ -14,6 +14,7 @@ import io.github.alyphen.immaterial_realm.server.character.CharacterManager;
 import io.github.alyphen.immaterial_realm.server.chat.ChatManager;
 import io.github.alyphen.immaterial_realm.server.database.DatabaseManager;
 import io.github.alyphen.immaterial_realm.server.event.EventManager;
+import io.github.alyphen.immaterial_realm.server.event.entity.EntityMoveEvent;
 import io.github.alyphen.immaterial_realm.server.network.NetworkManager;
 import io.github.alyphen.immaterial_realm.server.plugin.PluginManager;
 
@@ -27,8 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
@@ -380,8 +380,33 @@ public class ImmaterialRealmServer {
 
     public void doTick() {
         World.getWorlds().stream().forEach(world -> {
+            world.getAreas().stream().forEach(area -> {
+                Set<Entity> entitiesToRemove = new HashSet<>();
+                area.getEntities().stream().forEach(entity -> {
+                    EntityMoveEvent event = new EntityMoveEvent(entity, area, entity.getX() + entity.getHorizontalSpeed(), entity.getY() + entity.getVerticalSpeed());
+                    getEventManager().onEvent(event);
+                    if (event.isCancelled()) {
+                        entity.setMovementCancelled(true);
+                    } else {
+                        if (area != event.getNewArea()) {
+                            entitiesToRemove.add(entity);
+                            event.getNewArea().addEntity(entity);
+                            entity.setForceUpdate(true);
+                        }
+                        if (entity.getX() + entity.getHorizontalSpeed() != event.getNewX()) {
+                            entity.setX(event.getNewX() - entity.getHorizontalSpeed());
+                            entity.setForceUpdate(true);
+                        }
+                        if (entity.getY() + entity.getVerticalSpeed() != event.getNewY()) {
+                            entity.setY(event.getNewY() - entity.getVerticalSpeed());
+                            entity.setForceUpdate(true);
+                        }
+                    }
+                });
+                entitiesToRemove.forEach(area::removeEntity);
+            });
             world.onTick();
-            world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(Entity::isSpeedChanged).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
+            world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(entity -> entity.isSpeedChanged() || entity.isMovementCancelled() || entity.isForceUpdate()).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
         });
     }
 

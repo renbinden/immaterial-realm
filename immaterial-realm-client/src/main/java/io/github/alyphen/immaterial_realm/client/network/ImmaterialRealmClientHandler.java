@@ -83,7 +83,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                 client.showPanel("world");
                 ctx.writeAndFlush(new PacketRequestPlayers());
             } else {
-                client.getLoginPanel().setStatusMessage("Login unsuccessful.");
+                client.getLoginPanel().setStatusMessage(packet.getFailMessage());
                 client.getLoginPanel().reEnableLoginButtons();
             }
         } else if (msg instanceof PacketPong) {

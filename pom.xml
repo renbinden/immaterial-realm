@@ -80,6 +80,11 @@
             <artifactId>argparse4j</artifactId>
             <version>0.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9-RC1</version>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>com.insightfullogic</groupId>

@@ -2,6 +2,8 @@ package io.github.alyphen.immaterial_realm.server.plugin;
 
 import io.github.alyphen.immaterial_realm.common.util.FileUtils;
 import io.github.alyphen.immaterial_realm.server.ImmaterialRealmServer;
+import io.github.alyphen.immaterial_realm.server.event.plugin.PluginDisableEvent;
+import io.github.alyphen.immaterial_realm.server.event.plugin.PluginEnableEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,8 +77,11 @@ public class PluginManager {
                 Class<? extends Plugin> pluginClass = clazz.asSubclass(Plugin.class);
                 Plugin plugin = pluginClass.newInstance();
                 plugin.initialise(server, name, version);
-                addPlugin(plugin);
-                plugin.onEnable();
+                PluginEnableEvent event = new PluginEnableEvent(plugin);
+                if (!event.isCancelled()) {
+                    addPlugin(plugin);
+                    plugin.onEnable();
+                }
                 return plugin;
             } else {
                 throw new InvalidPluginException(file.getName() + " is not a valid plugin! Make sure name, version and main are specified in plugin.json");
@@ -95,7 +100,10 @@ public class PluginManager {
     }
 
     public void disablePlugin(Plugin plugin) {
+        PluginDisableEvent event = new PluginDisableEvent(plugin);
+        server.getEventManager().onEvent(event);
         plugin.onDisable();
+        server.getEventManager().removeListeners(plugin);
         plugins.remove(plugin.getName().toLowerCase());
     }
     

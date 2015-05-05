@@ -55,9 +55,7 @@ public class World {
     }
 
     public void onTick() {
-        for (WorldArea area : getAreas()) {
-            area.onTick();
-        }
+        getAreas().forEach(WorldArea::onTick);
     }
 
     public void save(File directory) throws IOException {
