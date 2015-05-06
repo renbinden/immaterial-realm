@@ -12,6 +12,7 @@ import io.github.alyphen.immaterial_realm.common.encrypt.EncryptionManager;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlPressed;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlReleased;
 
+import javax.script.ScriptEngineManager;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ public class ImmaterialRealmClient extends JPanel {
     private LoginManager loginManager;
     private NetworkManager networkManager;
     private PlayerManager playerManager;
+    private ScriptEngineManager scriptEngineManager;
 
     private boolean running;
     private String playerName;
@@ -41,6 +43,7 @@ public class ImmaterialRealmClient extends JPanel {
 
     public ImmaterialRealmClient(ImmaterialRealmClientFrame frame) {
         this.frame = frame;
+        scriptEngineManager = new ScriptEngineManager();
         chatManager = new ChatManager(this);
         try {
             databaseManager = new DatabaseManager();
@@ -122,6 +125,10 @@ public class ImmaterialRealmClient extends JPanel {
 
     public PlayerManager getPlayerManager() {
         return playerManager;
+    }
+
+    public ScriptEngineManager getScriptEngineManager() {
+        return scriptEngineManager;
     }
 
     public void showPanel(String panel) {

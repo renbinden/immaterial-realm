@@ -15,6 +15,7 @@ import io.github.alyphen.immaterial_realm.server.chat.ChatManager;
 import io.github.alyphen.immaterial_realm.server.database.DatabaseManager;
 import io.github.alyphen.immaterial_realm.server.event.EventManager;
 import io.github.alyphen.immaterial_realm.server.event.entity.EntityMoveEvent;
+import io.github.alyphen.immaterial_realm.server.hud.HUDManager;
 import io.github.alyphen.immaterial_realm.server.network.NetworkManager;
 import io.github.alyphen.immaterial_realm.server.plugin.PluginManager;
 
@@ -28,7 +29,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
@@ -45,6 +49,7 @@ public class ImmaterialRealmServer {
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
     private EventManager eventManager;
+    private HUDManager hudManager;
     private NetworkManager networkManager;
     private PluginManager pluginManager;
     private ScriptEngineManager scriptEngineManager;
@@ -71,6 +76,7 @@ public class ImmaterialRealmServer {
         chatManager = new ChatManager();
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this, port);
+        hudManager = new HUDManager(this);
         eventManager = new EventManager(this);
         pluginManager = new PluginManager(this);
         try {
@@ -253,6 +259,10 @@ public class ImmaterialRealmServer {
 
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    public HUDManager getHUDManager() {
+        return hudManager;
     }
 
     public NetworkManager getNetworkManager() {

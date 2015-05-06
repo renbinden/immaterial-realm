@@ -4,6 +4,7 @@ import io.github.alyphen.immaterial_realm.client.ImmaterialRealmClient;
 import io.github.alyphen.immaterial_realm.client.chat.ChatBox;
 import io.github.alyphen.immaterial_realm.client.menu.MenuBox;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
+import io.github.alyphen.immaterial_realm.common.hud.HUD;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
@@ -22,11 +23,13 @@ public class WorldPanel extends JPanel {
     private EntityCharacter playerCharacter;
     private ChatBox chatBox;
     private MenuBox menuBox;
+    private HUD hud;
 
     public WorldPanel(ImmaterialRealmClient client) {
         this.client = client;
         chatBox = new ChatBox(client, this);
         menuBox = new MenuBox(client, this);
+        hud = new HUD();
         client.getFrame().addKeyListener(chatBox);
     }
 
@@ -75,6 +78,7 @@ public class WorldPanel extends JPanel {
         }
         chatBox.paint(graphics);
         menuBox.paint(graphics);
+        hud.paint(client.getScriptEngineManager(), graphics, getWidth(), getHeight());
     }
 
     public World getWorld() {
@@ -104,15 +108,18 @@ public class WorldPanel extends JPanel {
     }
 
     private int getCameraX() {
-        return getPlayerCharacter().getX() - (getWidth() / 2);
+        return getPlayerCharacter().getX() + ((getPlayerCharacter().getCharacter() != null && getPlayerCharacter().getCharacter().getWalkDownSprite() != null) ? getPlayerCharacter().getCharacter().getWalkDownSprite().getWidth() / 2 : 0) - (getWidth() / 2);
     }
 
     private int getCameraY() {
-        return getPlayerCharacter().getY() - (getHeight() / 2);
+        return getPlayerCharacter().getY() + ((getPlayerCharacter().getCharacter() != null && getPlayerCharacter().getCharacter().getWalkDownSprite() != null) ? getPlayerCharacter().getCharacter().getWalkDownSprite().getHeight() / 2 : 0) - (getHeight() / 2);
     }
 
     public ChatBox getChatBox() {
         return chatBox;
     }
 
+    public HUD getHUD() {
+        return hud;
+    }
 }

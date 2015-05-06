@@ -6,6 +6,7 @@ import io.github.alyphen.immaterial_realm.common.database.table.PlayerTable;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
 import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
+import io.github.alyphen.immaterial_realm.common.hud.HUDComponent;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
@@ -15,6 +16,7 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketC
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSendChannel;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketSetChannel;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntitySpawn;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.hud.PacketSendHUDComponent;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketClientboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketLoginStatus;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketVersion;
@@ -35,6 +37,7 @@ import io.github.alyphen.immaterial_realm.common.packet.serverbound.chat.PacketS
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.chat.PacketServerboundLocalChatMessage;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlPressed;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlReleased;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.hud.PacketRequestHUDComponents;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketLoginDetails;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketServerboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
@@ -211,6 +214,10 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 } catch (IOException exception) {
                     server.getLogger().log(SEVERE, "Failed to send character spawn packet", exception);
                 }
+            }
+        } else if (msg instanceof PacketRequestHUDComponents) {
+            for (HUDComponent component : server.getHUDManager().getPlayerHUD(ctx.channel().attr(PLAYER).get()).getComponents()) {
+                ctx.writeAndFlush(new PacketSendHUDComponent(component));
             }
         } else if (msg instanceof PacketControlPressed) {
             PacketControlPressed packet = (PacketControlPressed) msg;
@@ -423,4 +430,9 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
     public void broadcastPacket(Packet packet) {
         channels.writeAndFlush(packet);
     }
+
+    public void sendPacket(Player player, Packet packet) {
+        channels.stream().filter(channel -> channel.attr(PLAYER).get() == player).forEach(channel -> channel.writeAndFlush(packet));
+    }
+
 }

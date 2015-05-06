@@ -6,6 +6,7 @@ import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
 import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
+import io.github.alyphen.immaterial_realm.common.hud.HUDComponent;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
@@ -18,6 +19,8 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketS
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityDespawn;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityMove;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntitySpawn;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.hud.PacketSendHUDComponent;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.hud.PacketSetHUDComponentVariable;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketClientboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketLoginStatus;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.login.PacketVersion;
@@ -33,6 +36,7 @@ import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.Pa
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestGenders;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestRaces;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.chat.PacketRequestChannels;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.hud.PacketRequestHUDComponents;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketServerboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
@@ -102,6 +106,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             ctx.writeAndFlush(new PacketRequestRaces());
             ctx.writeAndFlush(new PacketRequestGenders());
             ctx.writeAndFlush(new PacketRequestCharacterSprites());
+            ctx.writeAndFlush(new PacketRequestHUDComponents());
         } else if (msg instanceof PacketSendTileSheet) {
             TileSheet.load((PacketSendTileSheet) msg);
         } else if (msg instanceof PacketSendObjectType) {
@@ -310,6 +315,15 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketCharacterSaveSuccessful) {
             client.showPanel("world");
+        } else if (msg instanceof PacketSendHUDComponent) {
+            PacketSendHUDComponent packet = (PacketSendHUDComponent) msg;
+            client.getWorldPanel().getHUD().addComponent(packet.getComponent());
+        } else if (msg instanceof PacketSetHUDComponentVariable) {
+            PacketSetHUDComponentVariable packet = (PacketSetHUDComponentVariable) msg;
+            HUDComponent component = client.getWorldPanel().getHUD().getComponent(packet.getComponent());
+            if (component != null) {
+                component.setVariable(packet.getVariable(), packet.getValue());
+            }
         }
     }
 

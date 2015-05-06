@@ -1,6 +1,7 @@
 package io.github.alyphen.immaterial_realm.server.network;
 
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
+import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.server.ImmaterialRealmServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -59,6 +60,10 @@ public class NetworkManager {
 
     public void broadcastPacket(Packet packet) {
         handler.broadcastPacket(packet);
+    }
+
+    public void sendPacket(Player player, Packet packet) {
+        handler.sendPacket(player, packet);
     }
 
 }
