@@ -148,7 +148,15 @@ public class ObjectScripterPanel extends JPanel {
         add(topPanel, NORTH);
         JPanel buttonsPanel = new JPanel();
         JButton btnBack = new JButton("Back");
-        btnBack.addActionListener(event -> application.showPanel("menu"));
+        btnBack.addActionListener(event -> {
+            try {
+                save();
+            } catch (IOException exception) {
+                showMessageDialog(null, "Saving object failed: " + exception.getMessage());
+                exception.printStackTrace();
+            }
+            application.showPanel("menu");
+        });
         buttonsPanel.add(btnBack);
         add(buttonsPanel, SOUTH);
         application.getFrame().addWindowListener(new WindowAdapter() {
