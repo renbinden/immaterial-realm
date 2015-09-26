@@ -26,7 +26,7 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.Packe
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketPlayerLeave;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketSendPlayers;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.sprite.*;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTileSheet;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTile;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.*;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestCharacterSprites;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestGenders;
@@ -42,10 +42,10 @@ import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.Packet
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketServerboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTileSheets;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTiles;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
-import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
+import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 import io.github.alyphen.immaterial_realm.server.ImmaterialRealmServer;
@@ -165,9 +165,13 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketRequestPlayers) {
             ctx.writeAndFlush(new PacketSendPlayers(channels.stream().filter(channel -> channel.attr(PLAYER).get() != null).map(channel -> channel.attr(PLAYER).get()).collect(Collectors.toSet())));
-        } else if (msg instanceof PacketRequestTileSheets) {
-            for (TileSheet tileSheet : TileSheet.getTileSheets()) {
-                ctx.writeAndFlush(new PacketSendTileSheet(tileSheet.getName(), tileSheet.getSheetImage(), tileSheet.getTileWidth(), tileSheet.getTileHeight()));
+        } else if (msg instanceof PacketRequestTiles) {
+            for (Tile tile : Tile.getTiles()) {
+                try {
+                    ctx.writeAndFlush(new PacketSendTile(tile));
+                } catch (IOException exception) {
+                    server.getLogger().log(SEVERE, "Failed to load tile from packet", exception);
+                }
             }
         } else if (msg instanceof PacketRequestObjectTypes) {
             for (WorldObjectInitializer initializer : WorldObjectFactory.getObjectInitializers()) {

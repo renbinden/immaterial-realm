@@ -30,7 +30,8 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.Packe
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketPlayerLeave;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.player.PacketSendPlayers;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.sprite.*;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTileSheet;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTile;
+import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.*;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.PacketPing;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestCharacterSprites;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.character.PacketRequestGenders;
@@ -40,11 +41,10 @@ import io.github.alyphen.immaterial_realm.common.packet.serverbound.hud.PacketRe
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketServerboundPublicKey;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.PacketRequestObjectTypes;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
-import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTileSheets;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.*;
+import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTiles;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
-import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
+import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -99,7 +99,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                     client.getPlayerManager().addPlayer(player);
                 }
             }
-            ctx.writeAndFlush(new PacketRequestTileSheets());
+            ctx.writeAndFlush(new PacketRequestTiles());
             ctx.writeAndFlush(new PacketRequestObjectTypes());
             ctx.writeAndFlush(new PacketRequestWorlds());
             ctx.writeAndFlush(new PacketRequestChannels());
@@ -107,8 +107,8 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             ctx.writeAndFlush(new PacketRequestGenders());
             ctx.writeAndFlush(new PacketRequestCharacterSprites());
             ctx.writeAndFlush(new PacketRequestHUDComponents());
-        } else if (msg instanceof PacketSendTileSheet) {
-            TileSheet.load((PacketSendTileSheet) msg);
+        } else if (msg instanceof PacketSendTile) {
+            Tile.load((PacketSendTile) msg);
         } else if (msg instanceof PacketSendObjectType) {
             PacketSendObjectType packet = (PacketSendObjectType) msg;
             registerObjectInitializer(packet.getName(), new WorldObjectInitializer() {

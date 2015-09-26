@@ -34,9 +34,9 @@ public class MenuPanel extends JPanel {
             JButton btnSettings = new JButton("Settings", new ImageIcon(read(getClass().getResourceAsStream("/icon_settings.png"))));
             btnSettings.addActionListener(event -> application.showPanel("settings"));
             add(btnSettings);
-            JButton btnTilesheets = new JButton("Tilesheets", new ImageIcon(read(getClass().getResourceAsStream("/icon_tilesheets.png"))));
-            btnTilesheets.addActionListener(event -> application.showPanel("tilesheets"));
-            add(btnTilesheets);
+            JButton btnTiles = new JButton("Tiles", new ImageIcon(read(getClass().getResourceAsStream("/icon_tiles.png"))));
+            btnTiles.addActionListener(event -> application.showPanel("tiles"));
+            add(btnTiles);
             JButton btnSprites = new JButton("Sprites", new ImageIcon(read(getClass().getResourceAsStream("/icon_sprites.png"))));
             btnSprites.addActionListener(event -> application.showPanel("sprites"));
             add(btnSprites);

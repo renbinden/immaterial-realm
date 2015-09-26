@@ -4,7 +4,6 @@ import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.AreaSelectPanel;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.MapEditorPanel;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.TilePanel;
-import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.TileSheetPanel;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 
@@ -22,7 +21,6 @@ public class MapBuilderPanel extends JPanel {
     private World world;
 
     private AreaSelectPanel areaSelectPanel;
-    private TileSheetPanel tileSheetPanel;
     private TilePanel tilePanel;
     private MapEditorPanel mapEditorPanel;
 
@@ -40,14 +38,8 @@ public class MapBuilderPanel extends JPanel {
         }
         setLayout(new BorderLayout());
         areaSelectPanel = new AreaSelectPanel(this);
-        tileSheetPanel = new TileSheetPanel();
-        tilePanel = new TilePanel(this);
+        tilePanel = new TilePanel();
         mapEditorPanel = new MapEditorPanel(this);
-        add(new AreaSelectPanel(this), WEST);
-        JPanel tilesPanel = new JPanel();
-        tilesPanel.setLayout(new GridLayout(2, 1));
-        tilesPanel.add(tileSheetPanel);
-        tilesPanel.add(tilePanel);
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new FlowLayout());
         JButton btnSave = new JButton("Save");
@@ -70,7 +62,7 @@ public class MapBuilderPanel extends JPanel {
         btnBack.addActionListener(event -> application.showPanel("menu"));
         buttonsPanel.add(btnBack);
         add(buttonsPanel, SOUTH);
-        add(tilesPanel, EAST);
+        add(tilePanel, EAST);
         add(mapEditorPanel, CENTER);
         add(areaSelectPanel, WEST);
     }
@@ -85,10 +77,6 @@ public class MapBuilderPanel extends JPanel {
 
     public AreaSelectPanel getAreaSelectPanel() {
         return areaSelectPanel;
-    }
-
-    public TileSheetPanel getTileSheetPanel() {
-        return tileSheetPanel;
     }
 
     public TilePanel getTilePanel() {

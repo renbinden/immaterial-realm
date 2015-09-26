@@ -5,338 +5,210 @@
   "tiles": [
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "water"
       }
     ],
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       }
     ],
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       }
     ],
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       }
     ],
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       }
     ],
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       }
     ],
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       }
     ],
     [
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       },
       {
-        "sheet": "default",
-        "row": 0,
-        "col": 0
+        "name": "grass1"
       }
     ]
   ],

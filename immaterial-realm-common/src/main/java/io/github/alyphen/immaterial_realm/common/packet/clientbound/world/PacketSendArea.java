@@ -2,7 +2,6 @@ package io.github.alyphen.immaterial_realm.common.packet.clientbound.world;
 
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
-import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 
 import java.util.ArrayList;
@@ -28,9 +27,7 @@ public class PacketSendArea extends Packet {
             tiles.add(new ArrayList<>());
             for (int col = 0; col < area.getColumns(); col++) {
                 Map<String, Object> tileMeta = new HashMap<>();
-                tileMeta.put("sheet", area.getTileAt(row, col).getSheet().getName());
-                tileMeta.put("row", area.getTileAt(row, col).getRow());
-                tileMeta.put("col", area.getTileAt(row, col).getColumn());
+                tileMeta.put("name", area.getTileAt(row, col).getName());
                 tiles.get(row).add(tileMeta);
             }
         }
@@ -54,7 +51,7 @@ public class PacketSendArea extends Packet {
 
     public Tile getTileAt(int row, int col) {
         Map<String, Object> tileMeta = tiles.get(row).get(col);
-        return TileSheet.getTileSheet((String) tileMeta.get("sheet")).getTile((int) tileMeta.get("row"), (int) tileMeta.get("col"));
+        return Tile.getTile((String) tileMeta.get("name"));
     }
 
 }

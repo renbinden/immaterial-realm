@@ -7,7 +7,7 @@ import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityMove;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
-import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
+import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.server.character.CharacterComponentManager;
 import io.github.alyphen.immaterial_realm.server.character.CharacterManager;
@@ -82,13 +82,13 @@ public class ImmaterialRealmServer {
         try {
             saveDefaults();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            getLogger().log(SEVERE, "Failed to save defaults", exception);
         }
         loadConfiguration();
         try {
-            TileSheet.loadTileSheets();
+            Tile.loadTiles();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            getLogger().log(SEVERE, "Failed to load tiles", exception);
         }
         File objectsDirectory = new File("./objects");
         for (File objectDirectory : objectsDirectory.listFiles(File::isDirectory)) {
@@ -279,7 +279,7 @@ public class ImmaterialRealmServer {
 
     private void saveDefaults() throws IOException {
         saveDefaultConfiguration();
-        saveDefaultTileSheets();
+        saveDefaultTiles();
         saveDefaultObjectTypes();
         try {
             saveDefaultWorlds();
@@ -321,16 +321,25 @@ public class ImmaterialRealmServer {
         return configuration;
     }
 
-    private void saveDefaultTileSheets() throws IOException {
-        File tileSheetDirectory = new File("./tilesheets");
-        File defaultTileSheetDirectory = new File(tileSheetDirectory, "default");
-        if (!tileSheetDirectory.isDirectory()) {
-            tileSheetDirectory.delete();
-        }
-        if (!tileSheetDirectory.exists()) {
-            defaultTileSheetDirectory.mkdirs();
-            copy(getClass().getResourceAsStream("/tilesheets/default/tilesheet.png"), get(new File(defaultTileSheetDirectory, "tilesheet.png").getPath()));
-            copy(getClass().getResourceAsStream("/tilesheets/default/tilesheet.json"), get(new File(defaultTileSheetDirectory, "tilesheet.json").getPath()));
+    private void saveDefaultTiles() throws IOException {
+        File tilesDirectory = new File("./tiles");
+        String[] defaultTiles = new String[] {
+                "grass1",
+                "grass2",
+                "grass3",
+                "grass4",
+                "water"
+        };
+        for (String tileName : defaultTiles) {
+            File tileDirectory = new File(tilesDirectory, tileName);
+            if (!tileDirectory.isDirectory()) {
+                tileDirectory.delete();
+            }
+            if (!tileDirectory.exists()) {
+                tileDirectory.mkdirs();
+                copy(getClass().getResourceAsStream("/tiles/" + tileName + "/tile.png"), get(new File(tileDirectory, "tile.png").getPath()));
+                copy(getClass().getResourceAsStream("/tiles/" + tileName + "/tile.json"), get(new File(tileDirectory, "tile.json").getPath()));
+            }
         }
     }
 

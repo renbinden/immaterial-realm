@@ -2,7 +2,7 @@ package io.github.alyphen.immaterial_realm.builder;
 
 import io.github.alyphen.immaterial_realm.builder.panel.*;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
-import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
+import io.github.alyphen.immaterial_realm.common.tile.Tile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +23,7 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
     private ObjectScripterPanel objectScripterPanel;
     private PluginsPanel pluginsPanel;
     private SettingsPanel settingsPanel;
-    private TileSheetsPanel tileSheetsPanel;
+    private TilesPanel tilesPanel;
     private SpritesPanel spritesPanel;
 
     public ImmaterialRealmBuilder(ImmaterialRealmBuilderFrame frame) {
@@ -44,8 +44,8 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         add(pluginsPanel, "plugins");
         settingsPanel = new SettingsPanel(this);
         add(settingsPanel, "settings");
-        tileSheetsPanel = new TileSheetsPanel(this);
-        add(tileSheetsPanel, "tilesheets");
+        tilesPanel = new TilesPanel(this);
+        add(tilesPanel, "tiles");
         spritesPanel = new SpritesPanel(this);
         add(spritesPanel, "sprites");
         new Thread(this).start();
@@ -59,7 +59,7 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
 
     public void loadData() {
         try {
-            TileSheet.loadTileSheets();
+            Tile.loadTiles();
         } catch (IOException exception) {
             exception.printStackTrace();
         }

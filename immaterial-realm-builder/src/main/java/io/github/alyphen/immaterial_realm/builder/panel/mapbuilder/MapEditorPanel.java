@@ -88,11 +88,11 @@ public class MapEditorPanel extends JPanel implements MouseListener, MouseMotion
         if (mapBuilderPanel.getArea() != null) {
             Graphics2D graphics2D = (Graphics2D) graphics;
             graphics2D.translate(-xOffset, -yOffset);
-            for (int x = 0; x < mapBuilderPanel.getArea().getTiles().length; x++) {
-                for (int y = 0; y < mapBuilderPanel.getArea().getTiles()[x].length; y++) {
-                    Tile tile = mapBuilderPanel.getArea().getTileAt(x, y);
+            for (int row = 0; row < mapBuilderPanel.getArea().getTiles().length; row++) {
+                for (int col = 0; col < mapBuilderPanel.getArea().getTiles()[row].length; col++) {
+                    Tile tile = mapBuilderPanel.getArea().getTileAt(row, col);
                     if (tile != null)
-                        tile.paint(graphics, x * tile.getWidth(), y * tile.getHeight());
+                        tile.paint(graphics, col * tile.getWidth(), row * tile.getHeight());
                 }
             }
             graphics2D.translate(xOffset, yOffset);

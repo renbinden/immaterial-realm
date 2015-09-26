@@ -49,11 +49,11 @@ public class WorldPanel extends JPanel {
             for (int row = 0; row < area.getRows(); row++) {
                 for (int col = 0; col < area.getColumns(); col++) {
                     Tile tile = getArea().getTileAt(row, col);
-                    int x = col * tile.getSheet().getTileWidth();
-                    int y = row * tile.getSheet().getTileHeight();
-                    if (x + tile.getSheet().getTileWidth() >= getCameraX()
+                    int x = col * tile.getWidth();
+                    int y = row * tile.getHeight();
+                    if (x + tile.getWidth() >= getCameraX()
                             && x <= getCameraX() + getWidth()
-                            && y + tile.getSheet().getTileHeight() >= getCameraY()
+                            && y + tile.getHeight() >= getCameraY()
                             && y <= getCameraY() + getHeight())
                         tile.paint(graphics, x, y);
                 }

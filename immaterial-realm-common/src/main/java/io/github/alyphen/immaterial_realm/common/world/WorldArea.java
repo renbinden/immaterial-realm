@@ -2,7 +2,6 @@ package io.github.alyphen.immaterial_realm.common.world;
 
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
-import io.github.alyphen.immaterial_realm.common.tile.TileSheet;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.PacketSendArea;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
@@ -132,6 +131,11 @@ public class WorldArea {
     public void onTick() {
         getObjects().stream().forEach(WorldObject::onTick);
         getEntities().stream().forEach(Entity::onTick);
+        for (int row = 0; row < getTiles().length; row++) {
+            for (int col = 0; col < getTiles()[row].length; col++) {
+                getTiles()[row][col].onTick();
+            }
+        }
     }
 
     public static WorldArea load(World world, File directory) throws IOException, ClassNotFoundException {
@@ -142,7 +146,7 @@ public class WorldArea {
         for (int row = 0; row < area.getRows(); row++) {
             for (int col = 0; col < area.getColumns(); col++) {
                 Map<String, Object> tileMeta = tiles.get(row).get(col);
-                Tile tile = TileSheet.getTileSheet((String) tileMeta.get("sheet")).getTile((int) ((double) tileMeta.get("row")), (int) ((double) tileMeta.get("col")));
+                Tile tile = Tile.getTile((String) tileMeta.get("name"));
                 area.setTileAt(row, col, tile);
             }
         }
@@ -178,9 +182,7 @@ public class WorldArea {
             for (int col = 0; col < getColumns(); col++) {
                 Tile tile = getTileAt(row, col);
                 Map<String, Object> tileMeta = new HashMap<>();
-                tileMeta.put("sheet", tile.getSheet().getName());
-                tileMeta.put("row", tile.getRow());
-                tileMeta.put("col", tile.getColumn());
+                tileMeta.put("name", tile.getName());
                 tiles.get(row).add(tileMeta);
             }
         }
