@@ -1,13 +1,19 @@
 package io.github.alyphen.immaterial_realm.builder;
 
 import io.github.alyphen.immaterial_realm.builder.panel.*;
+import io.github.alyphen.immaterial_realm.common.object.WorldObject;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
+import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
 import static java.lang.Thread.sleep;
 
 public class ImmaterialRealmBuilder extends JPanel implements Runnable {
@@ -68,6 +74,36 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+        loadObjectTypes();
+    }
+
+    private void loadObjectTypes() {
+        File objectsDirectory = new File("./objects");
+        for (File objectDirectory : objectsDirectory.listFiles(File::isDirectory)) {
+            try {
+                File propertiesFile = new File(objectDirectory, "object.json");
+                Map<String, Object> properties = loadMetadata(propertiesFile);
+                WorldObjectFactory.registerObjectInitializer((String) properties.get("name"), new WorldObjectInitializer() {
+
+                    {
+                        setObjectName((String) properties.get("name"));
+                        String spriteName = (String) properties.get("sprite");
+                        Sprite sprite = spriteName.equals("none") ? null : Sprite.getSprite(spriteName);
+                        setObjectSprite(sprite);
+                        setObjectBounds(new Rectangle((int) ((double) properties.get("bounds_offset_x")), (int) ((double) properties.get("bounds_offset_y")), (int) ((double) properties.get("bounds_width")), (int) ((double) properties.get("bounds_height"))));
+                    }
+
+                    @Override
+                    public WorldObject initialize(long id) {
+                        return new WorldObject(id, getObjectName(), getObjectSprite(), getObjectBounds());
+                    }
+
+                });
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+
+        }
     }
 
     public void doTick() {
@@ -97,6 +133,42 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
 
     public ImmaterialRealmBuilderFrame getFrame() {
         return frame;
+    }
+
+    public MenuPanel getMenuPanel() {
+        return menuPanel;
+    }
+
+    public ChatDesignerPanel getChatDesignerPanel() {
+        return chatDesignerPanel;
+    }
+
+    public LogViewerPanel getLogViewerPanel() {
+        return logViewerPanel;
+    }
+
+    public MapBuilderPanel getMapBuilderPanel() {
+        return mapBuilderPanel;
+    }
+
+    public ObjectScripterPanel getObjectScripterPanel() {
+        return objectScripterPanel;
+    }
+
+    public PluginsPanel getPluginsPanel() {
+        return pluginsPanel;
+    }
+
+    public SettingsPanel getSettingsPanel() {
+        return settingsPanel;
+    }
+
+    public TilesPanel getTilesPanel() {
+        return tilesPanel;
+    }
+
+    public SpritesPanel getSpritesPanel() {
+        return spritesPanel;
     }
 
 }

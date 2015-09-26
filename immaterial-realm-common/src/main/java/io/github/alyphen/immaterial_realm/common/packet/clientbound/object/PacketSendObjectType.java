@@ -15,12 +15,14 @@ public class PacketSendObjectType extends Packet {
 
     public PacketSendObjectType(String name, Sprite sprite, Rectangle bounds) {
         this.name = name;
-        try {
-            this.sprite = sprite.toByteArray();
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        if (sprite != null) {
+            try {
+                this.sprite = sprite.toByteArray();
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+            this.frameDelay = sprite.getFrameDelay();
         }
-        this.frameDelay = sprite.getFrameDelay();
         this.bounds = bounds;
     }
 
@@ -29,10 +31,12 @@ public class PacketSendObjectType extends Packet {
     }
 
     public Sprite getSprite() {
-        try {
-            return Sprite.fromByteArray("__object_" + name, sprite, frameDelay);
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        if (sprite != null) {
+            try {
+                return Sprite.fromByteArray("__object_" + name, sprite, frameDelay);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
         }
         return null;
     }

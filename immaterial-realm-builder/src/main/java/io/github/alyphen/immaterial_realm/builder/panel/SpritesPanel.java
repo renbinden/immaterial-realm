@@ -75,6 +75,7 @@ public class SpritesPanel extends JPanel {
                         Sprite sprite = Sprite.fromImage(name, image, frameDelay, frameWidth, frameHeight);
                         try {
                             sprite.save(new File("./sprites/" + name));
+                            Sprite.addSprite(sprite);
                             ((DefaultTableModel) spritesTable.getModel()).removeRow(i);
                         } catch (IOException exception) {
                             showMessageDialog(null, "Failed to save sprite: " + exception.getMessage());

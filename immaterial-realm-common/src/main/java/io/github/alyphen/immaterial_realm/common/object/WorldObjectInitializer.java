@@ -4,14 +4,36 @@ import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.awt.*;
 
-public interface WorldObjectInitializer {
+public abstract class WorldObjectInitializer {
 
-    public String getObjectName();
+    private String objectName;
+    private Sprite objectSprite;
+    private Rectangle objectBounds;
 
-    public Sprite getObjectSprite();
+    public String getObjectName() {
+        return objectName;
+    }
 
-    public Rectangle getObjectBounds();
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
+    }
 
-    public WorldObject initialize(long id);
+    public Sprite getObjectSprite() {
+        return objectSprite;
+    }
+
+    public void setObjectSprite(Sprite objectSprite) {
+        this.objectSprite = objectSprite;
+    }
+
+    public Rectangle getObjectBounds() {
+        return objectBounds;
+    }
+
+    public void setObjectBounds(Rectangle objectBounds) {
+        this.objectBounds = objectBounds;
+    }
+
+    public abstract WorldObject initialize(long id);
 
 }

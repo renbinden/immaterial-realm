@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
+import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -18,11 +20,14 @@ import java.util.List;
 
 import static java.awt.BorderLayout.*;
 import static java.lang.Integer.MAX_VALUE;
+import static java.util.stream.Collectors.toList;
 import static javax.swing.JOptionPane.showInputDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.*;
 
 public class ObjectScripterPanel extends JPanel {
+
+    private ImmaterialRealmBuilder application;
 
     private JComboBox<String> objectSelectionBox;
     private JComboBox<String> languageSelectionBox;
@@ -31,9 +36,11 @@ public class ObjectScripterPanel extends JPanel {
     private JSpinner yOffsetSpinner;
     private JSpinner widthSpinner;
     private JSpinner heightSpinner;
+    private JComboBox<String> spriteSelectionBox;
     private RSyntaxTextArea editor;
 
     public ObjectScripterPanel(ImmaterialRealmBuilder application) {
+        this.application = application;
         setLayout(new BorderLayout());
         editor = new RSyntaxTextArea();
         try {
@@ -87,6 +94,18 @@ public class ObjectScripterPanel extends JPanel {
         heightLabel.setLabelFor(heightSpinner);
         objectSettingsPanel.add(heightLabel);
         objectSettingsPanel.add(heightSpinner);
+        Collection<Sprite> sprites = Sprite.getSprites();
+        String[] spriteNames = new String[sprites.size() + 1];
+        List<Sprite> spriteList = sprites.stream().collect(toList());
+        spriteNames[0] = "none";
+        for (int i = 1; i < spriteList.size() + 1; i++) {
+            spriteNames[i] = spriteList.get(i - 1).getName();
+        }
+        spriteSelectionBox = new JComboBox<>(spriteNames);
+        JLabel spriteLabel = new JLabel("Sprite: ");
+        spriteLabel.setLabelFor(spriteSelectionBox);
+        objectSettingsPanel.add(spriteLabel);
+        objectSettingsPanel.add(spriteSelectionBox);
         topPanel.add(objectSettingsPanel, SOUTH);
         JPanel objectSelectorPanel = new JPanel();
         objectSelectorPanel.setLayout(new FlowLayout());
@@ -184,6 +203,7 @@ public class ObjectScripterPanel extends JPanel {
         metadata.put("bounds_offset_y", yOffsetSpinner.getValue());
         metadata.put("bounds_width", widthSpinner.getValue());
         metadata.put("bounds_height", heightSpinner.getValue());
+        metadata.put("sprite", spriteSelectionBox.getSelectedItem());
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(metadata);
         FileWriter metadataWriter = new FileWriter(metadataFile);
@@ -214,6 +234,8 @@ public class ObjectScripterPanel extends JPanel {
         scriptWriter.write(editor.getText());
         scriptWriter.close();
         refreshObjectSelectionBox();
+        WorldObjectFactory.getObjectInitializer((String) objectSelectionBox.getSelectedItem()).setObjectSprite(spriteSelectionBox.getSelectedItem().equals("none") ? null : Sprite.getSprite((String) spriteSelectionBox.getSelectedItem()));
+        application.getMapBuilderPanel().getArea().getObjects().stream().filter(object -> object.getType().equals(objectSelectionBox.getSelectedItem())).forEach(object -> object.setSprite(spriteSelectionBox.getSelectedItem().equals("none") ? null : Sprite.getSprite((String) spriteSelectionBox.getSelectedItem())));
     }
 
     public void load() throws FileNotFoundException {
@@ -233,12 +255,14 @@ public class ObjectScripterPanel extends JPanel {
             yOffsetSpinner.setValue((int) ((double) metadata.get("bounds_offset_y")));
             widthSpinner.setValue((int) ((double) metadata.get("bounds_width")));
             heightSpinner.setValue((int) ((double) metadata.get("bounds_height")));
+            spriteSelectionBox.setSelectedItem(metadata.get("sprite"));
         } else {
             textFieldObjectName.setText(objectFile.getName());
             xOffsetSpinner.setValue(0);
             yOffsetSpinner.setValue(0);
             widthSpinner.setValue(32);
             heightSpinner.setValue(32);
+            spriteSelectionBox.setSelectedItem("none");
         }
         File scriptFile = new File(objectFile, "object.js");
         if (scriptFile.exists()) {

@@ -153,8 +153,8 @@ public class WorldArea {
         List<Map<String, Object>> objects = (List<Map<String, Object>>) metadata.get("objects");
         for (Map<String, Object> objectMeta : objects) {
             WorldObject object = WorldObjectFactory.createObject((String) objectMeta.get("type"));
-            object.setX((int) objectMeta.get("x"));
-            object.setY((int) objectMeta.get("y"));
+            object.setX((int) ((double) objectMeta.get("x")));
+            object.setY((int) ((double) objectMeta.get("y")));
             area.addObject(object);
         }
         return area;
@@ -190,7 +190,7 @@ public class WorldArea {
         List<Map<String, Object>> objects = new ArrayList<>();
         for (WorldObject object : getObjects()) {
             Map<String, Object> objectMeta = new HashMap<>();
-            objectMeta.put("type", object.getClass());
+            objectMeta.put("type", object.getType());
             objectMeta.put("x", object.getX());
             objectMeta.put("y", object.getY());
             objects.add(objectMeta);

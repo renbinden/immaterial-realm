@@ -53,13 +53,17 @@ public class WorldObject {
     }
 
     public void onTick() {
-        getSprite().onTick();
+        if (getSprite() != null) {
+            getSprite().onTick();
+        }
     }
 
     public void onInteract() {}
 
     public void paint(Graphics graphics) {
-        getSprite().paint(graphics);
+        if (getSprite() != null) {
+            getSprite().paint(graphics, getX(), getY());
+        }
     }
 
     public Rectangle getBounds() {

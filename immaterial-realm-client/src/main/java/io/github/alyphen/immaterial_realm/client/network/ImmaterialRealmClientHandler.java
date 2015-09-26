@@ -52,7 +52,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 
-import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
@@ -113,19 +112,10 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             PacketSendObjectType packet = (PacketSendObjectType) msg;
             registerObjectInitializer(packet.getName(), new WorldObjectInitializer() {
 
-                @Override
-                public String getObjectName() {
-                    return packet.getName();
-                }
-
-                @Override
-                public Sprite getObjectSprite() {
-                    return packet.getSprite();
-                }
-
-                @Override
-                public Rectangle getObjectBounds() {
-                    return packet.getBounds();
+                {
+                    setObjectName(packet.getName());
+                    setObjectSprite(packet.getSprite());
+                    setObjectBounds(packet.getBounds());
                 }
 
                 @Override
@@ -149,9 +139,11 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             PacketCreateObject packet = (PacketCreateObject) msg;
             if (client.getWorldPanel().getWorld().getName().equals(packet.getWorld()) && client.getWorldPanel().getArea().getName().equals(packet.getArea())) {
                 WorldObject object = WorldObjectFactory.createObject(packet.getType());
-                object.setX(packet.getX());
-                object.setY(packet.getY());
-                client.getWorldPanel().getArea().addObject(object);
+                if (object != null) {
+                    object.setX(packet.getX());
+                    object.setY(packet.getY());
+                    client.getWorldPanel().getArea().addObject(object);
+                }
             }
         } else if (msg instanceof PacketEntitySpawn) {
             PacketEntitySpawn packet = (PacketEntitySpawn) msg;

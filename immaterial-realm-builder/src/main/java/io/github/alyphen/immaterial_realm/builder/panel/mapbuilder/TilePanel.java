@@ -21,7 +21,7 @@ public class TilePanel extends JPanel implements MouseListener {
                 maxTileWidth = tile.getWidth();
             }
         }
-        setPreferredSize(new Dimension(maxTileWidth * 4, 480));
+        setPreferredSize(new Dimension((maxTileWidth + 8) * 4, 600));
     }
 
     @Override

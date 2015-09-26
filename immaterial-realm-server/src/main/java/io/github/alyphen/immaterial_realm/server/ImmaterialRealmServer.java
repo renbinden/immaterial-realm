@@ -97,24 +97,11 @@ public class ImmaterialRealmServer {
                 Map<String, Object> properties = loadMetadata(propertiesFile);
                 WorldObjectFactory.registerObjectInitializer((String) properties.get("name"), new WorldObjectInitializer() {
 
-                    @Override
-                    public String getObjectName() {
-                        return (String) properties.get("name");
-                    }
-
-                    @Override
-                    public Sprite getObjectSprite() {
-                        try {
-                            return Sprite.load(new File(objectDirectory, "sprite"));
-                        } catch (IOException exception) {
-                            exception.printStackTrace();
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public Rectangle getObjectBounds() {
-                        return new Rectangle((int) ((double) properties.get("bounds_offset_x")), (int) ((double) properties.get("bounds_offset_y")), (int) ((double) properties.get("bounds_width")), (int) ((double) properties.get("bounds_height")));
+                    {
+                        setObjectName((String) properties.get("name"));
+                        String spriteName = (String) properties.get("sprite");
+                        setObjectSprite(spriteName.equals("none") ? null : Sprite.getSprite(spriteName));
+                        setObjectBounds(new Rectangle((int) ((double) properties.get("bounds_offset_x")), (int) ((double) properties.get("bounds_offset_y")), (int) ((double) properties.get("bounds_width")), (int) ((double) properties.get("bounds_height"))));
                     }
 
                     @Override

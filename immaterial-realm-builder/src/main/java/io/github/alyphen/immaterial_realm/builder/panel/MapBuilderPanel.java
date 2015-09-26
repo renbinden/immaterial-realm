@@ -3,6 +3,7 @@ package io.github.alyphen.immaterial_realm.builder.panel;
 import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.AreaSelectPanel;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.MapEditorPanel;
+import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.ObjectsPanel;
 import io.github.alyphen.immaterial_realm.builder.panel.mapbuilder.TilePanel;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
@@ -21,7 +22,9 @@ public class MapBuilderPanel extends JPanel {
     private World world;
 
     private AreaSelectPanel areaSelectPanel;
+    private JTabbedPane objectsAndTilesPanel;
     private TilePanel tilePanel;
+    private ObjectsPanel objectsPanel;
     private MapEditorPanel mapEditorPanel;
 
     public MapBuilderPanel(ImmaterialRealmBuilder application) {
@@ -39,6 +42,10 @@ public class MapBuilderPanel extends JPanel {
         setLayout(new BorderLayout());
         areaSelectPanel = new AreaSelectPanel(this);
         tilePanel = new TilePanel();
+        objectsPanel = new ObjectsPanel();
+        objectsAndTilesPanel = new JTabbedPane();
+        objectsAndTilesPanel.addTab("Tiles", tilePanel);
+        objectsAndTilesPanel.addTab("Objects", objectsPanel);
         mapEditorPanel = new MapEditorPanel(this);
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new FlowLayout());
@@ -62,7 +69,7 @@ public class MapBuilderPanel extends JPanel {
         btnBack.addActionListener(event -> application.showPanel("menu"));
         buttonsPanel.add(btnBack);
         add(buttonsPanel, SOUTH);
-        add(tilePanel, EAST);
+        add(objectsAndTilesPanel, EAST);
         add(mapEditorPanel, CENTER);
         add(areaSelectPanel, WEST);
     }
@@ -82,6 +89,19 @@ public class MapBuilderPanel extends JPanel {
     public TilePanel getTilePanel() {
         return tilePanel;
     }
+
+    public ObjectsPanel getObjectsPanel() {
+        return objectsPanel;
+    }
+
+    public boolean isTilesSelected() {
+        return objectsAndTilesPanel.getSelectedComponent() == getTilePanel();
+    }
+
+    public boolean isObjectsSelected() {
+        return objectsAndTilesPanel.getSelectedComponent() == getObjectsPanel();
+    }
+
 
     public MapEditorPanel getMapEditorPanel() {
         return mapEditorPanel;

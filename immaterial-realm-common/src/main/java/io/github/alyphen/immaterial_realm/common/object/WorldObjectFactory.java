@@ -27,4 +27,8 @@ public class WorldObjectFactory {
     public static Collection<WorldObjectInitializer> getObjectInitializers() {
         return initializers.values();
     }
+
+    public static WorldObjectInitializer getObjectInitializer(String type) {
+        return initializers.get(type);
+    }
 }
