@@ -70,9 +70,9 @@ public class Tile {
         File imageFile = new File(directory, "tile.png");
         Map<String, Object> metadata = FileUtils.loadMetadata(metadataFile);
         name = directory.getName();
-        width = (int) ((double) metadata.get("frame-width"));
-        height = (int) ((double) metadata.get("frame-height"));
-        frameDuration = (int) ((double) metadata.get("frame-duration"));
+        width = (int) ((double) metadata.get("frame_width"));
+        height = (int) ((double) metadata.get("frame_height"));
+        frameDuration = (int) ((double) metadata.get("frame_duration"));
         BufferedImage sheet = ImageIO.read(imageFile);
         frames = new BufferedImage[(sheet.getWidth() / width) * (sheet.getHeight() / height)];
         for (int x = 0; x < sheet.getWidth(); x += width) {
@@ -176,9 +176,9 @@ public class Tile {
         ImageIO.write(image, "png", new FileOutputStream(imageFile));
         image.flush();
         Map<String, Object> tileMetadata = new HashMap<>();
-        tileMetadata.put("frame-width", getWidth());
-        tileMetadata.put("frame-height", getHeight());
-        tileMetadata.put("frame-duration", getFrameDuration());
+        tileMetadata.put("frame_width", getWidth());
+        tileMetadata.put("frame_height", getHeight());
+        tileMetadata.put("frame_duration", getFrameDuration());
         FileUtils.saveMetadata(tileMetadata, metadataFile);
     }
 }
