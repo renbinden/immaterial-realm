@@ -110,7 +110,7 @@ public class MapEditorPanel extends JPanel implements MouseListener, MouseMotion
         if (mapBuilderPanel.getArea() != null) {
             Tile tile = mapBuilderPanel.getTilePanel().getSelectedTile();
             if (tile != null) {
-                mapBuilderPanel.getArea().setTileAt((event.getX() + xOffset) / tile.getWidth(), (event.getY() + yOffset) / tile.getHeight(), tile);
+                mapBuilderPanel.getArea().setTileAt((event.getY() + yOffset) / tile.getHeight(), (event.getX() + xOffset) / tile.getWidth(), tile);
             }
         }
     }
@@ -140,7 +140,7 @@ public class MapEditorPanel extends JPanel implements MouseListener, MouseMotion
         if (mapBuilderPanel.getArea() != null) {
             Tile tile = mapBuilderPanel.getTilePanel().getSelectedTile();
             if (tile != null) {
-                mapBuilderPanel.getArea().setTileAt((event.getX() + xOffset) / tile.getWidth(), (event.getY() + yOffset) / tile.getHeight(), tile);
+                mapBuilderPanel.getArea().setTileAt((event.getY() + yOffset) / tile.getHeight(), (event.getX() + xOffset) / tile.getWidth(), tile);
             }
         }
     }
