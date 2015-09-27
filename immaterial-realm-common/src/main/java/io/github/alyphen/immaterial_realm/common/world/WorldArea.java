@@ -1,8 +1,8 @@
 package io.github.alyphen.immaterial_realm.common.world;
 
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.PacketSendArea;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
 
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.saveMetadata;
@@ -30,8 +31,8 @@ public class WorldArea {
     public WorldArea(World world, String name, int rows, int cols) {
         this.world = world;
         this.name = name;
-        this.objects = new ArrayList<>();
-        this.entities = new ArrayList<>();
+        this.objects = new CopyOnWriteArrayList<>();
+        this.entities = new CopyOnWriteArrayList<>();
         this.rows = rows;
         this.cols = cols;
         this.tiles = new Tile[rows][cols];
