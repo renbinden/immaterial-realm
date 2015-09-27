@@ -98,31 +98,33 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Player player = ctx.channel().attr(PLAYER).get();
-        Character character = server.getCharacterManager().getCharacter(player);
-        for (World world : World.getWorlds()) {
-            for (WorldArea area : world.getAreas()) {
-                Iterator<Entity> entityIterator = area.getEntities().iterator();
-                while (entityIterator.hasNext()) {
-                    Entity entity = entityIterator.next();
-                    if (entity instanceof EntityCharacter) {
-                        EntityCharacter characterEntity = (EntityCharacter) entity;
-                        if (characterEntity.getCharacter().getPlayerId() == player.getId()) {
-                            character.setArea(area);
-                            character.setX(characterEntity.getX());
-                            character.setY(characterEntity.getY());
-                            try {
-                                server.getCharacterManager().updateCharacter(character);
-                            } catch (SQLException exception) {
-                                server.getLogger().log(SEVERE, "Failed to update character", exception);
+        if (player != null) {
+            Character character = server.getCharacterManager().getCharacter(player);
+            for (World world : World.getWorlds()) {
+                for (WorldArea area : world.getAreas()) {
+                    Iterator<Entity> entityIterator = area.getEntities().iterator();
+                    while (entityIterator.hasNext()) {
+                        Entity entity = entityIterator.next();
+                        if (entity instanceof EntityCharacter) {
+                            EntityCharacter characterEntity = (EntityCharacter) entity;
+                            if (characterEntity.getCharacter().getPlayerId() == player.getId()) {
+                                character.setArea(area);
+                                character.setX(characterEntity.getX());
+                                character.setY(characterEntity.getY());
+                                try {
+                                    server.getCharacterManager().updateCharacter(character);
+                                } catch (SQLException exception) {
+                                    server.getLogger().log(SEVERE, "Failed to update character", exception);
+                                }
+                                server.getEventManager().onEvent(new CharacterDespawnEvent(characterEntity));
+                                entityIterator.remove();
                             }
-                            server.getEventManager().onEvent(new CharacterDespawnEvent(characterEntity));
-                            entityIterator.remove();
                         }
                     }
                 }
             }
+            channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerLeave(player.getId())));
         }
-        channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerLeave(player.getId())));
     }
 
     @Override
