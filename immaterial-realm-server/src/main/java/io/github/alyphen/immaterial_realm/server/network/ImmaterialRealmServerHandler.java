@@ -68,8 +68,9 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.alyphen.immaterial_realm.common.world.Direction.*;
@@ -102,25 +103,23 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             Character character = server.getCharacterManager().getCharacter(player);
             for (World world : World.getWorlds()) {
                 for (WorldArea area : world.getAreas()) {
-                    Iterator<Entity> entityIterator = area.getEntities().iterator();
-                    while (entityIterator.hasNext()) {
-                        Entity entity = entityIterator.next();
-                        if (entity instanceof EntityCharacter) {
-                            EntityCharacter characterEntity = (EntityCharacter) entity;
-                            if (characterEntity.getCharacter().getPlayerId() == player.getId()) {
-                                character.setArea(area);
-                                character.setX(characterEntity.getX());
-                                character.setY(characterEntity.getY());
-                                try {
-                                    server.getCharacterManager().updateCharacter(character);
-                                } catch (SQLException exception) {
-                                    server.getLogger().log(SEVERE, "Failed to update character", exception);
-                                }
-                                server.getEventManager().onEvent(new CharacterDespawnEvent(characterEntity));
-                                entityIterator.remove();
+                    Set<Entity> entitiesToRemove = new HashSet<>();
+                    area.getEntities().stream().filter(entity -> entity instanceof EntityCharacter).forEach(entity -> {
+                        EntityCharacter characterEntity = (EntityCharacter) entity;
+                        if (characterEntity.getCharacter().getPlayerId() == player.getId()) {
+                            character.setArea(area);
+                            character.setX(characterEntity.getX());
+                            character.setY(characterEntity.getY());
+                            try {
+                                server.getCharacterManager().updateCharacter(character);
+                            } catch (SQLException exception) {
+                                server.getLogger().log(SEVERE, "Failed to update character", exception);
                             }
+                            server.getEventManager().onEvent(new CharacterDespawnEvent(characterEntity));
+                            entitiesToRemove.add(entity);
                         }
-                    }
+                    });
+                    entitiesToRemove.forEach(area::removeEntity);
                 }
             }
             channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerLeave(player.getId())));
