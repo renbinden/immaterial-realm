@@ -16,12 +16,15 @@ import javax.script.ScriptEngineManager;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class ImmaterialRealmClient extends JPanel {
 
     private static final long DELAY = 25L;
 
     private ImmaterialRealmClientFrame frame;
+
+    private Logger logger;
 
     private CharacterManager characterManager;
     private ChatManager chatManager;
@@ -44,6 +47,7 @@ public class ImmaterialRealmClient extends JPanel {
 
     public ImmaterialRealmClient(ImmaterialRealmClientFrame frame) {
         this.frame = frame;
+        logger = Logger.getLogger(getClass().getName());
         scriptEngineManager = new ScriptEngineManager();
         chatManager = new ChatManager(this);
         try {
@@ -99,6 +103,10 @@ public class ImmaterialRealmClient extends JPanel {
 
     public ImmaterialRealmClientFrame getFrame() {
         return frame;
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 
     public CharacterManager getCharacterManager() {
