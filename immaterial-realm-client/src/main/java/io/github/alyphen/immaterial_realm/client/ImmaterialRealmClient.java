@@ -34,6 +34,7 @@ public class ImmaterialRealmClient extends JPanel {
     private ScriptEngineManager scriptEngineManager;
 
     private boolean running;
+    private int fps;
     private String playerName;
 
     private ConnectionPanel connectionPanel;
@@ -86,6 +87,7 @@ public class ImmaterialRealmClient extends JPanel {
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
+            fps = (int) (1000 / (System.currentTimeMillis() - beforeTime));
             beforeTime = System.currentTimeMillis();
         }
     }
@@ -142,6 +144,10 @@ public class ImmaterialRealmClient extends JPanel {
 
     public void setRunning(boolean running) {
         this.running = running;
+    }
+
+    public int getFPS() {
+        return fps;
     }
 
     public String getPlayerName() {

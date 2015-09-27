@@ -79,6 +79,8 @@ public class WorldPanel extends JPanel {
         chatBox.paint(graphics);
         menuBox.paint(graphics);
         hud.paint(client.getScriptEngineManager(), graphics, getWidth(), getHeight());
+        graphics.setColor(Color.DARK_GRAY);
+        graphics.drawString("FPS: " + client.getFPS(), 16, 16);
     }
 
     public World getWorld() {
