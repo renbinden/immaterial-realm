@@ -68,7 +68,7 @@ public class ImmaterialRealmServer {
         try {
             databaseManager = new DatabaseManager();
         } catch (SQLException exception) {
-            logger.log(SEVERE, "Failed to connect to databaseManager", exception);
+            logger.log(SEVERE, "Failed to connect to database", exception);
         }
         characterComponentManager = new CharacterComponentManager(this);
         characterManager = new CharacterManager(this);
