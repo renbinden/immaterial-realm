@@ -9,6 +9,7 @@ import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.Packe
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
+import io.github.alyphen.immaterial_realm.server.admin.tpsmonitor.TPSMonitorFrame;
 import io.github.alyphen.immaterial_realm.server.character.CharacterComponentManager;
 import io.github.alyphen.immaterial_realm.server.character.CharacterManager;
 import io.github.alyphen.immaterial_realm.server.chat.ChatManager;
@@ -29,10 +30,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Logger;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
@@ -57,6 +56,9 @@ public class ImmaterialRealmServer {
     private Logger logger;
     private boolean running;
     private static final long DELAY = 25L;
+    private int tps;
+    private Deque<Integer> previousTPSValues;
+    private TPSMonitorFrame tpsMonitorFrame;
 
     public static void main(String[] args) {
         new ImmaterialRealmServer(39752);
@@ -222,6 +224,19 @@ public class ImmaterialRealmServer {
             }
         }
         new Thread(networkManager::start).start();
+        setupAdminTools();
+    }
+
+    private void setupAdminTools() {
+        previousTPSValues = new ConcurrentLinkedDeque<>();
+        if (!GraphicsEnvironment.isHeadless()) {
+            setupTPSMonitor();
+        }
+    }
+
+    private void setupTPSMonitor() {
+        tpsMonitorFrame = new TPSMonitorFrame(this);
+        EventQueue.invokeLater(() -> tpsMonitorFrame.setVisible(true));
     }
 
     public CharacterComponentManager getCharacterComponentManager() {
@@ -372,6 +387,9 @@ public class ImmaterialRealmServer {
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
             }
+            tps = (int) (1000 / (System.currentTimeMillis() - beforeTime));
+            if (previousTPSValues.size() > 640) previousTPSValues.removeFirst();
+            previousTPSValues.addLast(tps);
             beforeTime = System.currentTimeMillis();
         }
     }
@@ -414,10 +432,20 @@ public class ImmaterialRealmServer {
             world.onTick();
             world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(entity -> entity.isSpeedChanged() || entity.isMovementCancelled() || entity.isForceUpdate()).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
         });
+        if (!GraphicsEnvironment.isHeadless()) {
+            tpsMonitorFrame.repaint();
+        }
     }
 
     public Logger getLogger() {
         return logger;
     }
 
+    public int getTPS() {
+        return tps;
+    }
+
+    public Deque<Integer> getPreviousTPSValues() {
+        return previousTPSValues;
+    }
 }
