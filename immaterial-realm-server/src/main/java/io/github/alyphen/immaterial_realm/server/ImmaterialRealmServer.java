@@ -20,10 +20,7 @@ import io.github.alyphen.immaterial_realm.server.hud.HUDManager;
 import io.github.alyphen.immaterial_realm.server.network.NetworkManager;
 import io.github.alyphen.immaterial_realm.server.plugin.PluginManager;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import javax.script.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -99,11 +96,41 @@ public class ImmaterialRealmServer {
                 Map<String, Object> properties = loadMetadata(propertiesFile);
                 WorldObjectFactory.registerObjectInitializer((String) properties.get("name"), new WorldObjectInitializer() {
 
+                    private CompiledScript script;
+
                     {
                         setObjectName((String) properties.get("name"));
                         String spriteName = (String) properties.get("sprite");
                         setObjectSprite(spriteName.equals("none") ? null : Sprite.getSprite(spriteName));
                         setObjectBounds(new Rectangle((int) ((double) properties.get("bounds_offset_x")), (int) ((double) properties.get("bounds_offset_y")), (int) ((double) properties.get("bounds_width")), (int) ((double) properties.get("bounds_height"))));
+                        File jsFile = new File(objectDirectory, "object.js");
+                        File rbFile = new File(objectDirectory, "object.rb");
+                        File pyFile = new File(objectDirectory, "object.py");
+                        if (jsFile.exists()) {
+                            try {
+                                ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
+                                script = ((Compilable) engine).compile(read(jsFile));
+                                script.eval();
+                            } catch (ScriptException | FileNotFoundException exception) {
+                                exception.printStackTrace();
+                            }
+                        } else if (rbFile.exists()) {
+                            try {
+                                ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
+                                script = ((Compilable) engine).compile(read(rbFile));
+                                script.eval();
+                            } catch (ScriptException | FileNotFoundException exception) {
+                                exception.printStackTrace();
+                            }
+                        } else if (pyFile.exists()) {
+                            try {
+                                ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
+                                script = ((Compilable) engine).compile(read(pyFile));
+                                script.eval();
+                            } catch (ScriptException | FileNotFoundException exception) {
+                                exception.printStackTrace();
+                            }
+                        }
                     }
 
                     @Override
@@ -117,25 +144,22 @@ public class ImmaterialRealmServer {
                                 if (jsFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
-                                        engine.eval(read(jsFile));
                                         ((Invocable) engine).invokeFunction("create");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (rbFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
-                                        engine.eval(read(rbFile));
                                         ((Invocable) engine).invokeFunction("create");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (pyFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
-                                        engine.eval(read(pyFile));
                                         ((Invocable) engine).invokeFunction("create");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 }
@@ -149,25 +173,22 @@ public class ImmaterialRealmServer {
                                 if (jsFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
-                                        engine.eval(read(jsFile));
                                         ((Invocable) engine).invokeFunction("interact");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (rbFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
-                                        engine.eval(read(rbFile));
                                         ((Invocable) engine).invokeFunction("interact");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (pyFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
-                                        engine.eval(read(pyFile));
                                         ((Invocable) engine).invokeFunction("interact");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 }
@@ -182,25 +203,22 @@ public class ImmaterialRealmServer {
                                 if (jsFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
-                                        engine.eval(read(jsFile));
                                         ((Invocable) engine).invokeFunction("tick");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (rbFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
-                                        engine.eval(read(rbFile));
                                         ((Invocable) engine).invokeFunction("tick");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (pyFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
-                                        engine.eval(read(pyFile));
                                         ((Invocable) engine).invokeFunction("tick");
-                                    } catch (ScriptException | FileNotFoundException exception) {
+                                    } catch (ScriptException exception) {
                                         exception.printStackTrace();
                                     } catch (NoSuchMethodException ignored) {}
                                 }
@@ -432,7 +450,7 @@ public class ImmaterialRealmServer {
             world.onTick();
             world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(entity -> entity.isSpeedChanged() || entity.isMovementCancelled() || entity.isForceUpdate()).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
         });
-        if (!GraphicsEnvironment.isHeadless()) {
+        if (tpsMonitorFrame != null) {
             tpsMonitorFrame.repaint();
         }
     }
