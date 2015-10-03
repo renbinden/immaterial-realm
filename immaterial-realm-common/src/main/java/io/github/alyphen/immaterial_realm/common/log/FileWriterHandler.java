@@ -1,4 +1,6 @@
-package io.github.alyphen.immaterial_realm.server;
+package io.github.alyphen.immaterial_realm.common.log;
+
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -12,8 +14,9 @@ import java.util.logging.LogRecord;
 
 import static java.util.Calendar.DAY_OF_YEAR;
 import static java.util.Calendar.YEAR;
+import static java.util.logging.Level.SEVERE;
 
-class FileWriterHandler extends Handler {
+public class FileWriterHandler extends Handler {
 
     private FileWriter writer;
     private Date lastLogDate;
@@ -33,15 +36,15 @@ class FileWriterHandler extends Handler {
         }
         if (lastLogDate == null || now.get(DAY_OF_YEAR) == lastLogCalendar.get(DAY_OF_YEAR) && now.get(YEAR) == lastLogCalendar.get(YEAR)) {
             try {
-                writer = new FileWriter(new File("./" + dateFormat.format(new Date()) + ".log"));
+                writer = new FileWriter(new File("./logs/" + dateFormat.format(new Date()) + ".log"));
             } catch (IOException exception) {
-                exception.printStackTrace();
+                ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to open log file for writing", exception);
             }
         }
         try {
             writer.write("[" + timeFormat.format(new Date(record.getMillis())) + "] (" + record.getLevel() + ") " + record.getMessage());
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to write line to log file", exception);
         }
         lastLogDate = new Date(record.getMillis());
         flush();
@@ -52,7 +55,7 @@ class FileWriterHandler extends Handler {
         if (writer != null) try {
             writer.flush();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to flush file writer", exception);
         }
     }
 
@@ -61,7 +64,7 @@ class FileWriterHandler extends Handler {
         try {
             writer.close();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to close file writer", exception);
         }
     }
 

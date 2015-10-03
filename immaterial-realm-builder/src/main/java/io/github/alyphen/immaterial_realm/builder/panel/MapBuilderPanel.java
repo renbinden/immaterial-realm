@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static java.awt.BorderLayout.*;
+import static java.util.logging.Level.SEVERE;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
 
@@ -34,7 +35,7 @@ public class MapBuilderPanel extends JPanel {
                 world = World.load(worldFile);
             } catch (IOException | ClassNotFoundException exception) {
                 showMessageDialog(null, "Failed to load world:\n" + exception.getMessage(), "Failed to load world", ERROR_MESSAGE);
-                exception.printStackTrace();
+                application.getLogger().log(SEVERE, "Failed to load world", exception);
             }
         } else {
             world = World.create("default");
@@ -55,7 +56,7 @@ public class MapBuilderPanel extends JPanel {
                 world.save(new File("./worlds/default"));
             } catch (IOException exception) {
                 showMessageDialog(null, "Failed to save world:\n" + exception.getMessage(), "Failed to save world", ERROR_MESSAGE);
-                exception.printStackTrace();
+                application.getLogger().log(SEVERE, "Failed to save world", exception);
             }
         });
         buttonsPanel.add(btnSave);

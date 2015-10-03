@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
+import io.github.alyphen.immaterial_realm.server.ImmaterialRealmServer;
 
 import java.awt.*;
 import java.io.*;
@@ -12,12 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import static java.util.logging.Level.SEVERE;
+
 public class ChatManager {
+
+    private ImmaterialRealmServer server;
 
     private Map<String, ChatChannel> channels;
     private ChatChannel defaultChannel;
 
-    public ChatManager() {
+    public ChatManager(ImmaterialRealmServer server) {
+        this.server = server;
         channels = new HashMap<>();
         loadChannels();
     }
@@ -97,7 +103,7 @@ public class ChatManager {
             try (FileWriter writer = new FileWriter(defaultChatConfigFile)) {
                 writer.write(json);
             } catch (IOException exception) {
-                exception.printStackTrace();
+                server.getLogger().log(SEVERE, "Failed to save default chat channels", exception);
             }
         }
     }
@@ -116,7 +122,7 @@ public class ChatManager {
                         jsonBuilder.append(scanner.nextLine()).append('\n');
                     }
                 } catch (FileNotFoundException exception) {
-                    exception.printStackTrace();
+                    server.getLogger().log(SEVERE, "Failed to load chat channels", exception);
                 }
                 Map<String, Object> chatConfig = gson.fromJson(jsonBuilder.toString(), new TypeToken<Map<String, Object>>(){}.getType());
                 Map<String, Object> channels = (Map<String, Object>) chatConfig.get("channels");
@@ -165,7 +171,7 @@ public class ChatManager {
             try (FileWriter writer = new FileWriter(chatConfigFile)) {
                 writer.write(json);
             } catch (IOException exception) {
-                exception.printStackTrace();
+                server.getLogger().log(SEVERE, "Failed to save chat channels", exception);
             }
         }
     }

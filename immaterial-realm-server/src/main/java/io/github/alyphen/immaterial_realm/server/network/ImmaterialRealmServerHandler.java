@@ -196,7 +196,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 try {
                     ctx.writeAndFlush(new PacketCharacterSpawn(character, entity.getId()));
                 } catch (IOException exception) {
-                    exception.printStackTrace();
+                    server.getLogger().log(SEVERE, "Failed to send character spawn packet", exception);
                 }
             });
             Player player = ctx.channel().attr(PLAYER).get();

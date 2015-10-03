@@ -20,9 +20,9 @@ import java.util.List;
 
 import static java.awt.BorderLayout.*;
 import static java.lang.Integer.MAX_VALUE;
+import static java.util.logging.Level.SEVERE;
 import static java.util.stream.Collectors.toList;
-import static javax.swing.JOptionPane.showInputDialog;
-import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JOptionPane.*;
 import static org.fife.ui.rsyntaxtextarea.SyntaxConstants.*;
 
 public class ObjectScripterPanel extends JPanel {
@@ -47,7 +47,7 @@ public class ObjectScripterPanel extends JPanel {
             Theme theme = Theme.load(getClass().getResourceAsStream("/editor/themes/dark.xml"));
             theme.apply(editor);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            showMessageDialog(null, "Failed to load editor theme: " + exception.getMessage(), "Failed to load editor theme", ERROR_MESSAGE);
         }
         editor.setSyntaxEditingStyle(SYNTAX_STYLE_JAVASCRIPT);
         editor.setText(
@@ -117,14 +117,14 @@ public class ObjectScripterPanel extends JPanel {
             try {
                 save();
             } catch (IOException exception) {
-                showMessageDialog(null, "Saving object type failed: " + exception.getMessage());
-                exception.printStackTrace();
+                showMessageDialog(null, "Saving object type failed: " + exception.getMessage(), "Saving object type failed", ERROR_MESSAGE);
+                application.getLogger().log(SEVERE, "Saving object type failed", exception);
             }
             try {
                 load();
             } catch (FileNotFoundException exception) {
-                showMessageDialog(null, "Loading object type failed: " + exception.getMessage());
-                exception.printStackTrace();
+                showMessageDialog(null, "Loading object type failed: " + exception.getMessage(), "Loading object type failed", ERROR_MESSAGE);
+                application.getLogger().log(SEVERE, "Loading object type failed", exception);
             }
         });
         objectSelectorPanel.add(objectSelectionBox);
@@ -136,7 +136,7 @@ public class ObjectScripterPanel extends JPanel {
                 try {
                     save();
                 } catch (IOException exception) {
-                    exception.printStackTrace();
+                    showMessageDialog(null, "Failed to save objects: " + exception.getMessage(), "Failed to save objects", ERROR_MESSAGE);
                 }
                 refreshObjectSelectionBox();
                 objectSelectionBox.setSelectedItem(name);
@@ -171,8 +171,8 @@ public class ObjectScripterPanel extends JPanel {
             try {
                 save();
             } catch (IOException exception) {
-                showMessageDialog(null, "Saving object failed: " + exception.getMessage());
-                exception.printStackTrace();
+                showMessageDialog(null, "Saving object failed: " + exception.getMessage(), "Saving object failed", ERROR_MESSAGE);
+                application.getLogger().log(SEVERE, "Saving object failed", exception);
             }
             application.showPanel("menu");
         });
@@ -184,8 +184,8 @@ public class ObjectScripterPanel extends JPanel {
                 try {
                     save();
                 } catch (IOException exception) {
-                    showMessageDialog(null, "Saving object failed: " + exception.getMessage());
-                    exception.printStackTrace();
+                    showMessageDialog(null, "Saving object failed: " + exception.getMessage(), "Saving object failed", ERROR_MESSAGE);
+                    application.getLogger().log(SEVERE, "Saving object failed", exception);
                 }
             }
         });
@@ -324,8 +324,8 @@ public class ObjectScripterPanel extends JPanel {
             try {
                 load();
             } catch (FileNotFoundException exception) {
-                showMessageDialog(null, "Loading object failed: " + exception.getMessage());
-                exception.printStackTrace();
+                showMessageDialog(null, "Loading object failed: " + exception.getMessage(), "Loading object failed", ERROR_MESSAGE);
+                application.getLogger().log(SEVERE, "Loading object failed", exception);
             }
         }
     }

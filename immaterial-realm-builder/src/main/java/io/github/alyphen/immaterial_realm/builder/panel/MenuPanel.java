@@ -6,7 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
+import static java.util.logging.Level.SEVERE;
 import static javax.imageio.ImageIO.read;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 public class MenuPanel extends JPanel {
 
@@ -41,7 +44,8 @@ public class MenuPanel extends JPanel {
             btnSprites.addActionListener(event -> application.showPanel("sprites"));
             add(btnSprites);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            showMessageDialog(null, "Failed to load icons: " + exception.getMessage(), "Failed to load icons", ERROR_MESSAGE);
+            application.getLogger().log(SEVERE, "Failed to load icons", exception);
         }
     }
 

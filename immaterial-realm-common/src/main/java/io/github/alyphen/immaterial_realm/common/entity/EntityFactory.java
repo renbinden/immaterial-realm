@@ -1,10 +1,13 @@
 package io.github.alyphen.immaterial_realm.common.entity;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntitySpawn;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 
 import java.lang.reflect.InvocationTargetException;
+
+import static java.util.logging.Level.SEVERE;
 
 public class EntityFactory {
 
@@ -20,7 +23,7 @@ public class EntityFactory {
             area.addEntity(entity);
             return entity;
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to spawn entity", exception);
         }
         return null;
     }
@@ -33,7 +36,7 @@ public class EntityFactory {
             area.addEntity(entity);
             return entity;
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to spawn entity", exception);
         }
         return null;
     }

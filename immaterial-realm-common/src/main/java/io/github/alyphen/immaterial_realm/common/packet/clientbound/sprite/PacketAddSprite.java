@@ -1,9 +1,12 @@
 package io.github.alyphen.immaterial_realm.common.packet.clientbound.sprite;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.io.IOException;
+
+import static java.util.logging.Level.SEVERE;
 
 public class PacketAddSprite extends Packet {
 
@@ -16,7 +19,7 @@ public class PacketAddSprite extends Packet {
         try {
             this.sprite = sprite.toByteArray();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to encode sprite", exception);
         }
         this.frameDelay = sprite.getFrameDelay();
     }
@@ -29,7 +32,7 @@ public class PacketAddSprite extends Packet {
         try {
             return Sprite.fromByteArray(name, sprite, frameDelay);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode sprite", exception);
         }
         return null;
     }

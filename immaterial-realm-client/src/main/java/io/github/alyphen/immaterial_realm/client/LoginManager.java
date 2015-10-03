@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static java.util.logging.Level.SEVERE;
+
 public class LoginManager {
 
     private ImmaterialRealmClient client;
@@ -13,7 +15,7 @@ public class LoginManager {
         try {
             createLoginTable();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            client.getLogger().log(SEVERE, "Failed to create login table", exception);
         }
     }
 
@@ -27,7 +29,7 @@ public class LoginManager {
         )) {
             statement.executeUpdate();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            client.getLogger().log(SEVERE, "Failed to create login table", exception);
         }
     }
 

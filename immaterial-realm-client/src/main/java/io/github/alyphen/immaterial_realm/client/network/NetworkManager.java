@@ -13,6 +13,8 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
+import static java.util.logging.Level.SEVERE;
+
 public class NetworkManager {
 
     private final ImmaterialRealmClient client;
@@ -68,7 +70,7 @@ public class NetworkManager {
             client.run();
             channel.closeFuture().sync();
         } catch (InterruptedException exception) {
-            exception.printStackTrace();
+            client.getLogger().log(SEVERE, "Thread interrupted", exception);
         } finally {
             group.shutdownGracefully();
         }

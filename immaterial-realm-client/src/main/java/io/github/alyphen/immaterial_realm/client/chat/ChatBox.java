@@ -9,11 +9,14 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.awt.Color.WHITE;
 import static java.awt.event.KeyEvent.*;
+import static java.util.logging.Level.SEVERE;
 
 public class ChatBox implements KeyListener {
 
@@ -149,7 +152,7 @@ public class ChatBox implements KeyListener {
                 globalMessages.get(channel).remove(0);
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            client.getLogger().log(SEVERE, "Failed to get player for message", exception);
         }
 
     }

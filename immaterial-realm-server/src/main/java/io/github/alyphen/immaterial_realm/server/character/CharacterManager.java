@@ -11,10 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
-import java.util.logging.Level;
 
 import static java.nio.file.Files.copy;
 import static java.nio.file.Paths.get;
+import static java.util.logging.Level.SEVERE;
 
 public class CharacterManager {
 
@@ -29,12 +29,12 @@ public class CharacterManager {
         try {
             extractDefaultSprites();
         } catch (IOException exception) {
-            server.getLogger().log(Level.SEVERE, "Failed to extract default sprites", exception);
+            server.getLogger().log(SEVERE, "Failed to extract default sprites", exception);
         }
         try {
             loadDefaultSprites();
         } catch (IOException exception) {
-            server.getLogger().log(Level.SEVERE, "Failed to load default sprites");
+            server.getLogger().log(SEVERE, "Failed to load default sprites");
         }
     }
 
@@ -76,7 +76,7 @@ public class CharacterManager {
             try {
                 defaultWalkUpSprite = Sprite.load(walkUpSpriteFile);
             } catch (IOException exception) {
-                exception.printStackTrace();
+                server.getLogger().log(SEVERE, "Failed to load default walk up sprite", exception);
             }
         }
         File walkDownSpriteFile = new File("./characters/default/walk_down");
@@ -84,7 +84,7 @@ public class CharacterManager {
             try {
                 defaultWalkDownSprite = Sprite.load(walkDownSpriteFile);
             } catch (IOException exception) {
-                exception.printStackTrace();
+                server.getLogger().log(SEVERE, "Failed to load default walk down sprite", exception);
             }
         }
         File walkLeftSpriteFile = new File("./characters/default/walk_left");
@@ -92,7 +92,7 @@ public class CharacterManager {
             try {
                 defaultWalkLeftSprite = Sprite.load(walkLeftSpriteFile);
             } catch (IOException exception) {
-                exception.printStackTrace();
+                server.getLogger().log(SEVERE, "Failed to load default walk left sprite", exception);
             }
         }
         File walkRightSpriteFile = new File("./characters/default/walk_right");
@@ -100,7 +100,7 @@ public class CharacterManager {
             try {
                 defaultWalkRightSprite = Sprite.load(walkRightSpriteFile);
             } catch (IOException exception) {
-                exception.printStackTrace();
+                server.getLogger().log(SEVERE, "Failed to load default walk right sprite", exception);
             }
         }
     }

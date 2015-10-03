@@ -1,7 +1,9 @@
 package io.github.alyphen.immaterial_realm.server;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.encrypt.EncryptionManager;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
+import io.github.alyphen.immaterial_realm.common.log.FileWriterHandler;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
@@ -64,6 +66,7 @@ public class ImmaterialRealmServer {
     public ImmaterialRealmServer(int port) {
         logger = Logger.getLogger(getClass().getName());
         logger.addHandler(new FileWriterHandler());
+        ImmaterialRealm.getInstance().setLogger(logger);
         scriptEngineManager = new ScriptEngineManager();
         try {
             databaseManager = new DatabaseManager();
@@ -72,7 +75,7 @@ public class ImmaterialRealmServer {
         }
         characterComponentManager = new CharacterComponentManager(this);
         characterManager = new CharacterManager(this);
-        chatManager = new ChatManager();
+        chatManager = new ChatManager(this);
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this, port);
         hudManager = new HUDManager(this);
@@ -112,7 +115,7 @@ public class ImmaterialRealmServer {
                                 script = ((Compilable) engine).compile(read(jsFile));
                                 script.eval();
                             } catch (ScriptException | FileNotFoundException exception) {
-                                exception.printStackTrace();
+                                getLogger().log(SEVERE, "Failed to compile script", exception);
                             }
                         } else if (rbFile.exists()) {
                             try {
@@ -120,7 +123,7 @@ public class ImmaterialRealmServer {
                                 script = ((Compilable) engine).compile(read(rbFile));
                                 script.eval();
                             } catch (ScriptException | FileNotFoundException exception) {
-                                exception.printStackTrace();
+                                getLogger().log(SEVERE, "Failed to compile script", exception);
                             }
                         } else if (pyFile.exists()) {
                             try {
@@ -128,7 +131,7 @@ public class ImmaterialRealmServer {
                                 script = ((Compilable) engine).compile(read(pyFile));
                                 script.eval();
                             } catch (ScriptException | FileNotFoundException exception) {
-                                exception.printStackTrace();
+                                getLogger().log(SEVERE, "Failed to compile script", exception);
                             }
                         }
                     }
@@ -146,21 +149,21 @@ public class ImmaterialRealmServer {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
                                         ((Invocable) engine).invokeFunction("create");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object creation function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (rbFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
                                         ((Invocable) engine).invokeFunction("create");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object creation function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (pyFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
                                         ((Invocable) engine).invokeFunction("create");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object creation function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 }
                             }
@@ -175,21 +178,21 @@ public class ImmaterialRealmServer {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
                                         ((Invocable) engine).invokeFunction("interact");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object interaction function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (rbFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
                                         ((Invocable) engine).invokeFunction("interact");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object interaction function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (pyFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
                                         ((Invocable) engine).invokeFunction("interact");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object interaction function");
                                     } catch (NoSuchMethodException ignored) {}
                                 }
                             }
@@ -205,21 +208,21 @@ public class ImmaterialRealmServer {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
                                         ((Invocable) engine).invokeFunction("tick");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object tick function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (rbFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
                                         ((Invocable) engine).invokeFunction("tick");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object tick function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 } else if (pyFile.exists()) {
                                     try {
                                         ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
                                         ((Invocable) engine).invokeFunction("tick");
                                     } catch (ScriptException exception) {
-                                        exception.printStackTrace();
+                                        getLogger().log(SEVERE, "Failed to invoke object tick function", exception);
                                     } catch (NoSuchMethodException ignored) {}
                                 }
                             }
@@ -229,7 +232,7 @@ public class ImmaterialRealmServer {
 
                 });
             } catch (IOException exception) {
-                exception.printStackTrace();
+                getLogger().log(SEVERE, "Failed to load object metadata", exception);
             }
 
         }
@@ -238,7 +241,7 @@ public class ImmaterialRealmServer {
             try {
                 World.load(file);
             } catch (IOException | ClassNotFoundException exception) {
-                exception.printStackTrace();
+                getLogger().log(SEVERE, "Failed to load world", exception);
             }
         }
         new Thread(networkManager::start).start();
@@ -304,7 +307,7 @@ public class ImmaterialRealmServer {
         try {
             saveDefaultWorlds();
         } catch (URISyntaxException exception) {
-            exception.printStackTrace();
+            getLogger().log(SEVERE, "Failed to save default worlds", exception);
         }
     }
 
@@ -403,7 +406,7 @@ public class ImmaterialRealmServer {
             try {
                 Thread.sleep(sleep);
             } catch (InterruptedException exception) {
-                exception.printStackTrace();
+                getLogger().log(SEVERE, "Thread interrupted", exception);
             }
             tps = (int) (1000 / (System.currentTimeMillis() - beforeTime));
             if (previousTPSValues.size() > 640) previousTPSValues.removeFirst();

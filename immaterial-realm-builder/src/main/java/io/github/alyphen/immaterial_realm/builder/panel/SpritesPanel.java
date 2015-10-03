@@ -13,6 +13,8 @@ import java.io.IOException;
 
 import static java.awt.BorderLayout.CENTER;
 import static java.awt.BorderLayout.SOUTH;
+import static java.util.logging.Level.SEVERE;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
 
 public class SpritesPanel extends JPanel {
@@ -65,8 +67,8 @@ public class SpritesPanel extends JPanel {
                     try {
                         image = ImageIO.read(imageLocation);
                     } catch (IOException exception) {
-                        showMessageDialog(null, "Failed to load image: " + exception.getMessage());
-                        exception.printStackTrace();
+                        showMessageDialog(null, "Failed to load image: " + exception.getMessage(), "Failed to load image", ERROR_MESSAGE);
+                        application.getLogger().log(SEVERE, "Failed to load image", exception);
                     }
                     int frameWidth = (int) spritesTable.getValueAt(i, 2);
                     int frameHeight = (int) spritesTable.getValueAt(i, 3);
@@ -78,8 +80,8 @@ public class SpritesPanel extends JPanel {
                             Sprite.addSprite(sprite);
                             ((DefaultTableModel) spritesTable.getModel()).removeRow(i);
                         } catch (IOException exception) {
-                            showMessageDialog(null, "Failed to save sprite: " + exception.getMessage());
-                            exception.printStackTrace();
+                            showMessageDialog(null, "Failed to save sprite: " + exception.getMessage(), "Failed to save sprite", ERROR_MESSAGE);
+                            application.getLogger().log(SEVERE, "Failed to save sprite", exception);
                         }
                     }
                 }

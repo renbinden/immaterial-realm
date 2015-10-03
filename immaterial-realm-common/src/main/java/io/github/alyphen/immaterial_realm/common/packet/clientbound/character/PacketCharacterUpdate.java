@@ -1,9 +1,12 @@
 package io.github.alyphen.immaterial_realm.common.packet.clientbound.character;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.io.IOException;
+
+import static java.util.logging.Level.SEVERE;
 
 public class PacketCharacterUpdate extends Packet {
 
@@ -97,7 +100,7 @@ public class PacketCharacterUpdate extends Packet {
         try {
             return Sprite.fromByteArray("__character_walk_up_" + name, walkUpSprite, walkUpFrameDelay);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk up sprite", exception);
         }
         return null;
     }
@@ -106,7 +109,7 @@ public class PacketCharacterUpdate extends Packet {
         try {
             return Sprite.fromByteArray("__character_walk_left_" + name, walkLeftSprite, walkLeftFrameDelay);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk left sprite", exception);
         }
         return null;
     }
@@ -115,7 +118,7 @@ public class PacketCharacterUpdate extends Packet {
         try {
             return Sprite.fromByteArray("__character_walk_right_" + name, walkRightSprite, walkRightFrameDelay);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk right sprite", exception);
         }
         return null;
     }
@@ -124,7 +127,7 @@ public class PacketCharacterUpdate extends Packet {
         try {
             return Sprite.fromByteArray("__character_walk_down_" + name, walkDownSprite, walkDownFrameDelay);
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk down sprite", exception);
         }
         return null;
     }

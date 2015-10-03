@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.util.EventObject;
 
 import static java.lang.String.valueOf;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.SwingUtilities.invokeLater;
 
@@ -64,7 +65,7 @@ public class SpinnerCellEditor extends DefaultCellEditor {
             editor.commitEdit();
             spinner.commitEdit();
         } catch (ParseException exception) {
-            showMessageDialog(null, "Invalid value, discarding.");
+            showMessageDialog(null, "Invalid value, discarding.", "Invalid value", ERROR_MESSAGE);
         }
         return super.stopCellEditing();
     }

@@ -1,14 +1,19 @@
 package io.github.alyphen.immaterial_realm.common.database.table;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.database.Database;
 import io.github.alyphen.immaterial_realm.common.database.Table;
 import io.github.alyphen.immaterial_realm.common.sprite.IndexedImage;
 import io.github.alyphen.immaterial_realm.common.util.ImageUtils;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.util.logging.Level.SEVERE;
 
 public class ImageTable extends Table<IndexedImage> {
 
@@ -27,7 +32,7 @@ public class ImageTable extends Table<IndexedImage> {
         )) {
             statement.executeUpdate();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to create image table", exception);
         }
     }
 
@@ -47,7 +52,7 @@ public class ImageTable extends Table<IndexedImage> {
                 return id;
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to insert image to database", exception);
         }
         throw new SQLException("Failed to insert image");
     }
@@ -63,7 +68,7 @@ public class ImageTable extends Table<IndexedImage> {
             statement.executeUpdate();
             return image.getId();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to update image in database", exception);
         }
         throw new SQLException("Failed to update image");
     }
@@ -80,7 +85,7 @@ public class ImageTable extends Table<IndexedImage> {
                 return new IndexedImage(resultSet.getLong("id"), ImageUtils.fromByteArray(resultSet.getBytes("image")));
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to load image from database", exception);
         }
         return null;
     }

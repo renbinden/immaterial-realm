@@ -1,6 +1,7 @@
 package io.github.alyphen.immaterial_realm.builder;
 
 import io.github.alyphen.immaterial_realm.builder.panel.*;
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
@@ -12,15 +13,20 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
 import static java.lang.Thread.sleep;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
 
 public class ImmaterialRealmBuilder extends JPanel implements Runnable {
 
     private static final long DELAY = 100L;
 
-    private ImmaterialRealmBuilderFrame frame;
+    private JFrame frame;
+
+    private Logger logger;
 
     private MenuPanel menuPanel;
     private ChatDesignerPanel chatDesignerPanel;
@@ -32,8 +38,19 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
     private TilesPanel tilesPanel;
     private SpritesPanel spritesPanel;
 
-    public ImmaterialRealmBuilder(ImmaterialRealmBuilderFrame frame) {
-        this.frame = frame;
+    public static void main(String[] args) {
+        new ImmaterialRealmBuilder();
+    }
+
+    public ImmaterialRealmBuilder() {
+        logger = Logger.getLogger(getClass().getName());
+        ImmaterialRealm.getInstance().setLogger(logger);
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException exception) {
+            getLogger().log(WARNING, "Failed to set look and feel", exception);
+        }
+        frame = new JFrame();
         setLayout(new CardLayout());
         loadData();
         menuPanel = new MenuPanel(this);
@@ -55,6 +72,21 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         spritesPanel = new SpritesPanel(this);
         add(spritesPanel, "sprites");
         new Thread(this).start();
+
+        frame.setTitle("ImmaterialRealm Builder");
+        frame.setFocusable(true);
+        frame.add(this);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        EventQueue.invokeLater(() -> {
+            frame.setVisible(true);
+            frame.requestFocus();
+        });
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 
     public void showPanel(String panel) {
@@ -67,12 +99,12 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         try {
             Tile.loadTiles();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            getLogger().log(SEVERE, "Failed to load tiles", exception);
         }
         try {
             Sprite.loadSprites();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            getLogger().log(SEVERE, "Failed to load sprites", exception);
         }
         loadObjectTypes();
     }
@@ -100,7 +132,7 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
 
                 });
             } catch (IOException exception) {
-                exception.printStackTrace();
+                getLogger().log(SEVERE, "Failed to load object type: " + objectDirectory.getName(), exception);
             }
 
         }
@@ -125,13 +157,13 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
             try {
                 sleep(sleep);
             } catch (InterruptedException exception) {
-                exception.printStackTrace();
+                getLogger().log(SEVERE, "Thread interrupted", exception);
             }
             beforeTime = System.currentTimeMillis();
         }
     }
 
-    public ImmaterialRealmBuilderFrame getFrame() {
+    public JFrame getFrame() {
         return frame;
     }
 

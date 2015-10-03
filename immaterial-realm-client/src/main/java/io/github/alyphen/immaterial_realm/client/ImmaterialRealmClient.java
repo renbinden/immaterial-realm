@@ -7,22 +7,30 @@ import io.github.alyphen.immaterial_realm.client.panel.CharacterCreationPanel;
 import io.github.alyphen.immaterial_realm.client.panel.ConnectionPanel;
 import io.github.alyphen.immaterial_realm.client.panel.LoginPanel;
 import io.github.alyphen.immaterial_realm.client.panel.WorldPanel;
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.control.Control;
 import io.github.alyphen.immaterial_realm.common.encrypt.EncryptionManager;
+import io.github.alyphen.immaterial_realm.common.log.FileWriterHandler;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlPressed;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlReleased;
 
 import javax.script.ScriptEngineManager;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.logging.Logger;
+
+import static java.awt.Frame.MAXIMIZED_BOTH;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
 
 public class ImmaterialRealmClient extends JPanel {
 
     private static final long DELAY = 25L;
 
-    private ImmaterialRealmClientFrame frame;
+    private JFrame frame;
 
     private Logger logger;
 
@@ -45,15 +53,26 @@ public class ImmaterialRealmClient extends JPanel {
     private WorldPanel worldPanel;
     private CharacterCreationPanel characterCreationPanel;
 
-    public ImmaterialRealmClient(ImmaterialRealmClientFrame frame) {
-        this.frame = frame;
+    public static void main(String[] args) {
+        new ImmaterialRealmClient();
+    }
+
+    public ImmaterialRealmClient() {
         logger = Logger.getLogger(getClass().getName());
+        logger.addHandler(new FileWriterHandler());
+        ImmaterialRealm.getInstance().setLogger(logger);
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException exception) {
+            getLogger().log(WARNING, "Failed to set look and feel", exception);
+        }
+        frame = new JFrame();
         scriptEngineManager = new ScriptEngineManager();
         chatManager = new ChatManager(this);
         try {
             databaseManager = new DatabaseManager();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            getLogger().log(SEVERE, "Failed to connect to database", exception);
         }
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this);
@@ -72,6 +91,26 @@ public class ImmaterialRealmClient extends JPanel {
         add(worldPanel, "world");
         characterCreationPanel = new CharacterCreationPanel(this);
         add(characterCreationPanel, "character creation");
+
+        frame.setExtendedState(MAXIMIZED_BOTH);
+        frame.setUndecorated(true);
+        frame.setTitle("ImmaterialRealm");
+        frame.setFocusable(true);
+        frame.add(this);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent event) {
+                getNetworkManager().closeConnections();
+                System.exit(0);
+            }
+        });
+        EventQueue.invokeLater(() -> {
+            frame.setVisible(true);
+            frame.requestFocus();
+        });
     }
 
     public void run() {
@@ -89,7 +128,7 @@ public class ImmaterialRealmClient extends JPanel {
             try {
                 Thread.sleep(sleep);
             } catch (InterruptedException exception) {
-                exception.printStackTrace();
+                getLogger().log(SEVERE, "Thread interrupted", exception);
             }
             fps = (int) (1000 / (System.currentTimeMillis() - beforeTime));
             beforeTime = System.currentTimeMillis();
@@ -101,7 +140,7 @@ public class ImmaterialRealmClient extends JPanel {
         if (characterCreationPanel.isVisible()) characterCreationPanel.onTick();
     }
 
-    public ImmaterialRealmClientFrame getFrame() {
+    public JFrame getFrame() {
         return frame;
     }
 

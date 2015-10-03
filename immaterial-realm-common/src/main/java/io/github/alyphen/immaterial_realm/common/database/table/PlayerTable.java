@@ -1,14 +1,19 @@
 package io.github.alyphen.immaterial_realm.common.database.table;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.database.Database;
 import io.github.alyphen.immaterial_realm.common.database.Table;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.util.logging.Level.SEVERE;
 
 public class PlayerTable extends Table<Player> {
 
@@ -29,7 +34,7 @@ public class PlayerTable extends Table<Player> {
         )) {
             statement.executeUpdate();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to create player table", exception);
         }
     }
 
@@ -53,7 +58,7 @@ public class PlayerTable extends Table<Player> {
                     }
                 }
             } catch (SQLException exception) {
-                exception.printStackTrace();
+                ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to insert player", exception);
             }
             throw new SQLException("Failed to insert player");
         }
@@ -86,7 +91,7 @@ public class PlayerTable extends Table<Player> {
                 return new Player(resultSet.getLong("id"), resultSet.getString("name"));
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to retrieve player", exception);
         }
         return null;
     }
@@ -100,7 +105,7 @@ public class PlayerTable extends Table<Player> {
                 return new Player(resultSet.getLong("id"), resultSet.getString("name"));
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to retrieve player", exception);
         }
         return null;
     }
@@ -117,7 +122,7 @@ public class PlayerTable extends Table<Player> {
                 statement.setLong(3, player.getId());
                 statement.executeUpdate();
             } catch (SQLException exception) {
-                exception.printStackTrace();
+                ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to update player password", exception);
             }
         }
     }
@@ -131,7 +136,7 @@ public class PlayerTable extends Table<Player> {
                 return resultSet.getString("password_hash").equals(DigestUtils.sha256Hex(password + resultSet.getString("password_salt")));
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to retrieve player login details from database", exception);
         }
         return false;
     }

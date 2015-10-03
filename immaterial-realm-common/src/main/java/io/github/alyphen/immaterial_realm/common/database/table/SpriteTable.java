@@ -1,5 +1,6 @@
 package io.github.alyphen.immaterial_realm.common.database.table;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.database.Database;
 import io.github.alyphen.immaterial_realm.common.database.Table;
 import io.github.alyphen.immaterial_realm.common.sprite.IndexedImage;
@@ -9,11 +10,15 @@ import io.github.alyphen.immaterial_realm.common.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.util.logging.Level.SEVERE;
 
 public class SpriteTable extends Table<Sprite> {
 
@@ -33,7 +38,7 @@ public class SpriteTable extends Table<Sprite> {
         )) {
             statement.executeUpdate();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to create sprite table", exception);
         }
     }
 
@@ -97,8 +102,8 @@ public class SpriteTable extends Table<Sprite> {
                     indexedFrames.add(new IndexedImage(frameResultSet.getLong("image_id"), ImageUtils.fromByteArray(frameResultSet.getBytes("frame"))));
                 } catch (IOException exception) {
                     // Hopefully this won't break too much.
-                    // If we get a lot of reports of errors here, try moving outside the loop or adding declaration of error to the method.
-                    exception.printStackTrace();
+                    // If we get a lot of reports of errors here, try moving the catch block outside the loop or adding declaration of error to the method.
+                    ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to retrieve sprite frames", exception);
                 }
             }
             BufferedImage[] frames = new BufferedImage[indexedFrames.size()];

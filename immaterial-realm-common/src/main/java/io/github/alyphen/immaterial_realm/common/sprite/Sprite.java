@@ -1,5 +1,6 @@
 package io.github.alyphen.immaterial_realm.common.sprite;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.database.TableRow;
 import io.github.alyphen.immaterial_realm.common.util.FileUtils;
 import io.github.alyphen.immaterial_realm.common.util.ImageUtils;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.saveMetadata;
+import static java.util.logging.Level.SEVERE;
 
 public class Sprite extends TableRow {
 
@@ -24,7 +26,7 @@ public class Sprite extends TableRow {
         try {
             loadSprites();
         } catch (IOException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to load sprites", exception);
         }
     }
 

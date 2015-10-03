@@ -2,13 +2,13 @@ package io.github.alyphen.immaterial_realm.client.panel;
 
 import io.github.alyphen.immaterial_realm.client.ImmaterialRealmClient;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.login.PacketLoginDetails;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.sql.SQLException;
+
+import static java.util.logging.Level.SEVERE;
 
 public class LoginPanel extends JPanel {
 
@@ -65,7 +65,7 @@ public class LoginPanel extends JPanel {
                         )
                 );
             } catch (GeneralSecurityException | UnsupportedEncodingException exception) {
-                exception.printStackTrace();
+                client.getLogger().log(SEVERE, "Failed to encrypt password", exception);
             }
         });
         add(btnLogin);
@@ -86,7 +86,7 @@ public class LoginPanel extends JPanel {
                         )
                 );
             } catch (GeneralSecurityException | UnsupportedEncodingException exception) {
-                exception.printStackTrace();
+                client.getLogger().log(SEVERE, "Failed to encrypt password", exception);
             }
         });
         add(btnSignUp);

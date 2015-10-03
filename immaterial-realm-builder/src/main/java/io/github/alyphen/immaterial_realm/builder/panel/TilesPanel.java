@@ -13,6 +13,8 @@ import java.io.IOException;
 
 import static java.awt.BorderLayout.CENTER;
 import static java.awt.BorderLayout.SOUTH;
+import static java.util.logging.Level.SEVERE;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
 
 public class TilesPanel extends JPanel {
@@ -65,8 +67,8 @@ public class TilesPanel extends JPanel {
                     try {
                         image = ImageIO.read(imageLocation);
                     } catch (IOException exception) {
-                        showMessageDialog(null, "Failed to load image: " + exception.getMessage());
-                        exception.printStackTrace();
+                        showMessageDialog(null, "Failed to load image: " + exception.getMessage(), "Failed to load image", ERROR_MESSAGE);
+                        application.getLogger().log(SEVERE, "Failed to load image", exception);
                     }
                     int frameWidth = (int) tilesTable.getValueAt(i, 2);
                     int frameHeight = (int) tilesTable.getValueAt(i, 3);
@@ -77,8 +79,8 @@ public class TilesPanel extends JPanel {
                             tile.save(new File("./tiles/" + name));
                             ((DefaultTableModel) tilesTable.getModel()).removeRow(i);
                         } catch (IOException exception) {
-                            showMessageDialog(null, "Failed to save tile: " + exception.getMessage());
-                            exception.printStackTrace();
+                            showMessageDialog(null, "Failed to save tile: " + exception.getMessage(), "Failed to save tile", ERROR_MESSAGE);
+                            application.getLogger().log(SEVERE, "Failed to save tile", exception);
                         }
                     }
                 }

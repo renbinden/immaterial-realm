@@ -1,16 +1,21 @@
 package io.github.alyphen.immaterial_realm.common.database.table;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.character.Character;
 import io.github.alyphen.immaterial_realm.common.database.Database;
 import io.github.alyphen.immaterial_realm.common.database.Table;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.util.logging.Level.SEVERE;
 
 public class CharacterTable extends Table<Character> {
 
@@ -46,7 +51,7 @@ public class CharacterTable extends Table<Character> {
         )) {
             statement.executeUpdate();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to create character table", exception);
         }
     }
 

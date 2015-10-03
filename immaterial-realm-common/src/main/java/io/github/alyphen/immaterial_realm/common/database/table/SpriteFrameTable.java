@@ -1,12 +1,17 @@
 package io.github.alyphen.immaterial_realm.common.database.table;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.database.Database;
 import io.github.alyphen.immaterial_realm.common.database.Table;
 import io.github.alyphen.immaterial_realm.common.sprite.SpriteFrame;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.util.logging.Level.SEVERE;
 
 public class SpriteFrameTable extends Table<SpriteFrame> {
 
@@ -28,7 +33,7 @@ public class SpriteFrameTable extends Table<SpriteFrame> {
         )) {
             statement.executeUpdate();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to create sprite frame table", exception);
         }
     }
 

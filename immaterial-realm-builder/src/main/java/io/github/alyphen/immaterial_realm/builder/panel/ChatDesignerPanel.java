@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 import static java.awt.BorderLayout.*;
+import static java.util.logging.Level.SEVERE;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
 
 public class ChatDesignerPanel extends JPanel {
@@ -93,10 +96,10 @@ public class ChatDesignerPanel extends JPanel {
             String json = gson.toJson(chatConfig);
             try (FileWriter writer = new FileWriter(chatConfigFile)) {
                 writer.write(json);
-                showMessageDialog(null, "Saved to " + chatConfigFile.getAbsolutePath());
+                showMessageDialog(null, "Saved to " + chatConfigFile.getAbsolutePath(), "Chat config saved", INFORMATION_MESSAGE);
             } catch (IOException exception) {
-                exception.printStackTrace();
-                showMessageDialog(null, "Failed to save chat config: " + exception.getMessage());
+                showMessageDialog(null, "Failed to save chat config: " + exception.getMessage(), "Failed to save chat config", ERROR_MESSAGE);
+                application.getLogger().log(SEVERE, "Failed to save chat config", exception);
             }
         });
         buttonsPanel.add(btnSave);
@@ -114,7 +117,8 @@ public class ChatDesignerPanel extends JPanel {
                             jsonBuilder.append(scanner.nextLine()).append('\n');
                         }
                     } catch (FileNotFoundException exception) {
-                        exception.printStackTrace();
+                        showMessageDialog(null, "Failed to find chat config file: " + exception.getMessage(), "Failed to find chat config file", ERROR_MESSAGE);
+                        application.getLogger().log(SEVERE, "Failed to find chat config file", exception);
                     }
                     Map<String, Object> chatConfig = gson.fromJson(jsonBuilder.toString(), new TypeToken<Map<String, Object>>(){}.getType());
                     Map<String, Object> channels = (Map<String, Object>) chatConfig.get("channels");

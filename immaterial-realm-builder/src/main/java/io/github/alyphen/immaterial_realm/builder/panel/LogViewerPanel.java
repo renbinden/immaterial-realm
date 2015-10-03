@@ -15,14 +15,20 @@ import java.util.Scanner;
 
 import static java.awt.BorderLayout.CENTER;
 import static java.awt.BorderLayout.SOUTH;
+import static java.util.logging.Level.SEVERE;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 public class LogViewerPanel extends JPanel{
+
+    private ImmaterialRealmBuilder application;
 
     private JTextPane textPane;
     private HTMLEditorKit kit;
     private HTMLDocument document;
 
     public LogViewerPanel(ImmaterialRealmBuilder application) {
+        this.application = application;
         setLayout(new BorderLayout());
         textPane = new JTextPane();
         kit = new HTMLEditorKit();
@@ -59,7 +65,8 @@ public class LogViewerPanel extends JPanel{
                     null
             );
         } catch (BadLocationException | IOException exception) {
-            exception.printStackTrace();
+            showMessageDialog(null, "Failed to insert line into log: " + exception.getMessage(), "Failed to insert line into log", ERROR_MESSAGE);
+            application.getLogger().log(SEVERE, "Failed to insert line", exception);
         }
     }
 
@@ -80,7 +87,8 @@ public class LogViewerPanel extends JPanel{
                 appendLine(scanner.nextLine());
             }
         } catch (FileNotFoundException exception) {
-            exception.printStackTrace();
+            showMessageDialog(null, "Failed to find log file: " + file.getPath(), "Failed to find log file", ERROR_MESSAGE);
+            application.getLogger().log(SEVERE, "Failed to find log file", exception);
         }
     }
 

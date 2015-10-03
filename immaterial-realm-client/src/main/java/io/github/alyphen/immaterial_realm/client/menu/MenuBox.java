@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
 import static java.awt.Color.*;
+import static java.util.logging.Level.SEVERE;
 
 public class MenuBox {
 
@@ -41,7 +42,7 @@ public class MenuBox {
                                         break;
                                     }
                                 } catch (SQLException exception) {
-                                    exception.printStackTrace();
+                                    client.getLogger().log(SEVERE, "Failed to get player ID", exception);
                                 }
                             }
                         }
