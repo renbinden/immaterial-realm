@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
+import io.github.alyphen.immaterial_realm.common.world.World;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -235,7 +236,16 @@ public class ObjectScripterPanel extends JPanel {
         scriptWriter.close();
         refreshObjectSelectionBox();
         WorldObjectFactory.getObjectInitializer((String) objectSelectionBox.getSelectedItem()).setObjectSprite(spriteSelectionBox.getSelectedItem().equals("none") ? null : Sprite.getSprite((String) spriteSelectionBox.getSelectedItem()));
-        application.getMapBuilderPanel().getArea().getObjects().stream().filter(object -> object.getType().equals(objectSelectionBox.getSelectedItem())).forEach(object -> object.setSprite(spriteSelectionBox.getSelectedItem().equals("none") ? null : Sprite.getSprite((String) spriteSelectionBox.getSelectedItem())));
+        World.getWorlds().forEach(
+                world -> world.getAreas().forEach(
+                        area -> area.getObjects()
+                        .stream()
+                        .filter(object -> object.getType().equals(objectSelectionBox.getSelectedItem()))
+                        .forEach(
+                                object -> object.setSprite(spriteSelectionBox.getSelectedItem().equals("none") ? null : Sprite.getSprite((String) spriteSelectionBox.getSelectedItem()))
+                        )
+                )
+        );
     }
 
     public void load() throws FileNotFoundException {
