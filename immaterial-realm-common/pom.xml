@@ -36,6 +36,7 @@
                                     <include>org.python:jython</include>
                                     <include>org.reflections:reflections</include>
                                     <include>org.xerial:sqlite-jdbc</include>
+                                    <include>de.sciss:weblaf</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

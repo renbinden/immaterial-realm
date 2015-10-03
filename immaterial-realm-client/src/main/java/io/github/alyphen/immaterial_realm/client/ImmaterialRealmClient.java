@@ -1,5 +1,6 @@
 package io.github.alyphen.immaterial_realm.client;
 
+import com.alee.laf.WebLookAndFeel;
 import io.github.alyphen.immaterial_realm.client.character.CharacterManager;
 import io.github.alyphen.immaterial_realm.client.chat.ChatManager;
 import io.github.alyphen.immaterial_realm.client.network.NetworkManager;
@@ -62,8 +63,8 @@ public class ImmaterialRealmClient extends JPanel {
         logger.addHandler(new FileWriterHandler());
         ImmaterialRealm.getInstance().setLogger(logger);
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException exception) {
+            UIManager.setLookAndFeel(new WebLookAndFeel());
+        } catch (UnsupportedLookAndFeelException exception) {
             getLogger().log(WARNING, "Failed to set look and feel", exception);
         }
         frame = new JFrame();

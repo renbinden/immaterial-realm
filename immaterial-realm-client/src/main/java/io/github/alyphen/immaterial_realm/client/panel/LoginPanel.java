@@ -8,6 +8,8 @@ import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 
+import static java.awt.Color.BLACK;
+import static java.awt.Color.WHITE;
 import static java.util.logging.Level.SEVERE;
 
 public class LoginPanel extends JPanel {
@@ -26,9 +28,12 @@ public class LoginPanel extends JPanel {
         this.client = client;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(640, 480));
+        setBackground(BLACK);
+        setForeground(WHITE);
         add(Box.createVerticalGlue());
         lblUserName = new JLabel("Username: ");
         lblUserName.setAlignmentX(CENTER_ALIGNMENT);
+        lblUserName.setForeground(WHITE);
         add(lblUserName);
         userNameField = new JTextField();
         userNameField.setPreferredSize(new Dimension(256, 24));
@@ -40,6 +45,7 @@ public class LoginPanel extends JPanel {
         add(Box.createVerticalStrut(16));
         lblPassword = new JLabel("Password: ");
         lblPassword.setAlignmentX(CENTER_ALIGNMENT);
+        lblPassword.setForeground(WHITE);
         add(lblPassword);
         passwordField = new JPasswordField();
         passwordField.setPreferredSize(new Dimension(256, 24));
@@ -93,6 +99,7 @@ public class LoginPanel extends JPanel {
         add(Box.createVerticalStrut(16));
         lblStatus = new JLabel("");
         lblStatus.setAlignmentX(CENTER_ALIGNMENT);
+        lblStatus.setForeground(WHITE);
         add(lblStatus);
         add(Box.createVerticalGlue());
     }

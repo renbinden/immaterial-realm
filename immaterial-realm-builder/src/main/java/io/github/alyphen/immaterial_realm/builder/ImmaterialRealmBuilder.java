@@ -1,5 +1,6 @@
 package io.github.alyphen.immaterial_realm.builder;
 
+import com.alee.laf.WebLookAndFeel;
 import io.github.alyphen.immaterial_realm.builder.panel.*;
 import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
@@ -46,8 +47,8 @@ public class ImmaterialRealmBuilder extends JPanel implements Runnable {
         logger = Logger.getLogger(getClass().getName());
         ImmaterialRealm.getInstance().setLogger(logger);
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException exception) {
+            UIManager.setLookAndFeel(new WebLookAndFeel());
+        } catch (UnsupportedLookAndFeelException exception) {
             getLogger().log(WARNING, "Failed to set look and feel", exception);
         }
         frame = new JFrame();

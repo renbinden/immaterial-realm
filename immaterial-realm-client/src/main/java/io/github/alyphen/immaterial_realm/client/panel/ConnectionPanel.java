@@ -5,6 +5,9 @@ import io.github.alyphen.immaterial_realm.client.ImmaterialRealmClient;
 import javax.swing.*;
 import java.awt.*;
 
+import static java.awt.Color.BLACK;
+import static java.awt.Color.WHITE;
+
 public class ConnectionPanel extends JPanel {
 
     private ImmaterialRealmClient client;
@@ -17,9 +20,12 @@ public class ConnectionPanel extends JPanel {
         this.client = client;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(640, 480));
+        setBackground(BLACK);
+        setForeground(WHITE);
         add(Box.createVerticalGlue());
         lblAddress = new JLabel("Server Address: ");
         lblAddress.setAlignmentX(CENTER_ALIGNMENT);
+        lblAddress.setForeground(WHITE);
         add(lblAddress);
         addressField = new JTextField();
         addressField.setPreferredSize(new Dimension(256, 24));

@@ -109,6 +109,12 @@
             <artifactId>jruby</artifactId>
             <version>1.7.16.1</version>
         </dependency>
+        <!-- User Interface -->
+        <dependency>
+            <groupId>de.sciss</groupId>
+            <artifactId>weblaf</artifactId>
+            <version>1.28</version>
+        </dependency>
     </dependencies>
     <build>
         <defaultGoal>clean install</defaultGoal>
