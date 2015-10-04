@@ -14,8 +14,6 @@ import static java.util.logging.Level.SEVERE;
 
 public class LoginPanel extends JPanel {
 
-    private ImmaterialRealmClient client;
-
     private JLabel lblUserName;
     private JTextField userNameField;
     private JLabel lblPassword;
@@ -28,7 +26,6 @@ public class LoginPanel extends JPanel {
     private boolean loggingIn;
 
     public LoginPanel(ImmaterialRealmClient client) {
-        this.client = client;
         loggingIn = false;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(640, 480));
@@ -66,6 +63,7 @@ public class LoginPanel extends JPanel {
             btnLogin.setEnabled(false);
             btnSignUp.setEnabled(false);
             loggingIn = true;
+            lblStatus.setText("");
             try {
                 client.setPlayerName(userNameField.getText());
                 client.getNetworkManager().sendPacket(
@@ -87,6 +85,8 @@ public class LoginPanel extends JPanel {
         btnSignUp.addActionListener(event -> {
             btnLogin.setEnabled(false);
             btnSignUp.setEnabled(false);
+            loggingIn = true;
+            lblStatus.setText("");
             try {
                 client.setPlayerName(userNameField.getText());
                 client.getNetworkManager().sendPacket(

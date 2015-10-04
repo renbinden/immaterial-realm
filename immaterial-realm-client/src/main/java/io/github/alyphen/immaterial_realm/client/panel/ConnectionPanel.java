@@ -10,17 +10,15 @@ import static java.awt.Color.WHITE;
 
 public class ConnectionPanel extends JPanel {
 
-    private ImmaterialRealmClient client;
-
     private JLabel lblAddress;
     private JTextField addressField;
     private JButton btnConnect;
+    private JLabel lblStatus;
     private ConnectionLoadingSpinnerPanel loadingSpinnerPanel;
 
     private boolean connecting;
 
     public ConnectionPanel(ImmaterialRealmClient client) {
-        this.client = client;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(640, 480));
         setBackground(BLACK);
@@ -44,6 +42,7 @@ public class ConnectionPanel extends JPanel {
         btnConnect.addActionListener(event -> {
             btnConnect.setEnabled(false);
             connecting = true;
+            lblStatus.setText("");
             String address;
             int port = 39752;
             if (addressField.getText().contains(":")) {
@@ -57,6 +56,11 @@ public class ConnectionPanel extends JPanel {
             new Thread(() -> client.getNetworkManager().connect()).start();
         });
         add(btnConnect);
+        add(Box.createVerticalStrut(16));
+        lblStatus = new JLabel();
+        lblStatus.setAlignmentX(CENTER_ALIGNMENT);
+        lblStatus.setForeground(WHITE);
+        add(lblStatus);
         add(Box.createVerticalStrut(16));
         loadingSpinnerPanel = new ConnectionLoadingSpinnerPanel(client);
         loadingSpinnerPanel.setAlignmentX(CENTER_ALIGNMENT);
@@ -72,8 +76,9 @@ public class ConnectionPanel extends JPanel {
         return connecting;
     }
 
-    public void failConnection() {
+    public void failConnection(String message) {
         btnConnect.setEnabled(true);
         connecting = false;
+        lblStatus.setText("Failed to connect to server: " + message);
     }
 }

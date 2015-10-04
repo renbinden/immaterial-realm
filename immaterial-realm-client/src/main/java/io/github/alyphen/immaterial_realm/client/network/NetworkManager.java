@@ -69,7 +69,9 @@ public class NetworkManager {
                     });
             ChannelFuture channelFuture = bootstrap.connect(host, port);
             channelFuture.addListener(future -> {
-                if (!future.isSuccess()) client.getConnectionPanel().failConnection();
+                if (!future.isSuccess()) {
+                    client.getConnectionPanel().failConnection(future.cause().getMessage());
+                }
             });
             channel = channelFuture.sync().channel();
             //client.run(); // Now called at the end of client constructor
