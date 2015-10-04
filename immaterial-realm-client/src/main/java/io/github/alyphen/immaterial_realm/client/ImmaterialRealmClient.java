@@ -112,6 +112,7 @@ public class ImmaterialRealmClient extends JPanel {
             frame.setVisible(true);
             frame.requestFocus();
         });
+        run();
     }
 
     public void run() {
@@ -137,6 +138,8 @@ public class ImmaterialRealmClient extends JPanel {
     }
 
     private void doTick() {
+        if (connectionPanel.isVisible()) connectionPanel.onTick();
+        if (loginPanel.isVisible()) loginPanel.onTick();
         if (worldPanel.isVisible()) worldPanel.onTick();
         if (characterCreationPanel.isVisible()) characterCreationPanel.onTick();
     }

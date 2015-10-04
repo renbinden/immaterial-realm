@@ -4,6 +4,7 @@ import io.github.alyphen.immaterial_realm.client.ImmaterialRealmClient;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -66,8 +67,12 @@ public class NetworkManager {
                             );
                         }
                     });
-            channel = bootstrap.connect(host, port).sync().channel();
-            client.run();
+            ChannelFuture channelFuture = bootstrap.connect(host, port);
+            channelFuture.addListener(future -> {
+                if (!future.isSuccess()) client.getConnectionPanel().failConnection();
+            });
+            channel = channelFuture.sync().channel();
+            //client.run(); // Now called at the end of client constructor
             channel.closeFuture().sync();
         } catch (InterruptedException exception) {
             client.getLogger().log(SEVERE, "Thread interrupted", exception);

@@ -23,9 +23,13 @@ public class LoginPanel extends JPanel {
     private JButton btnLogin;
     private JButton btnSignUp;
     private JLabel lblStatus;
+    private LoginLoadingSpinnerPanel loadingSpinnerPanel;
+
+    private boolean loggingIn;
 
     public LoginPanel(ImmaterialRealmClient client) {
         this.client = client;
+        loggingIn = false;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(640, 480));
         setBackground(BLACK);
@@ -61,6 +65,7 @@ public class LoginPanel extends JPanel {
         btnLogin.addActionListener(event -> {
             btnLogin.setEnabled(false);
             btnSignUp.setEnabled(false);
+            loggingIn = true;
             try {
                 client.setPlayerName(userNameField.getText());
                 client.getNetworkManager().sendPacket(
@@ -101,6 +106,10 @@ public class LoginPanel extends JPanel {
         lblStatus.setAlignmentX(CENTER_ALIGNMENT);
         lblStatus.setForeground(WHITE);
         add(lblStatus);
+        add(Box.createVerticalStrut(16));
+        loadingSpinnerPanel = new LoginLoadingSpinnerPanel(client);
+        loadingSpinnerPanel.setAlignmentX(CENTER_ALIGNMENT);
+        add(loadingSpinnerPanel);
         add(Box.createVerticalGlue());
     }
 
@@ -111,6 +120,15 @@ public class LoginPanel extends JPanel {
     public void reEnableLoginButtons() {
         btnSignUp.setEnabled(true);
         btnLogin.setEnabled(true);
+        loggingIn = false;
+    }
+
+    public boolean isLoggingIn() {
+        return loggingIn;
+    }
+
+    public void onTick() {
+        loadingSpinnerPanel.onTick();
     }
 
 }

@@ -15,6 +15,9 @@ public class ConnectionPanel extends JPanel {
     private JLabel lblAddress;
     private JTextField addressField;
     private JButton btnConnect;
+    private ConnectionLoadingSpinnerPanel loadingSpinnerPanel;
+
+    private boolean connecting;
 
     public ConnectionPanel(ImmaterialRealmClient client) {
         this.client = client;
@@ -40,6 +43,7 @@ public class ConnectionPanel extends JPanel {
         btnConnect.setAlignmentX(CENTER_ALIGNMENT);
         btnConnect.addActionListener(event -> {
             btnConnect.setEnabled(false);
+            connecting = true;
             String address;
             int port = 39752;
             if (addressField.getText().contains(":")) {
@@ -53,7 +57,23 @@ public class ConnectionPanel extends JPanel {
             new Thread(() -> client.getNetworkManager().connect()).start();
         });
         add(btnConnect);
+        add(Box.createVerticalStrut(16));
+        loadingSpinnerPanel = new ConnectionLoadingSpinnerPanel(client);
+        loadingSpinnerPanel.setAlignmentX(CENTER_ALIGNMENT);
+        add(loadingSpinnerPanel);
         add(Box.createVerticalGlue());
     }
 
+    public void onTick() {
+        loadingSpinnerPanel.onTick();
+    }
+
+    public boolean isConnecting() {
+        return connecting;
+    }
+
+    public void failConnection() {
+        btnConnect.setEnabled(true);
+        connecting = false;
+    }
 }
