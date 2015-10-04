@@ -9,10 +9,15 @@ import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import static java.awt.Color.BLACK;
+import static java.lang.Math.toRadians;
+import static java.util.logging.Level.SEVERE;
 
 public class WorldPanel extends JPanel {
 
@@ -24,6 +29,8 @@ public class WorldPanel extends JPanel {
     private ChatBox chatBox;
     private MenuBox menuBox;
     private HUD hud;
+    private BufferedImage loadingSpinnerImage;
+    private int loadingSpinnerAngle;
 
     public WorldPanel(ImmaterialRealmClient client) {
         this.client = client;
@@ -31,20 +38,28 @@ public class WorldPanel extends JPanel {
         menuBox = new MenuBox(client, this);
         hud = new HUD();
         client.getFrame().addKeyListener(chatBox);
+        try {
+            loadingSpinnerImage = ImageIO.read(getClass().getResourceAsStream("/loading_spinner.png"));
+        } catch (IOException exception) {
+            client.getLogger().log(SEVERE, "Failed to load loading spinner image", exception);
+        }
     }
 
     public void onTick() {
         if (getWorld() != null) getWorld().onTick();
         if (getChatBox() != null) getChatBox().onTick();
+        if (getArea() == null || getPlayerCharacter() == null) {
+            loadingSpinnerAngle = loadingSpinnerAngle >= 359 ? 0 : loadingSpinnerAngle + 5;
+        }
         repaint();
     }
 
     @Override
     public void paintComponent(Graphics graphics) {
+        Graphics2D graphics2D = (Graphics2D) graphics;
         graphics.setColor(BLACK);
         graphics.fillRect(0, 0, getWidth(), getHeight());
         if (getArea() != null && getPlayerCharacter() != null) {
-            Graphics2D graphics2D = (Graphics2D) graphics;
             graphics2D.translate(-getCameraX(), -getCameraY());
             for (int row = 0; row < area.getRows(); row++) {
                 for (int col = 0; col < area.getColumns(); col++) {
@@ -75,10 +90,14 @@ public class WorldPanel extends JPanel {
                 graphics2D.translate(-entity.getX(), -entity.getY());
             });
             graphics2D.translate(getCameraX(), getCameraY());
+            chatBox.paint(graphics);
+            menuBox.paint(graphics);
+            hud.paint(client.getScriptEngineManager(), graphics, getWidth(), getHeight());
+        } else {
+            graphics2D.rotate(toRadians(loadingSpinnerAngle), getWidth() / 2, getHeight() / 2);
+            graphics.drawImage(loadingSpinnerImage, (getWidth() - loadingSpinnerImage.getWidth()) / 2, (getHeight() - loadingSpinnerImage.getHeight()) / 2, null);
+            graphics2D.rotate(toRadians(-loadingSpinnerAngle), getWidth() / 2, getHeight() / 2);
         }
-        chatBox.paint(graphics);
-        menuBox.paint(graphics);
-        hud.paint(client.getScriptEngineManager(), graphics, getWidth(), getHeight());
         graphics.setColor(Color.DARK_GRAY);
         graphics.drawString("FPS: " + client.getFPS(), 16, 16);
     }

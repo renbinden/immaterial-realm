@@ -40,7 +40,7 @@ public class ConnectionLoadingSpinnerPanel extends JPanel {
     }
 
     public void onTick() {
-        angle = angle > 359 ? 0 : angle + 5;
+        angle = angle >= 359 ? 0 : angle + 5;
         repaint();
     }
 
