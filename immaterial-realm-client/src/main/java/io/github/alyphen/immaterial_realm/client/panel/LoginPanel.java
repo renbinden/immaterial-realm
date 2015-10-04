@@ -32,6 +32,8 @@ public class LoginPanel extends JPanel {
         setBackground(BLACK);
         setForeground(WHITE);
         add(Box.createVerticalGlue());
+        add(new LogoPanel(client));
+        add(Box.createVerticalStrut(16));
         lblUserName = new JLabel("Username: ");
         lblUserName.setAlignmentX(CENTER_ALIGNMENT);
         lblUserName.setForeground(WHITE);

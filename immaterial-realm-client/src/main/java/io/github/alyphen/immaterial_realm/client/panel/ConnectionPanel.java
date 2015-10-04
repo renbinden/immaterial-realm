@@ -24,6 +24,8 @@ public class ConnectionPanel extends JPanel {
         setBackground(BLACK);
         setForeground(WHITE);
         add(Box.createVerticalGlue());
+        add(new LogoPanel(client));
+        add(Box.createVerticalStrut(16));
         lblAddress = new JLabel("Server Address: ");
         lblAddress.setAlignmentX(CENTER_ALIGNMENT);
         lblAddress.setForeground(WHITE);
