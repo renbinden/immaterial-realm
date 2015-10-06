@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import io.github.alyphen.immaterial_realm.builder.ImmaterialRealmBuilder;
+import io.github.alyphen.immaterial_realm.common.object.WorldObject;
 import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -12,6 +14,8 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -71,6 +75,48 @@ public class ObjectScripterPanel extends JPanel {
         objectSettingsPanel.setLayout(new FlowLayout());
         textFieldObjectName = new JTextField();
         textFieldObjectName.setPreferredSize(new Dimension(128, 24));
+        textFieldObjectName.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent event) {
+                updateObjectInitializers();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent event) {
+                updateObjectInitializers();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent event) {
+                updateObjectInitializers();
+            }
+
+            private void updateObjectInitializers() {
+                WorldObjectInitializer initializer = WorldObjectFactory.getObjectInitializer((String) objectSelectionBox.getSelectedItem());
+                if (initializer != null) {
+                    initializer.setObjectName(textFieldObjectName.getText());
+                    WorldObjectFactory.removeObjectInitializer((String) objectSelectionBox.getSelectedItem());
+                    WorldObjectFactory.registerObjectInitializer(textFieldObjectName.getText(), initializer);
+                } else {
+                    WorldObjectFactory.registerObjectInitializer(textFieldObjectName.getText(), new WorldObjectInitializer() {
+
+                        {
+                            setObjectName(textFieldObjectName.getText());
+                            String spriteName = (String) spriteSelectionBox.getSelectedItem();
+                            Sprite sprite = spriteName.equals("none") ? null : Sprite.getSprite(spriteName);
+                            setObjectSprite(sprite);
+                            setObjectBounds(new Rectangle((int) xOffsetSpinner.getValue(), (int) yOffsetSpinner.getValue(), (int) widthSpinner.getValue(), (int) heightSpinner.getValue()));
+                        }
+
+                        @Override
+                        public WorldObject initialize(long id) {
+                            return new WorldObject(id, getObjectName(), getObjectSprite(), getObjectBounds());
+                        }
+
+                    });
+                }
+            }
+        });
         JLabel nameLabel = new JLabel("Name: ");
         nameLabel.setLabelFor(textFieldObjectName);
         objectSettingsPanel.add(nameLabel);
@@ -139,7 +185,6 @@ public class ObjectScripterPanel extends JPanel {
                 } catch (IOException exception) {
                     showMessageDialog(null, "Failed to save objects: " + exception.getMessage(), "Failed to save objects", ERROR_MESSAGE);
                 }
-                refreshObjectSelectionBox();
                 objectSelectionBox.setSelectedItem(name);
                 textFieldObjectName.setText(name);
                 xOffsetSpinner.setValue(0);
@@ -234,8 +279,27 @@ public class ObjectScripterPanel extends JPanel {
         FileWriter scriptWriter = new FileWriter(scriptFile);
         scriptWriter.write(editor.getText());
         scriptWriter.close();
+        if (WorldObjectFactory.getObjectInitializer(textFieldObjectName.getText()) == null) {
+            WorldObjectFactory.registerObjectInitializer(textFieldObjectName.getText(), new WorldObjectInitializer() {
+
+                {
+                    setObjectName(textFieldObjectName.getText());
+                    String spriteName = (String) spriteSelectionBox.getSelectedItem();
+                    Sprite sprite = spriteName.equals("none") ? null : Sprite.getSprite(spriteName);
+                    setObjectSprite(sprite);
+                    setObjectBounds(new Rectangle((int) xOffsetSpinner.getValue(), (int) yOffsetSpinner.getValue(), (int) widthSpinner.getValue(), (int) heightSpinner.getValue()));
+                }
+
+                @Override
+                public WorldObject initialize(long id) {
+                    return new WorldObject(id, getObjectName(), getObjectSprite(), getObjectBounds());
+                }
+
+            });
+        }
         refreshObjectSelectionBox();
-        WorldObjectFactory.getObjectInitializer((String) objectSelectionBox.getSelectedItem()).setObjectSprite(spriteSelectionBox.getSelectedItem().equals("none") ? null : Sprite.getSprite((String) spriteSelectionBox.getSelectedItem()));
+        WorldObjectFactory.getObjectInitializer((String) objectSelectionBox.getSelectedItem())
+                .setObjectSprite(spriteSelectionBox.getSelectedItem().equals("none") ? null : Sprite.getSprite((String) spriteSelectionBox.getSelectedItem()));
         World.getWorlds().forEach(
                 world -> world.getAreas().forEach(
                         area -> area.getObjects()
@@ -317,12 +381,7 @@ public class ObjectScripterPanel extends JPanel {
 
     private void refreshObjectSelectionBox() {
         List<String> objectTypeNames = new ArrayList<>();
-        File objectsDirectory = new File("./objects");
-        if (objectsDirectory.exists()) {
-            for (File objectDirectory : objectsDirectory.listFiles(File::isDirectory)) {
-                objectTypeNames.add(objectDirectory.getName());
-            }
-        }
+        WorldObjectFactory.getObjectInitializers().forEach(initializer -> objectTypeNames.add(initializer.getObjectName()));
         objectTypeNames.sort(null);
         String currentSelection = (String) objectSelectionBox.getSelectedItem();
         objectSelectionBox.removeAllItems();
