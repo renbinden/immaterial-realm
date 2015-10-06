@@ -31,4 +31,13 @@ public class WorldObjectFactory {
     public static WorldObjectInitializer getObjectInitializer(String type) {
         return initializers.get(type);
     }
+
+    public static void removeObjectInitializer(String type) {
+        initializers.remove(type);
+    }
+
+    public static void clearObjectInitializers() {
+        initializers.clear();
+    }
+
 }
