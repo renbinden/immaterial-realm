@@ -6,16 +6,17 @@ import io.github.alyphen.immaterial_realm.common.player.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PacketSendPlayers extends Packet {
 
-    private Map<Long, String> players;
+    private Map<UUID, String> players;
 
     public PacketSendPlayers(Set<Player> players) {
         this.players = new HashMap<>();
         for (Player player : players) {
-            this.players.put(player.getId(), player.getName());
+            this.players.put(player.getUUID(), player.getName());
         }
     }
 

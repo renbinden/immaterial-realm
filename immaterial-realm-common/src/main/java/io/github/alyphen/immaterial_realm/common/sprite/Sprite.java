@@ -2,7 +2,6 @@ package io.github.alyphen.immaterial_realm.common.sprite;
 
 import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.database.TableRow;
-import io.github.alyphen.immaterial_realm.common.util.FileUtils;
 import io.github.alyphen.immaterial_realm.common.util.ImageUtils;
 
 import javax.imageio.ImageIO;
@@ -10,47 +9,15 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.saveMetadata;
-import static java.util.logging.Level.SEVERE;
 
 public class Sprite extends TableRow {
 
-    private static Map<String, Sprite> sprites;
-
-    static {
-        sprites = new HashMap<>();
-        try {
-            loadSprites();
-        } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to load sprites", exception);
-        }
-    }
-
-    public static void loadSprites() throws IOException {
-        File spritesDirectory = new File("./sprites");
-        File[] fileList = spritesDirectory.listFiles();
-        if (fileList != null) {
-            for (File directory : fileList) {
-                sprites.put(directory.getName(), Sprite.load(directory));
-            }
-        }
-    }
-
-    public static Sprite getSprite(String name) {
-        return sprites.get(name);
-    }
-
-    public static Collection<Sprite> getSprites() {
-        return sprites.values();
-    }
-
-    public static void addSprite(Sprite sprite) {
-        sprites.put(sprite.getName(), sprite);
-    }
+    private ImmaterialRealm immaterialRealm;
 
     private String name;
     private BufferedImage[] frames;
@@ -58,16 +25,17 @@ public class Sprite extends TableRow {
     private int frameDelay;
     private int tick;
 
-    public Sprite(String name, int frameDelay, BufferedImage... frames) {
-        this(0, name, frameDelay, frames);
+    public Sprite(ImmaterialRealm immaterialRealm, String name, int frameDelay, BufferedImage... frames) {
+        this(immaterialRealm, UUID.randomUUID(), name, frameDelay, frames);
     }
 
-    public Sprite(long id, String name, int frameDelay, BufferedImage... frames) {
-        super(id);
+    public Sprite(ImmaterialRealm immaterialRealm, UUID uuid, String name, int frameDelay, BufferedImage... frames) {
+        super(uuid);
+        this.immaterialRealm = immaterialRealm;
         this.name = name;
         this.frameDelay = frameDelay;
         this.frames = frames;
-        sprites.put(name, this);
+        immaterialRealm.getSpriteManager().addSprite(this);
     }
 
     public void onTick() {
@@ -88,9 +56,8 @@ public class Sprite extends TableRow {
     }
 
     public void setName(String name) {
-        sprites.remove(this.name);
         this.name = name;
-        sprites.put(name, this);
+        immaterialRealm.getSpriteManager().updateSprite(this);
     }
 
     public BufferedImage[] getFrames() {
@@ -123,14 +90,6 @@ public class Sprite extends TableRow {
         }
     }
 
-    public static Sprite fromByteArray(String name, byte[][] byteArray, int frameDelay) throws IOException {
-        BufferedImage[] frames = new BufferedImage[byteArray.length];
-        for (int i = 0; i < byteArray.length; i++) {
-            frames[i] = ImageUtils.fromByteArray(byteArray[i]);
-        }
-        return new Sprite(name, frameDelay, frames);
-    }
-
     public byte[][] toByteArray() throws IOException {
         BufferedImage[] frames = getFrames();
         byte[][] byteArray = new byte[frames.length][];
@@ -152,13 +111,6 @@ public class Sprite extends TableRow {
         saveMetadata(metadata, new File(directory, "sprite.json"));
     }
 
-    public static Sprite load(File directory) throws IOException {
-        File metadataFile = new File(directory, "sprite.json");
-        Map<String, Object> metadata = FileUtils.loadMetadata(metadataFile);
-        File imageFile = new File(directory, "sprite.png");
-        return fromImage((String) metadata.get("name"), ImageIO.read(imageFile), (int) ((double) metadata.get("frame_delay")), (int) ((double) metadata.get("width")), (int) ((double) metadata.get("height")));
-    }
-
     public BufferedImage toImage() {
         BufferedImage[] frames = getFrames();
         BufferedImage spriteSheet = new BufferedImage(getWidth() * frames.length, getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -169,14 +121,6 @@ public class Sprite extends TableRow {
         }
         graphics.dispose();
         return spriteSheet;
-    }
-
-    public static Sprite fromImage(String name, BufferedImage image, int frameDelay, int width, int height) {
-        BufferedImage[] frames = new BufferedImage[(int) Math.ceil((double) image.getWidth() / (double) width)];
-        for (int i = 0; i < image.getWidth(); i += width) {
-            frames[i / width] = image.getSubimage(i, 0, Math.min(width, image.getWidth() - i), height);
-        }
-        return new Sprite(name, frameDelay, frames);
     }
 
 }

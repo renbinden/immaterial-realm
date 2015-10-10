@@ -112,7 +112,12 @@
         <!-- User Interface -->
         <dependency>
             <groupId>de.sciss</groupId>
-            <artifactId>weblaf</artifactId>
+            <artifactId>weblaf-core</artifactId>
+            <version>1.28</version>
+        </dependency>
+        <dependency>
+            <groupId>de.sciss</groupId>
+            <artifactId>weblaf-ui</artifactId>
             <version>1.28</version>
         </dependency>
     </dependencies>

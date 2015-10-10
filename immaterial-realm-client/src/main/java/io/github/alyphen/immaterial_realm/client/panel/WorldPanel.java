@@ -16,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import static java.awt.Color.BLACK;
+import static java.awt.Color.GREEN;
+import static java.awt.Color.RED;
 import static java.lang.Math.toRadians;
 import static java.util.logging.Level.SEVERE;
 
@@ -100,6 +102,10 @@ public class WorldPanel extends JPanel {
         }
         graphics.setColor(Color.DARK_GRAY);
         graphics.drawString("FPS: " + client.getFPS(), 16, 16);
+        graphics.setColor(getPlayerCharacter() == null ? RED : GREEN);
+        graphics.drawString("Player character available: " + (getPlayerCharacter() != null), 16, 32);
+        graphics.setColor(getArea() == null ? RED : GREEN);
+        graphics.drawString("Area available: " + (getArea() != null), 16, 48);
     }
 
     public World getWorld() {
@@ -124,8 +130,8 @@ public class WorldPanel extends JPanel {
         return playerCharacter;
     }
 
-    public void setPlayerCharacter(EntityCharacter player) {
-        this.playerCharacter = player;
+    public void setPlayerCharacter(EntityCharacter playerCharacter) {
+        this.playerCharacter = playerCharacter;
     }
 
     private int getCameraX() {

@@ -4,6 +4,7 @@ import io.github.alyphen.immaterial_realm.common.database.table.PlayerTable;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class PlayerManager {
 
@@ -13,16 +14,16 @@ public class PlayerManager {
         this.client = client;
     }
 
-    public String getPlayerName(long id) throws SQLException {
-        return client.getDatabaseManager().getDatabase().getTable(Player.class).get(id).getName();
+    public String getPlayerName(UUID uuid) throws SQLException {
+        return client.getDatabaseManager().getDatabase().getTable(Player.class).get(uuid).getName();
     }
 
-    public long getPlayerId(String name) throws SQLException {
-        return ((PlayerTable) client.getDatabaseManager().getDatabase().getTable(Player.class)).get(name).getId();
+    public UUID getPlayerUUID(String name) throws SQLException {
+        return ((PlayerTable) client.getDatabaseManager().getDatabase().getTable(Player.class)).get(name).getUUID();
     }
 
-    public Player getPlayer(long id) throws SQLException {
-        return client.getDatabaseManager().getDatabase().getTable(Player.class).get(id);
+    public Player getPlayer(UUID uuid) throws SQLException {
+        return client.getDatabaseManager().getDatabase().getTable(Player.class).get(uuid);
     }
 
     public Player getPlayer(String name) throws SQLException {
@@ -30,7 +31,7 @@ public class PlayerManager {
     }
 
     public void addPlayer(Player player) throws SQLException {
-        if (getPlayer(player.getId()) == null) {
+        if (getPlayer(player.getUUID()) == null) {
             client.getDatabaseManager().getDatabase().getTable(Player.class).insert(player);
         }
     }

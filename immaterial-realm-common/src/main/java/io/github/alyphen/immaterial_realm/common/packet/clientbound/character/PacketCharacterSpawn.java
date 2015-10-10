@@ -6,13 +6,14 @@ import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static java.util.logging.Level.SEVERE;
 
 public class PacketCharacterSpawn extends Packet {
 
-    private long id;
-    private long playerId;
+    private UUID uuid;
+    private UUID playerUUID;
     private String name;
     private String gender;
     private String race;
@@ -22,7 +23,7 @@ public class PacketCharacterSpawn extends Packet {
     private String areaName;
     private int x;
     private int y;
-    private long entityId;
+    private UUID entityUUID;
     private byte[][] walkUpSprite;
     private int walkUpFrameDelay;
     private byte[][] walkLeftSprite;
@@ -32,9 +33,9 @@ public class PacketCharacterSpawn extends Packet {
     private byte[][] walkDownSprite;
     private int walkDownFrameDelay;
 
-    public PacketCharacterSpawn(Character character, long entityId) throws IOException {
-        this.id = character.getId();
-        this.playerId = character.getPlayerId();
+    public PacketCharacterSpawn(Character character, UUID entityUUID) throws IOException {
+        this.uuid = character.getUUID();
+        this.playerUUID = character.getPlayerUUID();
         this.name = character.getName();
         this.gender = character.getGender();
         this.race = character.getRace();
@@ -44,7 +45,7 @@ public class PacketCharacterSpawn extends Packet {
         this.areaName = character.getAreaName();
         this.x = character.getX();
         this.y = character.getY();
-        this.entityId = entityId;
+        this.entityUUID = entityUUID;
         this.walkUpSprite = character.getWalkUpSprite().toByteArray();
         this.walkUpFrameDelay = character.getWalkUpSprite().getFrameDelay();
         this.walkDownSprite = character.getWalkDownSprite().toByteArray();
@@ -55,12 +56,12 @@ public class PacketCharacterSpawn extends Packet {
         this.walkRightFrameDelay = character.getWalkRightSprite().getFrameDelay();
     }
 
-    public long getId() {
-        return id;
+    public UUID getUUID() {
+        return uuid;
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
     public String getName() {
@@ -99,42 +100,42 @@ public class PacketCharacterSpawn extends Packet {
         return y;
     }
 
-    public long getEntityId() {
-        return entityId;
+    public UUID getEntityUUID() {
+        return entityUUID;
     }
 
-    public Sprite getWalkUpSprite() {
+    public Sprite getWalkUpSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_up_" + name, walkUpSprite, walkUpFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_up_" + name, walkUpSprite, walkUpFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk up sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk up sprite", exception);
         }
         return null;
     }
 
-    public Sprite getWalkLeftSprite() {
+    public Sprite getWalkLeftSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_left_" + name, walkLeftSprite, walkLeftFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_left_" + name, walkLeftSprite, walkLeftFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk left sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk left sprite", exception);
         }
         return null;
     }
 
-    public Sprite getWalkRightSprite() {
+    public Sprite getWalkRightSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_right_" + name, walkRightSprite, walkRightFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_right_" + name, walkRightSprite, walkRightFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk right sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk right sprite", exception);
         }
         return null;
     }
 
-    public Sprite getWalkDownSprite() {
+    public Sprite getWalkDownSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_down_" + name, walkDownSprite, walkDownFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_down_" + name, walkDownSprite, walkDownFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk down sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk down sprite", exception);
         }
         return null;
     }

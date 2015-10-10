@@ -9,11 +9,16 @@ import io.github.alyphen.immaterial_realm.client.panel.ConnectionPanel;
 import io.github.alyphen.immaterial_realm.client.panel.LoginPanel;
 import io.github.alyphen.immaterial_realm.client.panel.WorldPanel;
 import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
+import io.github.alyphen.immaterial_realm.common.chat.ChatChannelManager;
 import io.github.alyphen.immaterial_realm.common.control.Control;
 import io.github.alyphen.immaterial_realm.common.encrypt.EncryptionManager;
+import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
 import io.github.alyphen.immaterial_realm.common.log.FileWriterHandler;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlPressed;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.control.PacketControlReleased;
+import io.github.alyphen.immaterial_realm.common.sprite.SpriteManager;
+import io.github.alyphen.immaterial_realm.common.tile.TileManager;
+import io.github.alyphen.immaterial_realm.common.world.WorldManager;
 
 import javax.script.ScriptEngineManager;
 import javax.swing.*;
@@ -29,21 +34,28 @@ import static java.util.logging.Level.WARNING;
 
 public class ImmaterialRealmClient extends JPanel {
 
-    private static final long DELAY = 25L;
+    private final long tickDelay = 25L;
 
     private JFrame frame;
+
+    private ImmaterialRealm immaterialRealm;
 
     private Logger logger;
 
     private CharacterManager characterManager;
     private ChatManager chatManager;
+    private ChatChannelManager chatChannelManager;
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
+    private EntityFactory entityFactory;
     private InputManager inputManager;
     private LoginManager loginManager;
     private NetworkManager networkManager;
     private PlayerManager playerManager;
     private ScriptEngineManager scriptEngineManager;
+    private SpriteManager spriteManager;
+    private TileManager tileManager;
+    private WorldManager worldManager;
 
     private boolean running;
     private int fps;
@@ -59,9 +71,10 @@ public class ImmaterialRealmClient extends JPanel {
     }
 
     public ImmaterialRealmClient() {
+        immaterialRealm = new ImmaterialRealm();
         logger = Logger.getLogger(getClass().getName());
-        logger.addHandler(new FileWriterHandler());
-        ImmaterialRealm.getInstance().setLogger(logger);
+        logger.addHandler(new FileWriterHandler(immaterialRealm));
+        immaterialRealm.setLogger(logger);
         try {
             UIManager.setLookAndFeel(new WebLookAndFeel());
         } catch (UnsupportedLookAndFeelException exception) {
@@ -69,12 +82,23 @@ public class ImmaterialRealmClient extends JPanel {
         }
         frame = new JFrame();
         scriptEngineManager = new ScriptEngineManager();
+        immaterialRealm.setScriptEngineManager(scriptEngineManager);
+        spriteManager = new SpriteManager(immaterialRealm);
+        immaterialRealm.setSpriteManager(spriteManager);
+        entityFactory = new EntityFactory(immaterialRealm);
+        immaterialRealm.setEntityFactory(entityFactory);
+        chatChannelManager = new ChatChannelManager(immaterialRealm);
+        immaterialRealm.setChatChannelManager(chatChannelManager);
         chatManager = new ChatManager(this);
         try {
-            databaseManager = new DatabaseManager();
+            databaseManager = new DatabaseManager(immaterialRealm);
         } catch (SQLException exception) {
             getLogger().log(SEVERE, "Failed to connect to database", exception);
         }
+        tileManager = new TileManager();
+        immaterialRealm.setTileManager(tileManager);
+        worldManager = new WorldManager(immaterialRealm);
+        immaterialRealm.setWorldManager(worldManager);
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this);
         characterManager = new CharacterManager(this);
@@ -123,7 +147,7 @@ public class ImmaterialRealmClient extends JPanel {
             doTick();
             EventQueue.invokeLater(this::repaint);
             timeDiff = System.currentTimeMillis() - beforeTime;
-            sleep = DELAY - timeDiff;
+            sleep = tickDelay - timeDiff;
             if (sleep < 0) {
                 sleep = 2;
             }
@@ -233,4 +257,7 @@ public class ImmaterialRealmClient extends JPanel {
         getNetworkManager().sendPacket(new PacketControlReleased(control));
     }
 
+    public ImmaterialRealm getImmaterialRealm() {
+        return immaterialRealm;
+    }
 }

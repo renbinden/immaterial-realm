@@ -2,6 +2,7 @@ package io.github.alyphen.immaterial_realm.common.packet.clientbound.world;
 
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
+import io.github.alyphen.immaterial_realm.common.tile.TileManager;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 
 import java.util.ArrayList;
@@ -26,9 +27,14 @@ public class PacketSendArea extends Packet {
         for (int row = 0; row < area.getRows(); row++) {
             tiles.add(new ArrayList<>());
             for (int col = 0; col < area.getColumns(); col++) {
-                Map<String, Object> tileMeta = new HashMap<>();
-                tileMeta.put("name", area.getTileAt(row, col).getName());
-                tiles.get(row).add(tileMeta);
+                Tile tile = area.getTileAt(row, col);
+                if (tile != null) {
+                    Map<String, Object> tileMeta = new HashMap<>();
+                    tileMeta.put("name", tile.getName());
+                    tiles.get(row).add(col, tileMeta);
+                } else {
+                    tiles.get(row).add(col, null);
+                }
             }
         }
     }
@@ -49,9 +55,9 @@ public class PacketSendArea extends Packet {
         return cols;
     }
 
-    public Tile getTileAt(int row, int col) {
+    public Tile getTileAt(TileManager tileManager, int row, int col) {
         Map<String, Object> tileMeta = tiles.get(row).get(col);
-        return Tile.getTile((String) tileMeta.get("name"));
+        return tileManager.getTile((String) tileMeta.get("name"));
     }
 
 }

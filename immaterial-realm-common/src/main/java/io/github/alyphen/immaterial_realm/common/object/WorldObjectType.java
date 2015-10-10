@@ -3,8 +3,9 @@ package io.github.alyphen.immaterial_realm.common.object;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.awt.*;
+import java.util.UUID;
 
-public abstract class WorldObjectInitializer {
+public abstract class WorldObjectType {
 
     private String objectName;
     private Sprite objectSprite;
@@ -34,6 +35,10 @@ public abstract class WorldObjectInitializer {
         this.objectBounds = objectBounds;
     }
 
-    public abstract WorldObject initialize(long id);
+    public WorldObject createObject() {
+        return initialize(UUID.randomUUID());
+    }
+
+    public abstract WorldObject initialize(UUID uuid);
 
 }

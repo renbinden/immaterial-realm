@@ -1,15 +1,17 @@
 package io.github.alyphen.immaterial_realm.common.packet.clientbound.player;
 
+import java.util.UUID;
+
 public class PacketPlayerLeave {
 
-    private long playerId;
+    private UUID playerUUID;
 
-    public PacketPlayerLeave(long playerId) {
-        this.playerId = playerId;
+    public PacketPlayerLeave(UUID playerUUID) {
+        this.playerUUID = playerUUID;
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
 }

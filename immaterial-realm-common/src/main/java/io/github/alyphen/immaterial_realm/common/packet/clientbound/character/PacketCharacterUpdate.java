@@ -1,17 +1,19 @@
 package io.github.alyphen.immaterial_realm.common.packet.clientbound.character;
 
 import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
+import io.github.alyphen.immaterial_realm.common.character.Character;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static java.util.logging.Level.SEVERE;
 
 public class PacketCharacterUpdate extends Packet {
 
-    private long id;
-    private long playerId;
+    private UUID characterUUID;
+    private UUID playerUUID;
     private String name;
     private String gender;
     private String race;
@@ -30,9 +32,9 @@ public class PacketCharacterUpdate extends Packet {
     private byte[][] walkDownSprite;
     private int walkDownFrameDelay;
 
-    public PacketCharacterUpdate(io.github.alyphen.immaterial_realm.common.character.Character character) throws IOException {
-        this.id = character.getId();
-        this.playerId = character.getPlayerId();
+    public PacketCharacterUpdate(Character character) throws IOException {
+        this.characterUUID = character.getUUID();
+        this.playerUUID = character.getPlayerUUID();
         this.name = character.getName();
         this.gender = character.getGender();
         this.race = character.getRace();
@@ -52,12 +54,12 @@ public class PacketCharacterUpdate extends Packet {
         this.walkRightFrameDelay = character.getWalkRightSprite().getFrameDelay();
     }
 
-    public long getId() {
-        return id;
+    public UUID getCharacterUUID() {
+        return characterUUID;
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
     public String getName() {
@@ -96,38 +98,38 @@ public class PacketCharacterUpdate extends Packet {
         return y;
     }
 
-    public Sprite getWalkUpSprite() {
+    public Sprite getWalkUpSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_up_" + name, walkUpSprite, walkUpFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_up_" + name, walkUpSprite, walkUpFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk up sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk up sprite", exception);
         }
         return null;
     }
 
-    public Sprite getWalkLeftSprite() {
+    public Sprite getWalkLeftSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_left_" + name, walkLeftSprite, walkLeftFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_left_" + name, walkLeftSprite, walkLeftFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk left sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk left sprite", exception);
         }
         return null;
     }
 
-    public Sprite getWalkRightSprite() {
+    public Sprite getWalkRightSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_right_" + name, walkRightSprite, walkRightFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_right_" + name, walkRightSprite, walkRightFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk right sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk right sprite", exception);
         }
         return null;
     }
 
-    public Sprite getWalkDownSprite() {
+    public Sprite getWalkDownSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray("__character_walk_down_" + name, walkDownSprite, walkDownFrameDelay);
+            return immaterialRealm.getSpriteManager().createSprite("__character_walk_down_" + name, walkDownSprite, walkDownFrameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode character walk down sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode character walk down sprite", exception);
         }
         return null;
     }

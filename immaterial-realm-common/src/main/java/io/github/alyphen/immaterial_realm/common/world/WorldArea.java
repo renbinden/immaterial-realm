@@ -2,8 +2,6 @@ package io.github.alyphen.immaterial_realm.common.world;
 
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.world.PacketSendArea;
 import io.github.alyphen.immaterial_realm.common.tile.Tile;
 
 import java.io.File;
@@ -14,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.saveMetadata;
 import static java.lang.System.arraycopy;
 
@@ -134,41 +131,11 @@ public class WorldArea {
         getEntities().stream().forEach(Entity::onTick);
         for (int row = 0; row < getTiles().length; row++) {
             for (int col = 0; col < getTiles()[row].length; col++) {
-                getTiles()[row][col].onTick();
+                Tile tile = getTileAt(row, col);
+                if (tile != null)
+                    tile.onTick();
             }
         }
-    }
-
-    public static WorldArea load(World world, File directory) throws IOException, ClassNotFoundException {
-        File metadataFile = new File(directory, "area.json");
-        Map<String, Object> metadata = loadMetadata(metadataFile);
-        WorldArea area = new WorldArea(world, (String) metadata.get("name"), (int) ((double) metadata.get("rows")), (int) ((double) metadata.get("cols")));
-        List<List<Map<String, Object>>> tiles = (List<List<Map<String, Object>>>) metadata.get("tiles");
-        for (int row = 0; row < area.getRows(); row++) {
-            for (int col = 0; col < area.getColumns(); col++) {
-                Map<String, Object> tileMeta = tiles.get(row).get(col);
-                Tile tile = Tile.getTile((String) tileMeta.get("name"));
-                area.setTileAt(row, col, tile);
-            }
-        }
-        List<Map<String, Object>> objects = (List<Map<String, Object>>) metadata.get("objects");
-        for (Map<String, Object> objectMeta : objects) {
-            WorldObject object = WorldObjectFactory.createObject((String) objectMeta.get("type"));
-            object.setX((int) ((double) objectMeta.get("x")));
-            object.setY((int) ((double) objectMeta.get("y")));
-            area.addObject(object);
-        }
-        return area;
-    }
-
-    public static WorldArea load(PacketSendArea packet) {
-        WorldArea area = new WorldArea(World.getWorld(packet.getWorld()), packet.getArea(), packet.getRows(), packet.getColumns());
-        for (int row = 0; row < packet.getRows(); row++) {
-            for (int col = 0; col < packet.getColumns(); col++) {
-                area.setTileAt(row, col, packet.getTileAt(row, col));
-            }
-        }
-        return area;
     }
 
     public void save(File directory) throws IOException {

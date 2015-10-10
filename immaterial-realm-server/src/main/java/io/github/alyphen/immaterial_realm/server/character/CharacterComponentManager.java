@@ -1,5 +1,6 @@
 package io.github.alyphen.immaterial_realm.server.character;
 
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.world.Direction;
 import io.github.alyphen.immaterial_realm.server.ImmaterialRealmServer;
@@ -21,6 +22,8 @@ import static java.util.logging.Level.SEVERE;
 
 public class CharacterComponentManager {
 
+    private ImmaterialRealm immaterialRealm;
+
     private Map<Direction, List<Sprite>> hairSprites;
     private Map<Direction, List<Sprite>> faceSprites;
     private Map<Direction, List<Sprite>> torsoSprites;
@@ -28,6 +31,7 @@ public class CharacterComponentManager {
     private Map<Direction, List<Sprite>> feetSprites;
 
     public CharacterComponentManager(ImmaterialRealmServer server) {
+        this.immaterialRealm = server.getImmaterialRealm();
         hairSprites = new EnumMap<>(Direction.class);
         faceSprites = new EnumMap<>(Direction.class);
         torsoSprites = new EnumMap<>(Direction.class);
@@ -133,7 +137,7 @@ public class CharacterComponentManager {
         for (Direction direction : Direction.values()) {
             File directionDirectory = new File(hairSpritesDirectory, direction.toString().toLowerCase());
             for (File file : directionDirectory.listFiles(File::isDirectory)) {
-                addHairSprite(direction, Sprite.load(file));
+                addHairSprite(direction, immaterialRealm.getSpriteManager().loadSprite(file));
             }
         }
     }
@@ -144,7 +148,7 @@ public class CharacterComponentManager {
         for (Direction direction : Direction.values()) {
             File directionDirectory = new File(faceSpritesDirectory, direction.toString().toLowerCase());
             for (File file : directionDirectory.listFiles(File::isDirectory)) {
-                addFaceSprite(direction, Sprite.load(file));
+                addFaceSprite(direction, immaterialRealm.getSpriteManager().loadSprite(file));
             }
         }
     }
@@ -155,7 +159,7 @@ public class CharacterComponentManager {
         for (Direction direction : Direction.values()) {
             File directionDirectory = new File(torsoSpritesDirectory, direction.toString().toLowerCase());
             for (File file : directionDirectory.listFiles(File::isDirectory)) {
-                addTorsoSprite(direction, Sprite.load(file));
+                addTorsoSprite(direction, immaterialRealm.getSpriteManager().loadSprite(file));
             }
         }
     }
@@ -166,7 +170,7 @@ public class CharacterComponentManager {
         for (Direction direction : Direction.values()) {
             File directionDirectory = new File(legsSpritesDirectory, direction.toString().toLowerCase());
             for (File file : directionDirectory.listFiles(File::isDirectory)) {
-                addLegsSprite(direction, Sprite.load(file));
+                addLegsSprite(direction, immaterialRealm.getSpriteManager().loadSprite(file));
             }
         }
     }
@@ -177,7 +181,7 @@ public class CharacterComponentManager {
         for (Direction direction : Direction.values()) {
             File directionDirectory = new File(feetSpritesDirectory, direction.toString().toLowerCase());
             for (File file : directionDirectory.listFiles(File::isDirectory)) {
-                addFeetSprite(direction, Sprite.load(file));
+                addFeetSprite(direction, immaterialRealm.getSpriteManager().loadSprite(file));
             }
         }
     }
@@ -204,7 +208,7 @@ public class CharacterComponentManager {
             graphics.dispose();
             frames[i] = frame;
         }
-        return new Sprite("__character_combination_" + hairId + "_" + faceId + "_" + torsoId + "_" + legsId + "_" + feetId, 25, frames);
+        return new Sprite(immaterialRealm, "__character_combination_" + hairId + "_" + faceId + "_" + torsoId + "_" + legsId + "_" + feetId, 25, frames);
     }
 
     public void addHairSprite(Direction direction, Sprite sprite) {

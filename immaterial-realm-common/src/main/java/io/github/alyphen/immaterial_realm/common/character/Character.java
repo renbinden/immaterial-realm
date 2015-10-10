@@ -6,10 +6,11 @@ import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class Character extends TableRow implements Serializable {
 
-    private long playerId;
+    private UUID playerUUID;
     private String name;
     private String gender;
     private String race;
@@ -25,17 +26,17 @@ public class Character extends TableRow implements Serializable {
     private transient Sprite walkLeftSprite;
     private transient Sprite walkRightSprite;
 
-    public Character(Player player, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
-        this(player.getId(), id, name, gender, race, description, dead, active, areaName, x, y, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite);
+    public Character(UUID uuid, Player player, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
+        this(uuid, player.getUUID(), name, gender, race, description, dead, active, areaName, x, y, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite);
     }
 
-    public Character(long playerId, long id, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
-        this(playerId, id, "Unknown", "Unknown", "Unknown", "", false, true, "default", 0, 0, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite);
+    public Character(UUID uuid, UUID playerUUID, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
+        this(uuid, playerUUID, "Unknown", "Unknown", "Unknown", "", false, true, "default", 0, 0, walkUpSprite, walkDownSprite, walkLeftSprite, walkRightSprite);
     }
 
-    public Character(long playerId, long id, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
-        super(id);
-        this.playerId = playerId;
+    public Character(UUID uuid, UUID playerUUID, String name, String gender, String race, String description, boolean dead, boolean active, String areaName, int x, int y, Sprite walkUpSprite, Sprite walkDownSprite, Sprite walkLeftSprite, Sprite walkRightSprite) {
+        super(uuid);
+        this.playerUUID = playerUUID;
         this.name = name;
         this.gender = gender;
         this.race = race;
@@ -52,15 +53,15 @@ public class Character extends TableRow implements Serializable {
     }
 
     public void setPlayer(Player player) {
-        setPlayerId(player.getId());
+        setPlayerUUID(player.getUUID());
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
-    public void setPlayerId(long playerId) {
-        this.playerId = playerId;
+    public void setPlayerUUID(UUID playerUUID) {
+        this.playerUUID = playerUUID;
     }
 
     public String getName() {

@@ -8,13 +8,14 @@ import io.github.alyphen.immaterial_realm.server.ImmaterialRealmServer;
 import io.github.alyphen.immaterial_realm.server.event.hud.HUDCreateEvent;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HUDManager {
 
     private ImmaterialRealmServer server;
 
-    private Map<Long, HUD> playerHUDs;
+    private Map<UUID, HUD> playerHUDs;
 
     public HUDManager(ImmaterialRealmServer server) {
         this.server = server;
@@ -22,13 +23,13 @@ public class HUDManager {
     }
 
     public HUD getPlayerHUD(Player player) {
-        if (!playerHUDs.containsKey(player.getId())) {
+        if (!playerHUDs.containsKey(player.getUUID())) {
             HUD hud = new HUD();
             HUDCreateEvent event = new HUDCreateEvent(hud, player);
             server.getEventManager().onEvent(event);
-            playerHUDs.put(event.getPlayer().getId(), event.getHUD());
+            playerHUDs.put(event.getPlayer().getUUID(), event.getHUD());
         }
-        return playerHUDs.get(player.getId());
+        return playerHUDs.get(player.getUUID());
     }
 
     public void setComponentVariable(Player player, String componentName, String variable, Object value) {

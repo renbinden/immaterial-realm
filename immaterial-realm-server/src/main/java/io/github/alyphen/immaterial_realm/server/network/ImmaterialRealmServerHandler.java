@@ -5,10 +5,8 @@ import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
 import io.github.alyphen.immaterial_realm.common.database.table.PlayerTable;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
-import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
 import io.github.alyphen.immaterial_realm.common.hud.HUDComponent;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectType;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.character.*;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketClientboundGlobalChatMessage;
@@ -60,7 +58,6 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
@@ -71,8 +68,11 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.github.alyphen.immaterial_realm.common.network.AttributeKeys.PLAYER;
+import static io.github.alyphen.immaterial_realm.common.network.AttributeKeys.PUBLIC_KEY;
 import static io.github.alyphen.immaterial_realm.common.world.Direction.*;
 import static io.netty.channel.ChannelHandler.Sharable;
 import static java.util.logging.Level.SEVERE;
@@ -83,8 +83,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
     private ImmaterialRealmServer server;
 
     private ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-    private static final AttributeKey<Player> PLAYER = AttributeKey.valueOf("player");
-    private static final AttributeKey<byte[]> PUBLIC_KEY = AttributeKey.valueOf("publicKey");
+
 
     public ImmaterialRealmServerHandler(ImmaterialRealmServer server) {
         this.server = server;
@@ -101,12 +100,12 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
         Player player = ctx.channel().attr(PLAYER).get();
         if (player != null) {
             Character character = server.getCharacterManager().getCharacter(player);
-            for (World world : World.getWorlds()) {
+            for (World world : server.getImmaterialRealm().getWorldManager().getWorlds()) {
                 for (WorldArea area : world.getAreas()) {
                     Set<Entity> entitiesToRemove = new HashSet<>();
                     area.getEntities().stream().filter(entity -> entity instanceof EntityCharacter).forEach(entity -> {
                         EntityCharacter characterEntity = (EntityCharacter) entity;
-                        if (characterEntity.getCharacter().getPlayerId() == player.getId()) {
+                        if (characterEntity.getCharacter().getPlayerUUID().equals(player.getUUID())) {
                             character.setArea(area);
                             character.setX(characterEntity.getX());
                             character.setY(characterEntity.getY());
@@ -122,7 +121,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                     entitiesToRemove.forEach(area::removeEntity);
                 }
             }
-            channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerLeave(player.getId())));
+            channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerLeave(player.getUUID())));
         }
     }
 
@@ -153,7 +152,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                     server.getEventManager().onEvent(event);
                     ctx.channel().attr(PLAYER).set(player);
                     ctx.writeAndFlush(new PacketLoginStatus(true));
-                    channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerJoin(player.getId(), player.getName())));
+                    channels.stream().filter(channel -> channel != ctx.channel()).forEach(channel -> channel.writeAndFlush(new PacketPlayerJoin(player.getUUID(), player.getName())));
                 } else {
                     PlayerLoginEvent event = new PlayerLoginEvent(player, packet.isSignUp(), false, "Login unsuccessful: Incorrect password");
                     server.getEventManager().onEvent(event);
@@ -167,7 +166,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketRequestPlayers) {
             ctx.writeAndFlush(new PacketSendPlayers(channels.stream().filter(channel -> channel.attr(PLAYER).get() != null).map(channel -> channel.attr(PLAYER).get()).collect(Collectors.toSet())));
         } else if (msg instanceof PacketRequestTiles) {
-            for (Tile tile : Tile.getTiles()) {
+            for (Tile tile : server.getImmaterialRealm().getTileManager().getTiles()) {
                 try {
                     ctx.writeAndFlush(new PacketSendTile(tile));
                 } catch (IOException exception) {
@@ -175,26 +174,26 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 }
             }
         } else if (msg instanceof PacketRequestObjectTypes) {
-            for (WorldObjectInitializer initializer : WorldObjectFactory.getObjectInitializers()) {
-                ctx.writeAndFlush(new PacketSendObjectType(initializer.getObjectName(), initializer.getObjectSprite(), initializer.getObjectBounds()));
+            for (WorldObjectType type : server.getImmaterialRealm().getWorldObjectTypeManager().getObjectTypes()) {
+                ctx.writeAndFlush(new PacketSendObjectType(server.getImmaterialRealm(), type.getObjectName(), type.getObjectSprite(), type.getObjectBounds()));
             }
         } else if (msg instanceof PacketRequestWorlds) {
-            for (World world : World.getWorlds()) {
+            for (World world : server.getImmaterialRealm().getWorldManager().getWorlds()) {
                 ctx.writeAndFlush(new PacketSendWorld(world.getName()));
             }
         } else if (msg instanceof PacketRequestCurrentWorldArea) {
             PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(ctx.channel().attr(PLAYER).get());
             server.getEventManager().onEvent(playerJoinEvent);
-            WorldArea area = World.getWorld("default").getArea("default");
+            WorldArea area = server.getImmaterialRealm().getWorldManager().getWorld("default").getArea("default");
             ctx.writeAndFlush(new PacketSendArea(area));
             ctx.writeAndFlush(new PacketShowArea("default"));
             area.getObjects().stream().forEach(object -> ctx.writeAndFlush(new PacketCreateObject(object.getType(), area.getWorld().getName(), area.getName(), object.getX(), object.getY())));
-            area.getEntities().stream().filter(entity -> !(entity instanceof EntityCharacter)).forEach(entity -> ctx.writeAndFlush(new PacketEntitySpawn(entity.getId(), entity.getClass(), area.getName(), entity.getX(), entity.getY())));
+            area.getEntities().stream().filter(entity -> !(entity instanceof EntityCharacter)).forEach(entity -> ctx.writeAndFlush(new PacketEntitySpawn(entity.getUUID(), entity.getClass(), area.getName(), entity.getX(), entity.getY())));
             area.getEntities().stream().filter(entity -> entity instanceof EntityCharacter).forEach(entity -> {
                 EntityCharacter entityCharacter = (EntityCharacter) entity;
                 Character character = entityCharacter.getCharacter();
                 try {
-                    ctx.writeAndFlush(new PacketCharacterSpawn(character, entity.getId()));
+                    ctx.writeAndFlush(new PacketCharacterSpawn(character, entity.getUUID()));
                 } catch (IOException exception) {
                     server.getLogger().log(SEVERE, "Failed to send character spawn packet", exception);
                 }
@@ -202,10 +201,10 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             Player player = ctx.channel().attr(PLAYER).get();
             Character character = server.getCharacterManager().getCharacter(player);
             if (character == null) {
-                character = new Character(player.getId(), -1, server.getCharacterManager().getDefaultWalkUpSprite(), server.getCharacterManager().getDefaultWalkDownSprite(), server.getCharacterManager().getDefaultWalkLeftSprite(), server.getCharacterManager().getDefaultWalkRightSprite());
+                character = new Character(UUID.randomUUID(), player.getUUID(), server.getCharacterManager().getDefaultWalkUpSprite(), server.getCharacterManager().getDefaultWalkDownSprite(), server.getCharacterManager().getDefaultWalkLeftSprite(), server.getCharacterManager().getDefaultWalkRightSprite());
                 server.getDatabaseManager().getDatabase().getTable(Character.class).insert(character);
             }
-            EntityCharacter entity = EntityFactory.spawn(EntityCharacter.class, area, character.getX(), character.getY());
+            EntityCharacter entity = server.getImmaterialRealm().getEntityFactory().spawn(EntityCharacter.class, area, character.getX(), character.getY());
             if (entity != null) {
                 CharacterSpawnEvent entitySpawnEvent = new CharacterSpawnEvent(entity, area.getWorld(), area, entity.getX(), entity.getY());
                 server.getEventManager().onEvent(entitySpawnEvent);
@@ -215,7 +214,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 }
                 entitySpawnEvent.getEntity().setCharacter(character);
                 try {
-                    channels.writeAndFlush(new PacketCharacterSpawn(entitySpawnEvent.getEntity().getCharacter(), entitySpawnEvent.getEntity().getId()));
+                    channels.writeAndFlush(new PacketCharacterSpawn(entitySpawnEvent.getEntity().getCharacter(), entitySpawnEvent.getEntity().getUUID()));
                 } catch (IOException exception) {
                     server.getLogger().log(SEVERE, "Failed to send character spawn packet", exception);
                 }
@@ -228,11 +227,11 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             PacketControlPressed packet = (PacketControlPressed) msg;
             Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
             EntityCharacter characterEntity = null;
-            worldLoop: for (World world : World.getWorlds()) {
+            worldLoop: for (World world : server.getImmaterialRealm().getWorldManager().getWorlds()) {
                 for (WorldArea area : world.getAreas()) {
                     for (Entity entity : area.getEntities()) {
                         if (entity instanceof EntityCharacter) {
-                            if (((EntityCharacter) entity).getCharacter().getId() == character.getId()) {
+                            if (((EntityCharacter) entity).getCharacter().getUUID().equals(character.getUUID())) {
                                 characterEntity = (EntityCharacter) entity;
                                 break worldLoop;
                             }
@@ -264,11 +263,11 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             PacketControlReleased packet = (PacketControlReleased) msg;
             Character character = server.getCharacterManager().getCharacter(ctx.channel().attr(PLAYER).get());
             EntityCharacter characterEntity = null;
-            worldLoop: for (World world : World.getWorlds()) {
+            worldLoop: for (World world : server.getImmaterialRealm().getWorldManager().getWorlds()) {
                 for (WorldArea area : world.getAreas()) {
                     for (Entity entity : area.getEntities()) {
                         if (entity instanceof EntityCharacter) {
-                            if (((EntityCharacter) entity).getCharacter().getId() == character.getId()) {
+                            if (((EntityCharacter) entity).getCharacter().getUUID().equals(character.getUUID())) {
                                 characterEntity = (EntityCharacter) entity;
                                 break worldLoop;
                             }
@@ -294,7 +293,7 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketServerboundLocalChatMessage) {
             PacketServerboundLocalChatMessage packet = (PacketServerboundLocalChatMessage) msg;
-            ChatChannel chatChannel = server.getChatManager().getChannel(packet.getChannel());
+            ChatChannel chatChannel = server.getImmaterialRealm().getChatChannelManager().getChatChannel(packet.getChannel());
             Player sender = ctx.channel().attr(PLAYER).get();
             Character character = server.getCharacterManager().getCharacter(sender);
             ChatEvent event = new ChatEvent(sender, character, chatChannel, packet.getMessage());
@@ -303,18 +302,18 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 channels.stream().filter(channel -> {
                     Player player = event.getPlayer();
                     EntityCharacter characterEntity = null;
-                    for (Entity entity : World.getWorld("default").getArea(event.getCharacter().getAreaName()).getEntities()) {
+                    for (Entity entity : server.getImmaterialRealm().getWorldManager().getWorld("default").getArea(event.getCharacter().getAreaName()).getEntities()) {
                         if (entity instanceof EntityCharacter) {
-                            if (((EntityCharacter) entity).getCharacter().getId() == event.getCharacter().getId()) {
+                            if (((EntityCharacter) entity).getCharacter().getUUID().equals(event.getCharacter().getUUID())) {
                                 characterEntity = (EntityCharacter) entity;
                             }
                         }
                     }
                     if (characterEntity != null) {
-                        for (Entity entity : World.getWorld("default").getArea(event.getCharacter().getAreaName()).getEntities()) {
+                        for (Entity entity : server.getImmaterialRealm().getWorldManager().getWorld("default").getArea(event.getCharacter().getAreaName()).getEntities()) {
                             if (entity instanceof EntityCharacter) {
                                 EntityCharacter otherCharacterEntity = (EntityCharacter) entity;
-                                if (otherCharacterEntity.getCharacter().getPlayerId() == player.getId() && (otherCharacterEntity.distanceSquared(characterEntity) <= chatChannel.getRadius() * chatChannel.getRadius())) {
+                                if (otherCharacterEntity.getCharacter().getPlayerUUID().equals(player.getUUID()) && (otherCharacterEntity.distanceSquared(characterEntity) <= chatChannel.getRadius() * chatChannel.getRadius())) {
                                     return true;
                                 }
                             }
@@ -324,14 +323,14 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 }).forEach(channel -> channel.writeAndFlush(new PacketClientboundLocalChatMessage(event.getCharacter(), event.getChannel().getName(), event.getMessage())));
             }
         } else if (msg instanceof PacketRequestChannels) {
-            for (ChatChannel channel : server.getChatManager().getChannels()) {
+            for (ChatChannel channel : server.getImmaterialRealm().getChatChannelManager().getChatChannels()) {
                 ctx.writeAndFlush(new PacketSendChannel(channel));
             }
-            ctx.writeAndFlush(new PacketSetChannel(server.getChatManager().getDefaultChannel().getName()));
+            ctx.writeAndFlush(new PacketSetChannel(server.getImmaterialRealm().getChatChannelManager().getDefaultChatChannel().getName()));
         } else if (msg instanceof PacketServerboundGlobalChatMessage) {
             PacketServerboundGlobalChatMessage packet = (PacketServerboundGlobalChatMessage) msg;
             Player player = ctx.channel().attr(PLAYER).get();
-            ChatEvent event = new ChatEvent(player, server.getCharacterManager().getCharacter(player), server.getChatManager().getChannel(packet.getChannel()), packet.getMessage());
+            ChatEvent event = new ChatEvent(player, server.getCharacterManager().getCharacter(player), server.getImmaterialRealm().getChatChannelManager().getChatChannel(packet.getChannel()), packet.getMessage());
             if (!event.isCancelled())
                 channels.writeAndFlush(new PacketClientboundGlobalChatMessage(event.getPlayer(), event.getChannel().getName(), event.getMessage()));
         } else if (msg instanceof PacketSaveCharacter) {
@@ -346,8 +345,8 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
                 }
                 server.getDatabaseManager().getDatabase().getTable(Character.class).insert(
                         new Character(
+                                UUID.randomUUID(),
                                 player,
-                                0,
                                 packet.getName(),
                                 packet.getGender(),
                                 packet.getRace(),
@@ -398,19 +397,19 @@ public class ImmaterialRealmServerHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketRequestCharacterSprites) {
             for (Sprite sprite : server.getCharacterComponentManager().getHairSprites(DOWN)) {
-                ctx.writeAndFlush(new PacketAddHairSprite(sprite));
+                ctx.writeAndFlush(new PacketAddHairSprite(server.getImmaterialRealm(), sprite));
             }
             for (Sprite sprite : server.getCharacterComponentManager().getFaceSprites(DOWN)) {
-                ctx.writeAndFlush(new PacketAddFaceSprite(sprite));
+                ctx.writeAndFlush(new PacketAddFaceSprite(server.getImmaterialRealm(), sprite));
             }
             for (Sprite sprite : server.getCharacterComponentManager().getTorsoSprites(DOWN)) {
-                ctx.writeAndFlush(new PacketAddTorsoSprite(sprite));
+                ctx.writeAndFlush(new PacketAddTorsoSprite(server.getImmaterialRealm(), sprite));
             }
             for (Sprite sprite : server.getCharacterComponentManager().getLegsSprites(DOWN)) {
-                ctx.writeAndFlush(new PacketAddLegsSprite(sprite));
+                ctx.writeAndFlush(new PacketAddLegsSprite(server.getImmaterialRealm(), sprite));
             }
             for (Sprite sprite : server.getCharacterComponentManager().getFeetSprites(DOWN)) {
-                ctx.writeAndFlush(new PacketAddFeetSprite(sprite));
+                ctx.writeAndFlush(new PacketAddFeetSprite(server.getImmaterialRealm(), sprite));
             }
         }
     }

@@ -5,11 +5,9 @@ import io.github.alyphen.immaterial_realm.common.character.Character;
 import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
 import io.github.alyphen.immaterial_realm.common.entity.EntityCharacter;
-import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
 import io.github.alyphen.immaterial_realm.common.hud.HUDComponent;
 import io.github.alyphen.immaterial_realm.common.object.WorldObject;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectType;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.PacketPong;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.character.*;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.chat.PacketClientboundGlobalChatMessage;
@@ -43,8 +41,6 @@ import io.github.alyphen.immaterial_realm.common.packet.serverbound.object.Packe
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.player.PacketRequestPlayers;
 import io.github.alyphen.immaterial_realm.common.packet.serverbound.tile.PacketRequestTiles;
 import io.github.alyphen.immaterial_realm.common.player.Player;
-import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
-import io.github.alyphen.immaterial_realm.common.tile.Tile;
 import io.github.alyphen.immaterial_realm.common.world.World;
 import io.github.alyphen.immaterial_realm.common.world.WorldArea;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -57,8 +53,8 @@ import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.UUID;
 
-import static io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory.registerObjectInitializer;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
@@ -94,7 +90,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketSendPlayers) {
             PacketSendPlayers packet = (PacketSendPlayers) msg;
             for (Player player : packet.getPlayers()) {
-                if (client.getPlayerManager().getPlayer(player.getId()) == null) {
+                if (client.getPlayerManager().getPlayer(player.getUUID()) == null) {
                     client.getPlayerManager().addPlayer(player);
                 }
             }
@@ -107,30 +103,30 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             ctx.writeAndFlush(new PacketRequestCharacterSprites());
             ctx.writeAndFlush(new PacketRequestHUDComponents());
         } else if (msg instanceof PacketSendTile) {
-            Tile.load((PacketSendTile) msg);
+            client.getImmaterialRealm().getTileManager().loadTile((PacketSendTile) msg);
         } else if (msg instanceof PacketSendObjectType) {
             PacketSendObjectType packet = (PacketSendObjectType) msg;
-            registerObjectInitializer(packet.getName(), new WorldObjectInitializer() {
+            client.getImmaterialRealm().getWorldObjectTypeManager().addObjectType(new WorldObjectType() {
 
                 {
                     setObjectName(packet.getName());
-                    setObjectSprite(packet.getSprite());
+                    setObjectSprite(packet.getSprite(client.getImmaterialRealm()));
                     setObjectBounds(packet.getBounds());
                 }
 
                 @Override
-                public WorldObject initialize(long id) {
-                    return new WorldObject(id, getObjectName(), getObjectSprite(), getObjectBounds());
+                public WorldObject initialize(UUID uuid) {
+                    return new WorldObject(uuid, getObjectName(), getObjectSprite(), getObjectBounds());
                 }
 
             });
         } else if (msg instanceof PacketSendWorld) {
             PacketSendWorld packet = (PacketSendWorld) msg;
-            client.getWorldPanel().setWorld(World.create(packet.getName()));
+            client.getWorldPanel().setWorld(client.getImmaterialRealm().getWorldManager().createWorld(packet.getName()));
             ctx.writeAndFlush(new PacketRequestCurrentWorldArea());
         } else if (msg instanceof PacketSendArea) {
             PacketSendArea packet = (PacketSendArea) msg;
-            client.getWorldPanel().getWorld().addArea(WorldArea.load(packet));
+            client.getWorldPanel().getWorld().addArea(client.getWorldPanel().getWorld().loadArea(packet));
             ctx.writeAndFlush(new PacketRequestObjects(packet.getWorld(), packet.getArea()));
         } else if (msg instanceof PacketShowArea) {
             PacketShowArea packet = (PacketShowArea) msg;
@@ -138,7 +134,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketCreateObject) {
             PacketCreateObject packet = (PacketCreateObject) msg;
             if (client.getWorldPanel().getWorld().getName().equals(packet.getWorld()) && client.getWorldPanel().getArea().getName().equals(packet.getArea())) {
-                WorldObject object = WorldObjectFactory.createObject(packet.getType());
+                WorldObject object = client.getImmaterialRealm().getWorldObjectTypeManager().getObjectType(packet.getType()).createObject();
                 if (object != null) {
                     object.setX(packet.getX());
                     object.setY(packet.getY());
@@ -148,7 +144,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketEntitySpawn) {
             PacketEntitySpawn packet = (PacketEntitySpawn) msg;
             if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
-                Entity entity = EntityFactory.spawn(packet, client.getWorldPanel().getWorld());
+                Entity entity = client.getImmaterialRealm().getEntityFactory().spawn(packet, client.getWorldPanel().getWorld());
                 entity.setX(packet.getX());
                 entity.setY(packet.getY());
             }
@@ -156,12 +152,12 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             PacketCharacterSpawn packet = (PacketCharacterSpawn) msg;
             if (client.getWorldPanel().getArea() != null) {
                 if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
-                    Character character = client.getCharacterManager().getCharacter(packet.getId());
+                    Character character = client.getCharacterManager().getCharacter(packet.getUUID());
                     if (character == null) {
-                        character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY(), packet.getWalkUpSprite(), packet.getWalkDownSprite(), packet.getWalkLeftSprite(), packet.getWalkRightSprite());
+                        character = new Character(packet.getUUID(), packet.getPlayerUUID(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY(), packet.getWalkUpSprite(client.getImmaterialRealm()), packet.getWalkDownSprite(client.getImmaterialRealm()), packet.getWalkLeftSprite(client.getImmaterialRealm()), packet.getWalkRightSprite(client.getImmaterialRealm()));
                         client.getCharacterManager().addCharacter(character);
                     } else {
-                        character.setPlayerId(packet.getPlayerId());
+                        character.setPlayerUUID(packet.getPlayerUUID());
                         character.setName(packet.getName());
                         character.setGender(packet.getGender());
                         character.setRace(packet.getRace());
@@ -173,14 +169,14 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                         character.setY(packet.getY());
                         client.getCharacterManager().updateCharacter(character);
                     }
-                    character.setWalkUpSprite(packet.getWalkUpSprite());
-                    character.setWalkDownSprite(packet.getWalkDownSprite());
-                    character.setWalkLeftSprite(packet.getWalkLeftSprite());
-                    character.setWalkRightSprite(packet.getWalkRightSprite());
-                    EntityCharacter entity = EntityFactory.spawn(packet.getEntityId(), EntityCharacter.class, client.getWorldPanel().getArea(), packet.getX(), packet.getY());
+                    character.setWalkUpSprite(packet.getWalkUpSprite(client.getImmaterialRealm()));
+                    character.setWalkDownSprite(packet.getWalkDownSprite(client.getImmaterialRealm()));
+                    character.setWalkLeftSprite(packet.getWalkLeftSprite(client.getImmaterialRealm()));
+                    character.setWalkRightSprite(packet.getWalkRightSprite(client.getImmaterialRealm()));
+                    EntityCharacter entity = client.getImmaterialRealm().getEntityFactory().spawn(packet.getEntityUUID(), EntityCharacter.class, client.getWorldPanel().getArea(), packet.getX(), packet.getY());
                     if (entity != null) {
                         entity.setCharacter(character);
-                        if (character.getPlayerId() == client.getPlayerManager().getPlayer(client.getPlayerName()).getId()) {
+                        if (character.getPlayerUUID().equals(client.getPlayerManager().getPlayer(client.getPlayerName()).getUUID())) {
                             client.getWorldPanel().setPlayerCharacter(entity);
                         }
                     }
@@ -189,12 +185,12 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
         } else if (msg instanceof PacketCharacterUpdate) {
             PacketCharacterUpdate packet = (PacketCharacterUpdate) msg;
             if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
-                Character character = client.getCharacterManager().getCharacter(packet.getId());
+                Character character = client.getCharacterManager().getCharacter(packet.getCharacterUUID());
                 if (character == null) {
-                    character = new Character(packet.getPlayerId(), packet.getId(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY(), packet.getWalkUpSprite(), packet.getWalkDownSprite(), packet.getWalkLeftSprite(), packet.getWalkRightSprite());
+                    character = new Character(packet.getPlayerUUID(), packet.getCharacterUUID(), packet.getName(), packet.getGender(), packet.getRace(), packet.getDescription(), packet.isDead(), packet.isActive(), packet.getAreaName(), packet.getX(), packet.getY(), packet.getWalkUpSprite(client.getImmaterialRealm()), packet.getWalkDownSprite(client.getImmaterialRealm()), packet.getWalkLeftSprite(client.getImmaterialRealm()), packet.getWalkRightSprite(client.getImmaterialRealm()));
                     client.getCharacterManager().addCharacter(character);
                 } else {
-                    character.setPlayerId(packet.getPlayerId());
+                    character.setPlayerUUID(packet.getPlayerUUID());
                     character.setName(packet.getName());
                     character.setGender(packet.getGender());
                     character.setRace(packet.getRace());
@@ -206,13 +202,13 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
                     character.setY(packet.getY());
                     client.getCharacterManager().updateCharacter(character);
                 }
-                character.setWalkUpSprite(packet.getWalkUpSprite());
-                character.setWalkDownSprite(packet.getWalkDownSprite());
-                character.setWalkLeftSprite(packet.getWalkLeftSprite());
-                character.setWalkRightSprite(packet.getWalkRightSprite());
+                character.setWalkUpSprite(packet.getWalkUpSprite(client.getImmaterialRealm()));
+                character.setWalkDownSprite(packet.getWalkDownSprite(client.getImmaterialRealm()));
+                character.setWalkLeftSprite(packet.getWalkLeftSprite(client.getImmaterialRealm()));
+                character.setWalkRightSprite(packet.getWalkRightSprite(client.getImmaterialRealm()));
                 for (Entity entity : client.getWorldPanel().getArea().getEntities()) {
                     if (entity instanceof EntityCharacter) {
-                        if (((EntityCharacter) entity).getCharacter().getId() == character.getId()) {
+                        if (((EntityCharacter) entity).getCharacter().getUUID().equals(character.getUUID())) {
                             ((EntityCharacter) entity).setCharacter(character);
                             break;
                         }
@@ -224,7 +220,7 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             if (packet.getAreaName().equals(client.getWorldPanel().getArea().getName())) {
                 Entity entity = null;
                 for (Entity entity1 : client.getWorldPanel().getArea().getEntities()) {
-                    if (packet.getEntityId() == entity1.getId()) {
+                    if (packet.getEntityUUID().equals(entity1.getUUID())) {
                         entity = entity1;
                         break;
                     }
@@ -239,13 +235,13 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketEntityDespawn) {
             PacketEntityDespawn packet = (PacketEntityDespawn) msg;
-            long entityId = packet.getEntityId();
-            for (World world : World.getWorlds()) {
+            UUID entityUUID = packet.getEntityUUID();
+            for (World world : client.getImmaterialRealm().getWorldManager().getWorlds()) {
                 for (WorldArea area : world.getAreas()) {
                     Iterator<Entity> entityIterator = area.getEntities().iterator();
                     while (entityIterator.hasNext()) {
                         Entity entity = entityIterator.next();
-                        if (entity.getId() == entityId) {
+                        if (entity.getUUID().equals(entityUUID)) {
                             entityIterator.remove();
                         }
                     }
@@ -253,47 +249,47 @@ public class ImmaterialRealmClientHandler extends ChannelHandlerAdapter {
             }
         } else if (msg instanceof PacketSendChannel) {
             PacketSendChannel packet = (PacketSendChannel) msg;
-            client.getChatManager().addChannel(new ChatChannel(packet.getName(), packet.getColour(), packet.getRadius()));
+            client.getImmaterialRealm().getChatChannelManager().addChatChannel(new ChatChannel(packet.getName(), packet.getColour(), packet.getRadius()));
         } else if (msg instanceof PacketClientboundLocalChatMessage) {
             PacketClientboundLocalChatMessage packet = (PacketClientboundLocalChatMessage) msg;
-            client.getWorldPanel().getArea().getEntities().stream().filter(entity -> (entity instanceof EntityCharacter && ((EntityCharacter) entity).getCharacter().getId() == packet.getCharacterId())).forEach(entity -> {
+            client.getWorldPanel().getArea().getEntities().stream().filter(entity -> (entity instanceof EntityCharacter && ((EntityCharacter) entity).getCharacter().getUUID() == packet.getCharacterUUID())).forEach(entity -> {
                 EntityCharacter character = (EntityCharacter) entity;
                 character.setLastChatMessage(packet.getMessage());
             });
         } else if (msg instanceof PacketSetChannel) {
             PacketSetChannel packet = (PacketSetChannel) msg;
-            client.getChatManager().setChannel(client.getChatManager().getChannel(packet.getChannel()));
+            client.getChatManager().setChannel(client.getImmaterialRealm().getChatChannelManager().getChatChannel(packet.getChannel()));
         } else if (msg instanceof PacketClientboundGlobalChatMessage) {
             PacketClientboundGlobalChatMessage packet = (PacketClientboundGlobalChatMessage) msg;
-            client.getWorldPanel().getChatBox().onGlobalMessage(packet.getPlayerId(), packet.getChannel(), packet.getMessage());
+            client.getWorldPanel().getChatBox().onGlobalMessage(packet.getPlayerUUID(), packet.getChannel(), packet.getMessage());
         } else if (msg instanceof PacketPlayerJoin) {
             PacketPlayerJoin packet = (PacketPlayerJoin) msg;
-            if (client.getPlayerManager().getPlayer(packet.getPlayerId()) == null) {
-                client.getPlayerManager().addPlayer(new Player(packet.getPlayerId(), packet.getPlayerName()));
+            if (client.getPlayerManager().getPlayer(packet.getPlayerUUID()) == null) {
+                client.getPlayerManager().addPlayer(new Player(packet.getPlayerUUID(), packet.getPlayerName()));
             } else {
-                client.getPlayerManager().updatePlayer(new Player(packet.getPlayerId(), packet.getPlayerName()));
+                client.getPlayerManager().updatePlayer(new Player(packet.getPlayerUUID(), packet.getPlayerName()));
             }
         } else if (msg instanceof PacketPlayerLeave) {
             PacketPlayerLeave packet = (PacketPlayerLeave) msg;
             client.getWorldPanel().getArea().getEntities().stream().filter(entity -> entity instanceof EntityCharacter).forEach(entity -> {
                 EntityCharacter characterEntity  = (EntityCharacter) entity;
-                if (characterEntity.getCharacter().getPlayerId() == packet.getPlayerId()) {
+                if (characterEntity.getCharacter().getPlayerUUID().equals(packet.getPlayerUUID())) {
                     client.getWorldPanel().getArea().removeEntity(characterEntity);
                 }
             });
         } else if (msg instanceof PacketAddSprite) {
             PacketAddSprite packet = (PacketAddSprite) msg;
-            Sprite.addSprite(packet.getSprite());
+            client.getImmaterialRealm().getSpriteManager().addSprite(packet.getSprite(client.getImmaterialRealm()));
             if (msg instanceof PacketAddFaceSprite) {
-                client.getCharacterCreationPanel().addFaceSprite(packet.getSprite());
+                client.getCharacterCreationPanel().addFaceSprite(packet.getSprite(client.getImmaterialRealm()));
             } else if (msg instanceof PacketAddFeetSprite) {
-                client.getCharacterCreationPanel().addFeetSprite(packet.getSprite());
+                client.getCharacterCreationPanel().addFeetSprite(packet.getSprite(client.getImmaterialRealm()));
             } else if (msg instanceof PacketAddHairSprite) {
-                client.getCharacterCreationPanel().addHairSprite(packet.getSprite());
+                client.getCharacterCreationPanel().addHairSprite(packet.getSprite(client.getImmaterialRealm()));
             } else if (msg instanceof PacketAddLegsSprite) {
-                client.getCharacterCreationPanel().addLegsSprite(packet.getSprite());
+                client.getCharacterCreationPanel().addLegsSprite(packet.getSprite(client.getImmaterialRealm()));
             } else if (msg instanceof PacketAddTorsoSprite) {
-                client.getCharacterCreationPanel().addTorsoSprite(packet.getSprite());
+                client.getCharacterCreationPanel().addTorsoSprite(packet.getSprite(client.getImmaterialRealm()));
             }
         } else if (msg instanceof PacketSendGenders) {
             PacketSendGenders packet = (PacketSendGenders) msg;

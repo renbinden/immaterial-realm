@@ -1,10 +1,9 @@
-package io.github.alyphen.immaterial_realm.server.chat;
+package io.github.alyphen.immaterial_realm.common.chat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
-import io.github.alyphen.immaterial_realm.server.ImmaterialRealmServer;
+import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
 
 import java.awt.*;
 import java.io.*;
@@ -15,36 +14,68 @@ import java.util.Scanner;
 
 import static java.util.logging.Level.SEVERE;
 
-public class ChatManager {
+public class ChatChannelManager {
 
-    private ImmaterialRealmServer server;
+    private ImmaterialRealm immaterialRealm;
 
-    private Map<String, ChatChannel> channels;
-    private ChatChannel defaultChannel;
+    private Map<String, ChatChannel> chatChannels;
+    private ChatChannel defaultChatChannel;
 
-    public ChatManager(ImmaterialRealmServer server) {
-        this.server = server;
-        channels = new HashMap<>();
-        loadChannels();
-    }
-    
-    public ChatChannel getChannel(String name) {
-        return channels.get(name);
-    }
-    
-    public void addChannel(ChatChannel channel) {
-        channels.put(channel.getName(), channel);
+    public ChatChannelManager(ImmaterialRealm immaterialRealm) {
+        this.immaterialRealm = immaterialRealm;
+        chatChannels = new HashMap<>();
     }
 
-    public Collection<ChatChannel> getChannels() {
-        return channels.values();
+    public void loadChatChannels() throws FileNotFoundException {
+        File configDir = new File("./config");
+        if (configDir.exists()) {
+            File chatConfigFile = new File(configDir, "chat.json");
+            if (chatConfigFile.exists()) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                StringBuilder jsonBuilder = new StringBuilder();
+                Scanner scanner = new Scanner(new FileInputStream(chatConfigFile));
+                while (scanner.hasNextLine()) {
+                    jsonBuilder.append(scanner.nextLine()).append('\n');
+                }
+                Map<String, Object> chatConfig = gson.fromJson(jsonBuilder.toString(), new TypeToken<Map<String, Object>>(){}.getType());
+                Map<String, Object> channels = (Map<String, Object>) chatConfig.get("channels");
+                for (Map.Entry<String, Object> entry : channels.entrySet()) {
+                    Map<String, Object> channelConfig = (Map<String, Object>) entry.getValue();
+                    Map<String, Object> channelColour = (Map<String, Object>) channelConfig.get("colour");
+                    ChatChannel channel = new ChatChannel(
+                            entry.getKey(),
+                            new Color(
+                                    (int) ((double) channelColour.get("red")),
+                                    (int) ((double) channelColour.get("green")),
+                                    (int) ((double) channelColour.get("blue")),
+                                    (int) ((double) channelColour.get("alpha"))
+                            ),
+                            (int) ((double) channelConfig.get("radius"))
+                    );
+                    addChatChannel(channel);
+                }
+                defaultChatChannel = chatChannels.get((String) chatConfig.get("default-channel"));
+            }
+        }
     }
 
-    public ChatChannel getDefaultChannel() {
-        return defaultChannel;
+    public ChatChannel getDefaultChatChannel() {
+        return defaultChatChannel;
     }
 
-    private void saveDefaultChannels() {
+    public ChatChannel getChatChannel(String name) {
+        return chatChannels.get(name);
+    }
+
+    public Collection<ChatChannel> getChatChannels() {
+        return chatChannels.values();
+    }
+
+    public void addChatChannel(ChatChannel chatChannel) {
+        chatChannels.put(chatChannel.getName(), chatChannel);
+    }
+
+    public void saveDefaultChatChannels() {
         File configDir = new File("./config");
         if (!configDir.exists()) configDir.mkdirs();
         File defaultChatConfigFile = new File(configDir, "chat.json");
@@ -103,57 +134,19 @@ public class ChatManager {
             try (FileWriter writer = new FileWriter(defaultChatConfigFile)) {
                 writer.write(json);
             } catch (IOException exception) {
-                server.getLogger().log(SEVERE, "Failed to save default chat channels", exception);
-            }
-        }
-    }
-    
-    public void loadChannels() {
-        saveDefaultChannels();
-        File configDir = new File("./config");
-        if (configDir.exists()) {
-            File chatConfigFile = new File(configDir, "chat.json");
-            if (chatConfigFile.exists()) {
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                StringBuilder jsonBuilder = new StringBuilder();
-                try {
-                    Scanner scanner = new Scanner(new FileInputStream(chatConfigFile));
-                    while (scanner.hasNextLine()) {
-                        jsonBuilder.append(scanner.nextLine()).append('\n');
-                    }
-                } catch (FileNotFoundException exception) {
-                    server.getLogger().log(SEVERE, "Failed to load chat channels", exception);
-                }
-                Map<String, Object> chatConfig = gson.fromJson(jsonBuilder.toString(), new TypeToken<Map<String, Object>>(){}.getType());
-                Map<String, Object> channels = (Map<String, Object>) chatConfig.get("channels");
-                for (Map.Entry<String, Object> entry : channels.entrySet()) {
-                    Map<String, Object> channelConfig = (Map<String, Object>) entry.getValue();
-                    Map<String, Object> channelColour = (Map<String, Object>) channelConfig.get("colour");
-                    ChatChannel channel = new ChatChannel(
-                            entry.getKey(),
-                            new Color(
-                                    (int) ((double) channelColour.get("red")),
-                                    (int) ((double) channelColour.get("green")),
-                                    (int) ((double) channelColour.get("blue")),
-                                    (int) ((double) channelColour.get("alpha"))
-                            ),
-                            (int) ((double) channelConfig.get("radius"))
-                    );
-                    addChannel(channel);
-                }
-                defaultChannel = this.channels.get(chatConfig.get("default-channel"));
+                immaterialRealm.getLogger().log(SEVERE, "Failed to save default chat channels", exception);
             }
         }
     }
 
-    private void saveChannels() {
+    public void saveChatChannels() {
         File configDir = new File("./config");
         if (!configDir.exists()) configDir.mkdirs();
         File chatConfigFile = new File(configDir, "chat.json");
         if (!chatConfigFile.exists()) {
             Map<String, Object> chatConfig = new HashMap<>();
             Map<String, Object> channelsConfig = new HashMap<>();
-            for (ChatChannel channel : getChannels()) {
+            for (ChatChannel channel : getChatChannels()) {
                 Map<String, Object> channelConfig = new HashMap<>();
                 channelConfig.put("radius", channel.getRadius());
                 Map<String, Object> channelColour = new HashMap<>();
@@ -165,13 +158,13 @@ public class ChatManager {
                 channelsConfig.put(channel.getName(), channelConfig);
             }
             chatConfig.put("channels", channelsConfig);
-            chatConfig.put("default-channel", getDefaultChannel().getName());
+            chatConfig.put("default-channel", getDefaultChatChannel().getName());
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(chatConfig);
             try (FileWriter writer = new FileWriter(chatConfigFile)) {
                 writer.write(json);
             } catch (IOException exception) {
-                server.getLogger().log(SEVERE, "Failed to save chat channels", exception);
+                immaterialRealm.getLogger().log(SEVERE, "Failed to save chat channels", exception);
             }
         }
     }

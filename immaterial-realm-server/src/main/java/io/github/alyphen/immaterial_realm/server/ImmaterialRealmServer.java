@@ -1,20 +1,19 @@
 package io.github.alyphen.immaterial_realm.server;
 
 import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
+import io.github.alyphen.immaterial_realm.common.chat.ChatChannelManager;
 import io.github.alyphen.immaterial_realm.common.encrypt.EncryptionManager;
 import io.github.alyphen.immaterial_realm.common.entity.Entity;
+import io.github.alyphen.immaterial_realm.common.entity.EntityFactory;
 import io.github.alyphen.immaterial_realm.common.log.FileWriterHandler;
-import io.github.alyphen.immaterial_realm.common.object.WorldObject;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectFactory;
-import io.github.alyphen.immaterial_realm.common.object.WorldObjectInitializer;
+import io.github.alyphen.immaterial_realm.common.object.WorldObjectTypeManager;
 import io.github.alyphen.immaterial_realm.common.packet.clientbound.entity.PacketEntityMove;
-import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
-import io.github.alyphen.immaterial_realm.common.tile.Tile;
-import io.github.alyphen.immaterial_realm.common.world.World;
+import io.github.alyphen.immaterial_realm.common.sprite.SpriteManager;
+import io.github.alyphen.immaterial_realm.common.tile.TileManager;
+import io.github.alyphen.immaterial_realm.common.world.WorldManager;
 import io.github.alyphen.immaterial_realm.server.admin.tpsmonitor.TPSMonitorFrame;
 import io.github.alyphen.immaterial_realm.server.character.CharacterComponentManager;
 import io.github.alyphen.immaterial_realm.server.character.CharacterManager;
-import io.github.alyphen.immaterial_realm.server.chat.ChatManager;
 import io.github.alyphen.immaterial_realm.server.database.DatabaseManager;
 import io.github.alyphen.immaterial_realm.server.event.EventManager;
 import io.github.alyphen.immaterial_realm.server.event.entity.EntityMoveEvent;
@@ -22,19 +21,17 @@ import io.github.alyphen.immaterial_realm.server.hud.HUDManager;
 import io.github.alyphen.immaterial_realm.server.network.NetworkManager;
 import io.github.alyphen.immaterial_realm.server.plugin.PluginManager;
 
-import javax.script.*;
+import javax.script.ScriptEngineManager;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Logger;
 
 import static io.github.alyphen.immaterial_realm.common.util.FileUtils.loadMetadata;
-import static io.github.alyphen.immaterial_realm.common.util.FileUtils.read;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Paths.get;
 import static java.util.logging.Level.SEVERE;
@@ -43,39 +40,93 @@ public class ImmaterialRealmServer {
 
     private CharacterComponentManager characterComponentManager;
     private CharacterManager characterManager;
-    private ChatManager chatManager;
+    private ChatChannelManager chatChannelManager;
     private DatabaseManager databaseManager;
     private EncryptionManager encryptionManager;
+    private EntityFactory entityFactory;
     private EventManager eventManager;
     private HUDManager hudManager;
     private NetworkManager networkManager;
     private PluginManager pluginManager;
     private ScriptEngineManager scriptEngineManager;
+    private SpriteManager spriteManager;
+    private TileManager tileManager;
+    private WorldObjectTypeManager worldObjectTypeManager;
+    private WorldManager worldManager;
     private Map<String, Object> configuration;
     private Logger logger;
     private boolean running;
-    private static final long DELAY = 25L;
     private int tps;
     private Deque<Integer> previousTPSValues;
     private TPSMonitorFrame tpsMonitorFrame;
+    private ImmaterialRealm immaterialRealm;
 
     public static void main(String[] args) {
         new ImmaterialRealmServer(39752);
     }
 
     public ImmaterialRealmServer(int port) {
+        immaterialRealm = new ImmaterialRealm();
         logger = Logger.getLogger(getClass().getName());
-        logger.addHandler(new FileWriterHandler());
-        ImmaterialRealm.getInstance().setLogger(logger);
+        logger.addHandler(new FileWriterHandler(getImmaterialRealm()));
+        immaterialRealm.setLogger(logger);
         scriptEngineManager = new ScriptEngineManager();
+        immaterialRealm.setScriptEngineManager(scriptEngineManager);
         try {
-            databaseManager = new DatabaseManager();
+            databaseManager = new DatabaseManager(getImmaterialRealm());
         } catch (SQLException exception) {
             logger.log(SEVERE, "Failed to connect to database", exception);
         }
+        tileManager = new TileManager();
+        try {
+            tileManager.loadTiles();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to load tiles", exception);
+        }
+        immaterialRealm.setTileManager(tileManager);
+        spriteManager = new SpriteManager(immaterialRealm);
+        try {
+            spriteManager.loadSprites();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to load sprites", exception);
+        }
+        immaterialRealm.setSpriteManager(spriteManager);
         characterComponentManager = new CharacterComponentManager(this);
         characterManager = new CharacterManager(this);
-        chatManager = new ChatManager(this);
+        entityFactory = new EntityFactory(immaterialRealm);
+        immaterialRealm.setEntityFactory(entityFactory);
+        chatChannelManager = new ChatChannelManager(immaterialRealm);
+        chatChannelManager.saveDefaultChatChannels();
+        try {
+            chatChannelManager.loadChatChannels();
+        } catch (FileNotFoundException exception) {
+            getLogger().log(SEVERE, "Failed to load chat channels", exception);
+        }
+        immaterialRealm.setChatChannelManager(chatChannelManager);
+        worldObjectTypeManager = new WorldObjectTypeManager(immaterialRealm);
+        try {
+            worldObjectTypeManager.saveDefaultObjectTypes();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to save default object types", exception);
+        }
+        try {
+            worldObjectTypeManager.loadObjectTypes();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to load object types", exception);
+        }
+        immaterialRealm.setWorldObjectTypeManager(worldObjectTypeManager);
+        worldManager = new WorldManager(immaterialRealm);
+        try {
+            worldManager.saveDefaultWorlds();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to save default worlds", exception);
+        }
+        try {
+            worldManager.loadWorlds();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to load worlds", exception);
+        }
+        immaterialRealm.setWorldManager(worldManager);
         encryptionManager = new EncryptionManager();
         networkManager = new NetworkManager(this, port);
         hudManager = new HUDManager(this);
@@ -88,161 +139,14 @@ public class ImmaterialRealmServer {
         }
         loadConfiguration();
         try {
-            Tile.loadTiles();
+            immaterialRealm.getTileManager().loadTiles();
         } catch (IOException exception) {
             getLogger().log(SEVERE, "Failed to load tiles", exception);
         }
-        File objectsDirectory = new File("./objects");
-        for (File objectDirectory : objectsDirectory.listFiles(File::isDirectory)) {
-            try {
-                File propertiesFile = new File(objectDirectory, "object.json");
-                Map<String, Object> properties = loadMetadata(propertiesFile);
-                WorldObjectFactory.registerObjectInitializer((String) properties.get("name"), new WorldObjectInitializer() {
-
-                    private CompiledScript script;
-
-                    {
-                        setObjectName((String) properties.get("name"));
-                        String spriteName = (String) properties.get("sprite");
-                        setObjectSprite(spriteName.equals("none") ? null : Sprite.getSprite(spriteName));
-                        setObjectBounds(new Rectangle((int) ((double) properties.get("bounds_offset_x")), (int) ((double) properties.get("bounds_offset_y")), (int) ((double) properties.get("bounds_width")), (int) ((double) properties.get("bounds_height"))));
-                        File jsFile = new File(objectDirectory, "object.js");
-                        File rbFile = new File(objectDirectory, "object.rb");
-                        File pyFile = new File(objectDirectory, "object.py");
-                        if (jsFile.exists()) {
-                            try {
-                                ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
-                                script = ((Compilable) engine).compile(read(jsFile));
-                                script.eval();
-                            } catch (ScriptException | FileNotFoundException exception) {
-                                getLogger().log(SEVERE, "Failed to compile script", exception);
-                            }
-                        } else if (rbFile.exists()) {
-                            try {
-                                ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
-                                script = ((Compilable) engine).compile(read(rbFile));
-                                script.eval();
-                            } catch (ScriptException | FileNotFoundException exception) {
-                                getLogger().log(SEVERE, "Failed to compile script", exception);
-                            }
-                        } else if (pyFile.exists()) {
-                            try {
-                                ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
-                                script = ((Compilable) engine).compile(read(pyFile));
-                                script.eval();
-                            } catch (ScriptException | FileNotFoundException exception) {
-                                getLogger().log(SEVERE, "Failed to compile script", exception);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public WorldObject initialize(long id) {
-                        return new WorldObject(id, getObjectName(), getObjectSprite(), getObjectBounds()) {
-
-                            {
-                                File jsFile = new File(objectDirectory, "object.js");
-                                File rbFile = new File(objectDirectory, "object.rb");
-                                File pyFile = new File(objectDirectory, "object.py");
-                                if (jsFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
-                                        ((Invocable) engine).invokeFunction("create");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object creation function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                } else if (rbFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
-                                        ((Invocable) engine).invokeFunction("create");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object creation function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                } else if (pyFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
-                                        ((Invocable) engine).invokeFunction("create");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object creation function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                }
-                            }
-
-                            @Override
-                            public void onInteract() {
-                                File jsFile = new File(objectDirectory, "object.js");
-                                File rbFile = new File(objectDirectory, "object.rb");
-                                File pyFile = new File(objectDirectory, "object.py");
-                                if (jsFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
-                                        ((Invocable) engine).invokeFunction("interact");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object interaction function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                } else if (rbFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
-                                        ((Invocable) engine).invokeFunction("interact");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object interaction function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                } else if (pyFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
-                                        ((Invocable) engine).invokeFunction("interact");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object interaction function");
-                                    } catch (NoSuchMethodException ignored) {}
-                                }
-                            }
-
-                            @Override
-                            public void onTick() {
-                                super.onTick();
-                                File jsFile = new File(objectDirectory, "object.js");
-                                File rbFile = new File(objectDirectory, "object.rb");
-                                File pyFile = new File(objectDirectory, "object.py");
-                                if (jsFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("js");
-                                        ((Invocable) engine).invokeFunction("tick");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object tick function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                } else if (rbFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("rb");
-                                        ((Invocable) engine).invokeFunction("tick");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object tick function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                } else if (pyFile.exists()) {
-                                    try {
-                                        ScriptEngine engine = getScriptEngineManager().getEngineByExtension("py");
-                                        ((Invocable) engine).invokeFunction("tick");
-                                    } catch (ScriptException exception) {
-                                        getLogger().log(SEVERE, "Failed to invoke object tick function", exception);
-                                    } catch (NoSuchMethodException ignored) {}
-                                }
-                            }
-
-                        };
-                    }
-
-                });
-            } catch (IOException exception) {
-                getLogger().log(SEVERE, "Failed to load object metadata", exception);
-            }
-
-        }
-        File worldDirectory = new File("./worlds");
-        for (File file : worldDirectory.listFiles(File::isDirectory)) {
-            try {
-                World.load(file);
-            } catch (IOException | ClassNotFoundException exception) {
-                getLogger().log(SEVERE, "Failed to load world", exception);
-            }
+        try {
+            immaterialRealm.getWorldObjectTypeManager().loadObjectTypes();
+        } catch (IOException exception) {
+            getLogger().log(SEVERE, "Failed to load world object types", exception);
         }
         new Thread(networkManager::start).start();
         setupAdminTools();
@@ -266,10 +170,6 @@ public class ImmaterialRealmServer {
 
     public CharacterManager getCharacterManager() {
         return characterManager;
-    }
-
-    public ChatManager getChatManager() {
-        return chatManager;
     }
 
     public DatabaseManager getDatabaseManager() {
@@ -302,13 +202,10 @@ public class ImmaterialRealmServer {
 
     private void saveDefaults() throws IOException {
         saveDefaultConfiguration();
-        saveDefaultTiles();
-        saveDefaultObjectTypes();
-        try {
-            saveDefaultWorlds();
-        } catch (URISyntaxException exception) {
-            getLogger().log(SEVERE, "Failed to save default worlds", exception);
-        }
+        getImmaterialRealm().getTileManager().saveDefaultTiles();
+        getImmaterialRealm().getWorldObjectTypeManager().saveDefaultObjectTypes();
+        getImmaterialRealm().getWorldManager().saveDefaultWorlds();
+        getImmaterialRealm().getChatChannelManager().saveDefaultChatChannels();
     }
 
     private void saveDefaultConfiguration() throws IOException {
@@ -344,54 +241,6 @@ public class ImmaterialRealmServer {
         return configuration;
     }
 
-    private void saveDefaultTiles() throws IOException {
-        File tilesDirectory = new File("./tiles");
-        String[] defaultTiles = new String[] {
-                "grass1",
-                "grass2",
-                "grass3",
-                "grass4",
-                "water"
-        };
-        for (String tileName : defaultTiles) {
-            File tileDirectory = new File(tilesDirectory, tileName);
-            if (!tileDirectory.isDirectory()) {
-                tileDirectory.delete();
-            }
-            if (!tileDirectory.exists()) {
-                tileDirectory.mkdirs();
-                copy(getClass().getResourceAsStream("/tiles/" + tileName + "/tile.png"), get(new File(tileDirectory, "tile.png").getPath()));
-                copy(getClass().getResourceAsStream("/tiles/" + tileName + "/tile.json"), get(new File(tileDirectory, "tile.json").getPath()));
-            }
-        }
-    }
-
-    private void saveDefaultObjectTypes() throws IOException {
-        File objectsDirectory = new File("./objects");
-        if (!objectsDirectory.isDirectory()) {
-            objectsDirectory.delete();
-        }
-        if (!objectsDirectory.exists()) {
-            objectsDirectory.mkdirs();
-        }
-    }
-
-    private void saveDefaultWorlds() throws IOException, URISyntaxException {
-        File worldDirectory = new File("./worlds");
-        File defaultWorldDirectory = new File(worldDirectory, "default");
-        if (!worldDirectory.isDirectory()) {
-            worldDirectory.delete();
-        }
-        if (!worldDirectory.exists()) {
-            defaultWorldDirectory.mkdirs();
-            copy(getClass().getResourceAsStream("/worlds/default/world.json"), get(new File(defaultWorldDirectory, "world.json").getPath()));
-            File defaultWorldAreasDirectory = new File(defaultWorldDirectory, "areas");
-            File defaultWorldDefaultAreaDirectory = new File(defaultWorldAreasDirectory, "default");
-            defaultWorldDefaultAreaDirectory.mkdirs();
-            copy(getClass().getResourceAsStream("/worlds/default/areas/default/area.json"), get(new File(defaultWorldDefaultAreaDirectory, "area.json").getPath()));
-        }
-    }
-
     public void run() {
         setRunning(true);
         long beforeTime, timeDiff, sleep;
@@ -399,7 +248,8 @@ public class ImmaterialRealmServer {
         while (isRunning()) {
             doTick();
             timeDiff = System.currentTimeMillis() - beforeTime;
-            sleep = DELAY - timeDiff;
+            long tickDelay = 25L;
+            sleep = tickDelay - timeDiff;
             if (sleep < 0) {
                 sleep = 2;
             }
@@ -424,7 +274,7 @@ public class ImmaterialRealmServer {
     }
 
     public void doTick() {
-        World.getWorlds().stream().forEach(world -> {
+        getImmaterialRealm().getWorldManager().getWorlds().stream().forEach(world -> {
             world.getAreas().stream().forEach(area -> {
                 Set<Entity> entitiesToRemove = new HashSet<>();
                 area.getEntities().stream().forEach(entity -> {
@@ -451,7 +301,7 @@ public class ImmaterialRealmServer {
                 entitiesToRemove.forEach(area::removeEntity);
             });
             world.onTick();
-            world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(entity -> entity.isSpeedChanged() || entity.isMovementCancelled() || entity.isForceUpdate()).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getId(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
+            world.getAreas().stream().forEach(area -> area.getEntities().stream().filter(entity -> entity.isSpeedChanged() || entity.isMovementCancelled() || entity.isForceUpdate()).forEach(entity -> getNetworkManager().broadcastPacket(new PacketEntityMove(entity.getUUID(), entity.getDirectionFacing(), area.getName(), entity.getX(), entity.getY(), entity.getHorizontalSpeed(), entity.getVerticalSpeed()))));
         });
         if (tpsMonitorFrame != null) {
             tpsMonitorFrame.repaint();
@@ -468,5 +318,9 @@ public class ImmaterialRealmServer {
 
     public Deque<Integer> getPreviousTPSValues() {
         return previousTPSValues;
+    }
+
+    public ImmaterialRealm getImmaterialRealm() {
+        return immaterialRealm;
     }
 }

@@ -3,25 +3,26 @@ package io.github.alyphen.immaterial_realm.common.object;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.awt.*;
+import java.util.UUID;
 
 public class WorldObject {
 
-    private long id;
+    private UUID uuid;
     private String type;
     private int x;
     private int y;
     private Sprite sprite;
     private Rectangle bounds;
 
-    public WorldObject(long id, String type, Sprite sprite, Rectangle bounds) {
-        this.id = id;
+    public WorldObject(UUID uuid, String type, Sprite sprite, Rectangle bounds) {
+        this.uuid = uuid;
         this.type = type;
         this.sprite = sprite;
         this.bounds = bounds;
     }
 
-    public long getId() {
-        return id;
+    public UUID getUUID() {
+        return uuid;
     }
 
     public String getType() {

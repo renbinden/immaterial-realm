@@ -2,41 +2,37 @@ package io.github.alyphen.immaterial_realm.common.sprite;
 
 import io.github.alyphen.immaterial_realm.common.database.TableRow;
 
+import java.util.UUID;
+
 public class SpriteFrame extends TableRow {
 
-    private long id;
-    private long spriteId;
-    private long frameId;
+    private UUID spriteUUID;
+    private UUID frameUUID;
 
-    public SpriteFrame(long id, Sprite sprite, IndexedImage image) {
-        this(sprite, image);
-        this.id = id;
+    public SpriteFrame(UUID uuid, Sprite sprite, IndexedImage image) {
+        this(uuid, sprite.getUUID(), image.getUUID());
     }
 
     public SpriteFrame(Sprite sprite, IndexedImage image) {
-        this(sprite.getId(), image.getId());
+        this(UUID.randomUUID(), sprite, image);
     }
 
-    public SpriteFrame(long id, long spriteId, long imageId) {
-        super(id);
-        this.spriteId = spriteId;
-        this.frameId = imageId;
+    public SpriteFrame(UUID uuid, UUID spriteUUID, UUID imageUUID) {
+        super(uuid);
+        this.spriteUUID = spriteUUID;
+        this.frameUUID = imageUUID;
     }
 
-    public SpriteFrame(long spriteId, long imageId) {
-        this(0, spriteId, imageId);
+    public SpriteFrame(UUID spriteUUID, UUID frameUUID) {
+        this(UUID.randomUUID(), spriteUUID, frameUUID);
     }
 
-    public long getId() {
-        return id;
+    public UUID getSpriteUUID() {
+        return spriteUUID;
     }
 
-    public long getSpriteId() {
-        return spriteId;
-    }
-
-    public long getFrameId() {
-        return frameId;
+    public UUID getFrameUUID() {
+        return frameUUID;
     }
 
 }

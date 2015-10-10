@@ -4,12 +4,13 @@ import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 import io.github.alyphen.immaterial_realm.common.world.Direction;
 
 import java.awt.*;
+import java.util.UUID;
 
 import static io.github.alyphen.immaterial_realm.common.world.Direction.DOWN;
 
 public abstract class Entity {
 
-    private long id;
+    private UUID uuid;
     private int x;
     private int y;
     private int dx;
@@ -21,13 +22,13 @@ public abstract class Entity {
     private boolean forceUpdate;
     private Direction directionFacing;
 
-    public Entity(long id) {
-        this.id = id;
+    public Entity(UUID uuid) {
+        this.uuid = uuid;
         directionFacing = DOWN;
     }
 
-    public long getId() {
-        return id;
+    public UUID getUUID() {
+        return uuid;
     }
 
     public Direction getDirectionFacing() {

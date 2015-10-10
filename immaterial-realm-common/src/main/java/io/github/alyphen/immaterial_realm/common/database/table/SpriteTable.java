@@ -1,7 +1,6 @@
 package io.github.alyphen.immaterial_realm.common.database.table;
 
 import io.github.alyphen.immaterial_realm.common.ImmaterialRealm;
-import io.github.alyphen.immaterial_realm.common.database.Database;
 import io.github.alyphen.immaterial_realm.common.database.Table;
 import io.github.alyphen.immaterial_realm.common.sprite.IndexedImage;
 import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
@@ -16,104 +15,97 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.util.logging.Level.SEVERE;
 
 public class SpriteTable extends Table<Sprite> {
 
-    public SpriteTable(Database database) throws SQLException {
-        super(database, Sprite.class);
+    public SpriteTable(ImmaterialRealm immaterialRealm) throws SQLException {
+        super(immaterialRealm, Sprite.class);
     }
 
     @Override
     public void create() {
-        Connection connection = getDatabase().getConnection();
+        Connection connection = getImmaterialRealm().getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS sprite (" +
-                        "id INTEGER PRIMARY KEY," +
+                        "uuid VARCHAR(36) PRIMARY KEY," +
                         "name TEXT," +
                         "frame_delay INTEGER" +
                 ")"
         )) {
             statement.executeUpdate();
         } catch (SQLException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to create sprite table", exception);
+            getImmaterialRealm().getLogger().log(SEVERE, "Failed to create sprite table", exception);
         }
     }
 
     @Override
-    public long insert(Sprite sprite) throws SQLException {
-        Connection connection = getDatabase().getConnection();
+    public void insert(Sprite sprite) throws SQLException {
+        Connection connection = getImmaterialRealm().getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO sprite (name, frame_delay) VALUES(?, ?)",
-                RETURN_GENERATED_KEYS
+                "INSERT INTO sprite (uuid, name, frame_delay) VALUES(?, ?, ?)"
         )) {
-            statement.setString(1, sprite.getName());
-            statement.setInt(2, sprite.getFrameDelay());
-            if (statement.executeUpdate() == 0) throw new SQLException("Failed to insert sprite");
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                long id = generatedKeys.getLong(1);
-                sprite.setId(id);
-                for (BufferedImage image : sprite.getFrames()) {
-                    IndexedImage indexedImage = new IndexedImage(image);
-                    getDatabase().getTable(IndexedImage.class).insert(indexedImage);
-                    getDatabase().getTable(SpriteFrame.class).insert(new SpriteFrame(id, indexedImage.getId()));
-                }
-                return id;
+            statement.setString(1, sprite.getUUID().toString());
+            statement.setString(2, sprite.getName());
+            statement.setInt(3, sprite.getFrameDelay());
+            if (statement.executeUpdate() == 0)
+                throw new SQLException("Failed to insert sprite");
+            for (BufferedImage image : sprite.getFrames()) {
+                IndexedImage indexedImage = new IndexedImage(image);
+                getImmaterialRealm().getDatabase().getTable(IndexedImage.class).insert(indexedImage);
+                getImmaterialRealm().getDatabase().getTable(SpriteFrame.class).insert(new SpriteFrame(sprite.getUUID(), indexedImage.getUUID()));
             }
         }
-        throw new SQLException("Failed to insert sprite");
     }
 
     @Override
-    public long update(Sprite sprite) throws SQLException {
-        Connection connection = getDatabase().getConnection();
+    public void update(Sprite sprite) throws SQLException {
+        Connection connection = getImmaterialRealm().getDatabase().getConnection();
         try (PreparedStatement statement = connection.prepareStatement(
-                "UPDATE sprite SET name = ?, frame_delay = ? WHERE id = ?"
+                "UPDATE sprite SET name = ?, frame_delay = ? WHERE uuid = ?"
         )) {
             statement.setString(1, sprite.getName());
             statement.setInt(2, sprite.getFrameDelay());
-            statement.setLong(3, sprite.getId());
+            statement.setString(3, sprite.getUUID().toString());
             statement.executeUpdate();
-            return sprite.getId();
         }
     }
 
     @Override
-    public Sprite get(long id) throws SQLException {
-        Connection connection = getDatabase().getConnection();
+    public Sprite get(UUID uuid) throws SQLException {
+        Connection connection = getImmaterialRealm().getDatabase().getConnection();
         try (PreparedStatement frameStatement = connection.prepareStatement(
-                "SELECT image.id AS image_id, image.image AS frame, sprite.id AS sprite_id, sprite.name AS sprite_name, sprite.frame_delay AS sprite_frame_delay " +
+                "SELECT image.uuid AS image_uuid, image.image AS frame, sprite.uuid AS sprite_uuid, sprite.name AS sprite_name, sprite.frame_delay AS sprite_frame_delay " +
                     "FROM sprite INNER JOIN sprite_frame INNER JOIN image " +
-                    "ON sprite.id = sprite_frame.sprite_id " +
-                    "AND sprite_frame.image_id = image.id " +
-                    "WHERE sprite.id = ?"
+                    "ON sprite.uuid = sprite_frame.sprite_uuid " +
+                    "AND sprite_frame.image_uuid = image.uuid " +
+                    "WHERE sprite.uuid = ?"
         );
         PreparedStatement spriteStatement = connection.prepareStatement(
-                "SELECT * FROM sprite WHERE id = ?"
+                "SELECT * FROM sprite WHERE uuid = ?"
         )) {
-            frameStatement.setLong(1, id);
+            frameStatement.setString(1, uuid.toString());
             ResultSet frameResultSet = frameStatement.executeQuery();
             List<IndexedImage> indexedFrames = new ArrayList<>();
             while (frameResultSet.next()) {
                 try {
-                    indexedFrames.add(new IndexedImage(frameResultSet.getLong("image_id"), ImageUtils.fromByteArray(frameResultSet.getBytes("frame"))));
+                    indexedFrames.add(new IndexedImage(UUID.fromString(frameResultSet.getString("image_uuid")), ImageUtils.fromByteArray(frameResultSet.getBytes("frame"))));
                 } catch (IOException exception) {
                     // Hopefully this won't break too much.
                     // If we get a lot of reports of errors here, try moving the catch block outside the loop or adding declaration of error to the method.
-                    ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to retrieve sprite frames", exception);
+                    getImmaterialRealm().getLogger().log(SEVERE, "Failed to retrieve sprite frames", exception);
                 }
             }
             BufferedImage[] frames = new BufferedImage[indexedFrames.size()];
             for (int i = 0; i < indexedFrames.size(); i++) {
                 frames[i] = indexedFrames.get(i).getImage();
             }
-            spriteStatement.setLong(1, id);
+            spriteStatement.setString(1, uuid.toString());
             ResultSet spriteResultSet = spriteStatement.executeQuery();
             if (spriteResultSet.next()) {
-                return new Sprite(spriteResultSet.getLong("id"), spriteResultSet.getString("name"), spriteResultSet.getInt("frame_delay"), frames);
+                return new Sprite(getImmaterialRealm(), UUID.fromString(spriteResultSet.getString("uuid")), spriteResultSet.getString("name"), spriteResultSet.getInt("frame_delay"), frames);
             } else {
                 return null;
             }

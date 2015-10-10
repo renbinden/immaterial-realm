@@ -5,17 +5,16 @@ import io.github.alyphen.immaterial_realm.common.sprite.Sprite;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
+import java.util.UUID;
 
 public class EntityCharacter extends Entity {
-
-    private static final long CHAT_MESSAGE_EXPIRY = 5000L;
 
     private Character character;
     private String lastChatMessage;
     private long lastChatMessageTime;
 
-    public EntityCharacter(long id) {
-        super(id);
+    public EntityCharacter(UUID uuid) {
+        super(uuid);
     }
 
     @Override
@@ -32,7 +31,8 @@ public class EntityCharacter extends Entity {
     public void paint(Graphics graphics) {
         Sprite sprite = getSprite();
         if (sprite != null) sprite.paint(graphics);
-        if (getLastChatMessage() != null && lastChatMessageTime + CHAT_MESSAGE_EXPIRY > System.currentTimeMillis()) {
+        long chatMessageExpiry = 5000L;
+        if (getLastChatMessage() != null && lastChatMessageTime + chatMessageExpiry > System.currentTimeMillis()) {
             graphics.setColor(new Color(64, 64, 64, 128));
             int lastMessageWidth = graphics.getFontMetrics().stringWidth(getLastChatMessage());
             int width = (int) getBounds().getWidth();

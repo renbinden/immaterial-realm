@@ -9,10 +9,9 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.awt.Color.WHITE;
 import static java.awt.event.KeyEvent.*;
@@ -23,7 +22,6 @@ public class ChatBox implements KeyListener {
     private ImmaterialRealmClient client;
 
     private JPanel panel;
-    private static final int HEIGHT = 48;
     private String text;
     private boolean active;
     private boolean blink;
@@ -39,24 +37,25 @@ public class ChatBox implements KeyListener {
 
     public void paint(Graphics graphics) {
         graphics.setColor(new Color(64, 64, 64, 128));
-        graphics.fillRoundRect(16, panel.getHeight() - HEIGHT, panel.getWidth() - 32, HEIGHT + 16, 16, 16);
+        int chatBoxHeight = 48;
+        graphics.fillRoundRect(16, panel.getHeight() - chatBoxHeight, panel.getWidth() - 32, chatBoxHeight + 16, 16, 16);
         if (isActive()) {
             graphics.setColor(WHITE);
-            graphics.drawRoundRect(24, panel.getHeight() - HEIGHT + 8, 64, graphics.getFontMetrics().getHeight() + 8, 4, 4);
+            graphics.drawRoundRect(24, panel.getHeight() - chatBoxHeight + 8, 64, graphics.getFontMetrics().getHeight() + 8, 4, 4);
             graphics.setColor(client.getChatManager().getChannel().getColour());
-            graphics.drawString(client.getChatManager().getChannel().getName(), 28, panel.getHeight() - HEIGHT + 12 + graphics.getFontMetrics().getHeight());
+            graphics.drawString(client.getChatManager().getChannel().getName(), 28, panel.getHeight() - chatBoxHeight + 12 + graphics.getFontMetrics().getHeight());
             graphics.setColor(WHITE);
-            graphics.drawRect(108, panel.getHeight() - HEIGHT + 8, panel.getWidth() - 136, graphics.getFontMetrics().getHeight() + 8);
-            graphics.drawString(getText() + (blink ? "|" : ""), 112, panel.getHeight() - HEIGHT + 12 + graphics.getFontMetrics().getHeight());
+            graphics.drawRect(108, panel.getHeight() - chatBoxHeight + 8, panel.getWidth() - 136, graphics.getFontMetrics().getHeight() + 8);
+            graphics.drawString(getText() + (blink ? "|" : ""), 112, panel.getHeight() - chatBoxHeight + 12 + graphics.getFontMetrics().getHeight());
             ChatChannel channel = client.getChatManager().getChannel();
             if (channel.getRadius() < 0) {
                 graphics.setColor(new Color(64, 64, 64, 128));
-                graphics.fillRoundRect(16, -16, panel.getWidth() - 32, panel.getHeight() - (HEIGHT + 16), 16, 16);
+                graphics.fillRoundRect(16, -16, panel.getWidth() - 32, panel.getHeight() - (chatBoxHeight + 16), 16, 16);
                 graphics.setColor(WHITE);
                 if (globalMessages.containsKey(channel)) {
                     List<String> messages = globalMessages.get(channel);
                     for (int i = messages.size() - 1; i >= 0; i--) {
-                        graphics.drawString(messages.get(i), 24, panel.getHeight() - (HEIGHT + 24 + (graphics.getFontMetrics().getHeight() * (messages.size() - i))));
+                        graphics.drawString(messages.get(i), 24, panel.getHeight() - (chatBoxHeight + 24 + (graphics.getFontMetrics().getHeight() * (messages.size() - i))));
                     }
                 }
             }
@@ -124,27 +123,31 @@ public class ChatBox implements KeyListener {
             if (event.getKeyCode() == VK_DOWN) {
                 ChatManager chatManager = client.getChatManager();
                 if (chatManager.getChannel() == null) return;
-                int channelIndex = chatManager.listChannels().indexOf(chatManager.getChannel());
-                if (channelIndex < chatManager.listChannels().size() - 1)
-                    chatManager.setChannel(chatManager.listChannels().get(channelIndex + 1));
+                List<ChatChannel> chatChannelList = client.getImmaterialRealm().getChatChannelManager().getChatChannels().stream().collect(Collectors.toList());
+                chatChannelList.sort(ChatChannel::compareTo);
+                int channelIndex = chatChannelList.indexOf(chatManager.getChannel());
+                if (channelIndex < chatChannelList.size() - 1)
+                    chatManager.setChannel(chatChannelList.get(channelIndex + 1));
                 else
-                    chatManager.setChannel(chatManager.listChannels().get(0));
+                    chatManager.setChannel(chatChannelList.get(0));
             } else if (event.getKeyCode() == VK_UP) {
                 ChatManager chatManager = client.getChatManager();
                 if (chatManager.getChannel() == null) return;
-                int channelIndex = chatManager.listChannels().indexOf(chatManager.getChannel());
+                List<ChatChannel> chatChannelList = client.getImmaterialRealm().getChatChannelManager().getChatChannels().stream().collect(Collectors.toList());
+                chatChannelList.sort(ChatChannel::compareTo);
+                int channelIndex = chatChannelList.indexOf(chatManager.getChannel());
                 if (channelIndex > 0)
-                    chatManager.setChannel(chatManager.listChannels().get(channelIndex - 1));
+                    chatManager.setChannel(chatChannelList.get(channelIndex - 1));
                 else
-                    chatManager.setChannel(chatManager.listChannels().get(chatManager.listChannels().size() - 1));
+                    chatManager.setChannel(chatChannelList.get(chatChannelList.size() - 1));
             }
         }
     }
 
-    public void onGlobalMessage(long playerId, String channelName, String message) {
+    public void onGlobalMessage(UUID playerUUID, String channelName, String message) {
         try {
-            Player player = client.getPlayerManager().getPlayer(playerId);
-            ChatChannel channel = client.getChatManager().getChannel(channelName);
+            Player player = client.getPlayerManager().getPlayer(playerUUID);
+            ChatChannel channel = client.getImmaterialRealm().getChatChannelManager().getChatChannel(channelName);
             if (!globalMessages.containsKey(channel))
                 globalMessages.put(channel, new ArrayList<>());
             globalMessages.get(channel).add(player.getName() + ": " + message);

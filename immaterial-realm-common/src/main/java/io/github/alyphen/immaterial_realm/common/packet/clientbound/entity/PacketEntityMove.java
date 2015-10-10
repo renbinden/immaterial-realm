@@ -3,9 +3,11 @@ package io.github.alyphen.immaterial_realm.common.packet.clientbound.entity;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.world.Direction;
 
+import java.util.UUID;
+
 public class PacketEntityMove extends Packet {
 
-    private long entityId;
+    private UUID entityUUID;
     private String directionFacing;
     private String areaName;
     private int x;
@@ -13,8 +15,8 @@ public class PacketEntityMove extends Packet {
     private int dx;
     private int dy;
 
-    public PacketEntityMove(long entityId, Direction directionFacing, String areaName, int x, int y, int dx, int dy) {
-        this.entityId = entityId;
+    public PacketEntityMove(UUID entityUUID, Direction directionFacing, String areaName, int x, int y, int dx, int dy) {
+        this.entityUUID = entityUUID;
         this.directionFacing = directionFacing.name();
         this.areaName = areaName;
         this.x = x;
@@ -23,8 +25,8 @@ public class PacketEntityMove extends Packet {
         this.dy = dy;
     }
 
-    public long getEntityId() {
-        return entityId;
+    public UUID getEntityUUID() {
+        return entityUUID;
     }
 
     public Direction getDirectionFacing() {

@@ -37,7 +37,7 @@ public class MenuBox {
                         for (Entity entity : client.getWorldPanel().getArea().getEntities()) {
                             if (entity instanceof EntityCharacter) {
                                 try {
-                                    if (((EntityCharacter) entity).getCharacter().getPlayerId() == client.getPlayerManager().getPlayerId(client.getPlayerName())) {
+                                    if (((EntityCharacter) entity).getCharacter().getPlayerUUID().equals(client.getPlayerManager().getPlayerUUID(client.getPlayerName()))) {
                                         client.getCharacterCreationPanel().updateFields(((EntityCharacter) entity).getCharacter());
                                         break;
                                     }

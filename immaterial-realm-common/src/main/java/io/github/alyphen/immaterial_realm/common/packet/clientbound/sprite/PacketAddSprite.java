@@ -14,12 +14,12 @@ public class PacketAddSprite extends Packet {
     private byte[][] sprite;
     private int frameDelay;
 
-    public PacketAddSprite(Sprite sprite) {
+    public PacketAddSprite(ImmaterialRealm immaterialRealm, Sprite sprite) {
         this.name = sprite.getName();
         try {
             this.sprite = sprite.toByteArray();
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to encode sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to encode sprite", exception);
         }
         this.frameDelay = sprite.getFrameDelay();
     }
@@ -28,11 +28,11 @@ public class PacketAddSprite extends Packet {
         return name;
     }
 
-    public Sprite getSprite() {
+    public Sprite getSprite(ImmaterialRealm immaterialRealm) {
         try {
-            return Sprite.fromByteArray(name, sprite, frameDelay);
+            return immaterialRealm.getSpriteManager().createSprite(name, sprite, frameDelay);
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to decode sprite", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to decode sprite", exception);
         }
         return null;
     }

@@ -1,23 +1,24 @@
 package io.github.alyphen.immaterial_realm.common.packet.clientbound.chat;
 
-import io.github.alyphen.immaterial_realm.common.chat.ChatChannel;
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 import io.github.alyphen.immaterial_realm.common.player.Player;
 
+import java.util.UUID;
+
 public class PacketClientboundGlobalChatMessage extends Packet {
 
-    private long playerId;
+    private UUID playerUUID;
     private String channel;
     private String message;
 
     public PacketClientboundGlobalChatMessage(Player player, String channel, String message) {
-        this.playerId = player.getId();
+        this.playerUUID = player.getUUID();
         this.channel = channel;
         this.message = message;
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
     public String getChannel() {

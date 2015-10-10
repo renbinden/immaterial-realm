@@ -1,6 +1,5 @@
 package io.github.alyphen.immaterial_realm.common.tile;
 
-import io.github.alyphen.immaterial_realm.common.packet.clientbound.tile.PacketSendTile;
 import io.github.alyphen.immaterial_realm.common.util.FileUtils;
 
 import javax.imageio.ImageIO;
@@ -10,52 +9,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 
 public class Tile {
-
-    private static Map<String, Tile> tiles;
-
-    static {
-        tiles = new HashMap<>();
-    }
-
-    public static void loadTiles() throws IOException {
-        File tilesDirectory =new File("./tiles");
-        if (tilesDirectory.isDirectory()) {
-            File[] tileDirectories = tilesDirectory.listFiles(File::isDirectory);
-            if (tileDirectories != null) {
-                for (File tileDirectory : tileDirectories) {
-                    load(tileDirectory);
-                }
-            }
-        }
-    }
-
-    public static void load(File directory) throws IOException {
-        tiles.put(directory.getName(), new Tile(directory));
-    }
-
-    public static void load(PacketSendTile packet) throws IOException {
-        tiles.put(packet.getTileName(),
-                new Tile(
-                        packet.getTileName(), packet.getTileWidth(), packet.getTileHeight(), packet.getTileFrames(),
-                        packet.getTileFrameDuration()
-                )
-        );
-    }
-
-    public static Tile getTile(String name) {
-        return tiles.get(name);
-    }
-
-    public static Collection<Tile> getTiles() {
-        return tiles.values();
-    }
 
     private BufferedImage[] frames;
     private int frameIndex;

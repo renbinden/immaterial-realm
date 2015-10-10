@@ -1,19 +1,21 @@
 package io.github.alyphen.immaterial_realm.common.database;
 
+import java.util.UUID;
+
 public class TableRow {
 
-    private long id;
+    private UUID uuid;
 
-    public TableRow(long id) {
-        this.id = id;
+    public TableRow(UUID uuid) {
+        this.uuid = uuid;
     }
 
-    public long getId() {
-        return id;
+    public UUID getUUID() {
+        return uuid;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
     }
 
 }

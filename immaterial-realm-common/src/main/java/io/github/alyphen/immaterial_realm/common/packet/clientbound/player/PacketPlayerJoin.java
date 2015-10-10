@@ -2,18 +2,20 @@ package io.github.alyphen.immaterial_realm.common.packet.clientbound.player;
 
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 
+import java.util.UUID;
+
 public class PacketPlayerJoin extends Packet {
 
-    private long playerId;
+    private UUID playerUUID;
     private String playerName;
 
-    public PacketPlayerJoin(long playerId, String playerName) {
-        this.playerId = playerId;
+    public PacketPlayerJoin(UUID playerUUID, String playerName) {
+        this.playerUUID = playerUUID;
         this.playerName = playerName;
     }
 
-    public long getPlayerId() {
-        return playerId;
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
     public String getPlayerName() {

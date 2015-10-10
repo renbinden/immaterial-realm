@@ -7,11 +7,17 @@ public class ChatChannel implements Comparable<ChatChannel> {
     private String name;
     private Color colour;
     private int radius;
+    private boolean defaultChannel;
 
-    public ChatChannel(String name, Color colour, int radius) {
+    public ChatChannel(String name, Color colour, int radius, boolean defaultChannel) {
         this.name = name;
         this.colour = colour;
         this.radius = radius;
+        this.defaultChannel = defaultChannel;
+    }
+
+    public ChatChannel(String name, Color colour, int radius) {
+        this(name, colour, radius, false);
     }
 
     public String getName() {
@@ -24,6 +30,14 @@ public class ChatChannel implements Comparable<ChatChannel> {
 
     public int getRadius() {
         return radius;
+    }
+
+    public boolean isDefaultChannel() {
+        return defaultChannel;
+    }
+
+    public void setDefaultChannel(boolean defaultChannel) {
+        this.defaultChannel = defaultChannel;
     }
 
     @Override

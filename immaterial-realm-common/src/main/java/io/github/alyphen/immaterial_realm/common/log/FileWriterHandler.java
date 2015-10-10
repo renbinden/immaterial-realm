@@ -18,10 +18,16 @@ import static java.util.logging.Level.SEVERE;
 
 public class FileWriterHandler extends Handler {
 
+    private ImmaterialRealm immaterialRealm;
+
     private FileWriter writer;
     private Date lastLogDate;
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+    public FileWriterHandler(ImmaterialRealm immaterialRealm) {
+        this.immaterialRealm = immaterialRealm;
+    }
 
     @Override
     public void publish(LogRecord record) {
@@ -36,15 +42,22 @@ public class FileWriterHandler extends Handler {
         }
         if (lastLogDate == null || now.get(DAY_OF_YEAR) == lastLogCalendar.get(DAY_OF_YEAR) && now.get(YEAR) == lastLogCalendar.get(YEAR)) {
             try {
-                writer = new FileWriter(new File("./logs/" + dateFormat.format(new Date()) + ".log"));
+                File logsDirectory = new File("./logs");
+                if (logsDirectory.exists() && !logsDirectory.isDirectory()) {
+                    logsDirectory.delete();
+                }
+                if (!logsDirectory.exists()) {
+                    logsDirectory.mkdirs();
+                }
+                writer = new FileWriter(new File(logsDirectory, dateFormat.format(new Date()) + ".log"));
             } catch (IOException exception) {
-                ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to open log file for writing", exception);
+                immaterialRealm.getLogger().log(SEVERE, "Failed to open log file for writing", exception);
             }
         }
         try {
             writer.write("[" + timeFormat.format(new Date(record.getMillis())) + "] (" + record.getLevel() + ") " + record.getMessage());
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to write line to log file", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to write line to log file", exception);
         }
         lastLogDate = new Date(record.getMillis());
         flush();
@@ -55,7 +68,7 @@ public class FileWriterHandler extends Handler {
         if (writer != null) try {
             writer.flush();
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to flush file writer", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to flush file writer", exception);
         }
     }
 
@@ -64,7 +77,7 @@ public class FileWriterHandler extends Handler {
         try {
             writer.close();
         } catch (IOException exception) {
-            ImmaterialRealm.getInstance().getLogger().log(SEVERE, "Failed to close file writer", exception);
+            immaterialRealm.getLogger().log(SEVERE, "Failed to close file writer", exception);
         }
     }
 

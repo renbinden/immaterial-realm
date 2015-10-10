@@ -2,16 +2,18 @@ package io.github.alyphen.immaterial_realm.common.packet.clientbound.entity;
 
 import io.github.alyphen.immaterial_realm.common.packet.Packet;
 
+import java.util.UUID;
+
 public class PacketEntityDespawn extends Packet {
 
-    private long entityId;
+    private UUID entityUUID;
 
-    public PacketEntityDespawn(long entityId) {
-        this.entityId = entityId;
+    public PacketEntityDespawn(UUID entityUUID) {
+        this.entityUUID = entityUUID;
     }
 
-    public long getEntityId() {
-        return entityId;
+    public UUID getEntityUUID() {
+        return entityUUID;
     }
 
 }

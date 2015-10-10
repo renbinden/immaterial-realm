@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.UUID;
 
 import static java.nio.file.Files.copy;
 import static java.nio.file.Paths.get;
@@ -74,7 +75,7 @@ public class CharacterManager {
         File walkUpSpriteFile = new File("./characters/default/walk_up");
         if (walkUpSpriteFile.exists()) {
             try {
-                defaultWalkUpSprite = Sprite.load(walkUpSpriteFile);
+                defaultWalkUpSprite = server.getImmaterialRealm().getSpriteManager().loadSprite(walkUpSpriteFile);
             } catch (IOException exception) {
                 server.getLogger().log(SEVERE, "Failed to load default walk up sprite", exception);
             }
@@ -82,7 +83,7 @@ public class CharacterManager {
         File walkDownSpriteFile = new File("./characters/default/walk_down");
         if (walkDownSpriteFile.exists()) {
             try {
-                defaultWalkDownSprite = Sprite.load(walkDownSpriteFile);
+                defaultWalkDownSprite = server.getImmaterialRealm().getSpriteManager().loadSprite(walkDownSpriteFile);
             } catch (IOException exception) {
                 server.getLogger().log(SEVERE, "Failed to load default walk down sprite", exception);
             }
@@ -90,7 +91,7 @@ public class CharacterManager {
         File walkLeftSpriteFile = new File("./characters/default/walk_left");
         if (walkLeftSpriteFile.exists()) {
             try {
-                defaultWalkLeftSprite = Sprite.load(walkLeftSpriteFile);
+                defaultWalkLeftSprite = server.getImmaterialRealm().getSpriteManager().loadSprite(walkLeftSpriteFile);
             } catch (IOException exception) {
                 server.getLogger().log(SEVERE, "Failed to load default walk left sprite", exception);
             }
@@ -98,15 +99,15 @@ public class CharacterManager {
         File walkRightSpriteFile = new File("./characters/default/walk_right");
         if (walkRightSpriteFile.exists()) {
             try {
-                defaultWalkRightSprite = Sprite.load(walkRightSpriteFile);
+                defaultWalkRightSprite = server.getImmaterialRealm().getSpriteManager().loadSprite(walkRightSpriteFile);
             } catch (IOException exception) {
                 server.getLogger().log(SEVERE, "Failed to load default walk right sprite", exception);
             }
         }
     }
 
-    public Character getCharacter(long id) throws SQLException {
-        return server.getDatabaseManager().getDatabase().getTable(Character.class).get(id);
+    public Character getCharacter(UUID uuid) throws SQLException {
+        return server.getDatabaseManager().getDatabase().getTable(Character.class).get(uuid);
     }
 
     public Character getCharacter(Player player) throws SQLException {
